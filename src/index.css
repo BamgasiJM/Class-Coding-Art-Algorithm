@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Gothic+A1:wght@100;300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=IBM+Plex+Sans+KR:wght@300;400&display=swap');
 
 :root {
   --bg:      #080810;
   --fg:      #f0ece0;
-  --accent:  #ff4d1c;
+  --accent:  #1cffca;
   --muted:   rgba(240,236,224,0.35);
   --card-bg: rgba(240,236,224,0.04);
   --border:  rgba(240,236,224,0.1);

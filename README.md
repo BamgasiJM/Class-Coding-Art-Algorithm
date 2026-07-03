@@ -13,7 +13,7 @@ React 19 + Vite 7 기반으로 구축되었으며, R3F(React Three Fiber)와 GSA
 | UI 프레임워크 | React 18 (JSX) |
 | 3D 파티클 배경 | React Three Fiber + Three.js |
 | 애니메이션 | GSAP 3 (ScrollTrigger) |
-| 폰트 | Bebas Neue, DM Mono, Gothic A1 (Google Fonts) |
+| 폰트 | Bebas Neue, DM Mono, IBM Plex Sans KR (Google Fonts) |
 
 ---
 

@@ -189,14 +189,14 @@ export default function HeroSection() {
           <p
             ref={tagRef}
             style={{
-              fontFamily: "'Gothic A1', sans-serif",
-              fontSize: "clamp(0.8rem, 1vw, 1.4rem)",
+              fontFamily: "'IBM Plex Sans KR', sans-serif",
+              fontSize: "clamp(1.0rem, 2vw, 2.4rem)",
               letterSpacing: "0.4em",
               color: "var(--accent)",
               marginBottom: "1.2rem",
             }}
           >
-            알고리즘을 곁들인 코딩 아트
+            알고리즘과 함께 하는 코딩 아트
           </p>
 
           {/* 구분선 */}

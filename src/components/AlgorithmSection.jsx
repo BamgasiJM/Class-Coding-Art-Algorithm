@@ -229,9 +229,9 @@ function Card({ algo, index }) {
         {algo.name}
       </h3>
 
-      {/* 설명 — Gothic A1 폰트, flex:1로 남은 공간 차지 */}
+      {/* 설명 — IBM Plex Sans KR 폰트, flex:1로 남은 공간 차지 */}
       <p style={{
-        fontFamily: "'Gothic A1', sans-serif",
+        fontFamily: "'IBM Plex Sans KR', sans-serif",
         fontWeight: 300,
         fontSize: '0.82rem',
         lineHeight: 1.8,
@@ -248,7 +248,7 @@ function Card({ algo, index }) {
           <span key={t} style={{
             fontSize: '0.6rem', letterSpacing: '0.12em',
             padding: '0.2rem 0.55rem',
-            border: '1px solid rgba(255,77,28,0.3)',
+            border: '1px solid rgba(var(--accent-rgb), 0.3)',
             color: 'var(--accent)',
             textTransform: 'uppercase',
           }}>
