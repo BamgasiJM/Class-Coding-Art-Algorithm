@@ -4,7 +4,7 @@
   --bg:      #080810;
   --fg:      #f0ece0;
   --accent:  #1cffca;
-  --muted:   rgba(240,236,224,0.35);
+  --muted:   rgba(240,236,224,0.55);
   --card-bg: rgba(240,236,224,0.04);
   --border:  rgba(240,236,224,0.1);
 }
@@ -13,6 +13,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  user-select: none;
 }
 
 html {

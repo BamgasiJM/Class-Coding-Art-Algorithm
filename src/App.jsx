@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
-import HeroSection        from './components/HeroSection'
-import IntroductionSection from './components/IntroductionSection'
-import AlgorithmSection    from './components/AlgorithmSection'
+import { Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import AlgorithmDetailPage from './pages/AlgorithmDetailPage'
+import CustomCursor from './components/CustomCursor'
 
 function hslToRgb(h, s, l) {
   s /= 100
@@ -20,9 +21,9 @@ function hslToRgb(h, s, l) {
 
 export default function App() {
   useEffect(() => {
-    // 랜덤 hue로 accent 컬러 생성 (채도 100%, 명도 55% 고정)
+    // 랜덤 hue로 accent 컬러 생성 (채도 100%, 명도 65% 고정)
     const randomHue = Math.floor(Math.random() * 360)
-    const [r, g, b] = hslToRgb(randomHue, 100, 55)
+    const [r, g, b] = hslToRgb(randomHue, 100, 65)
 
     document.documentElement.style.setProperty('--accent', `rgb(${r}, ${g}, ${b})`)
     document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`)
@@ -30,10 +31,12 @@ export default function App() {
   }, [])
 
   return (
-    <main>
-      <HeroSection />
-      <IntroductionSection />
-      <AlgorithmSection />
-    </main>
+    <>
+      <CustomCursor />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/algorithm/:slug" element={<AlgorithmDetailPage />} />
+      </Routes>
+    </>
   )
 }

@@ -31,20 +31,8 @@ export default function HeroSection() {
   const titleRef = useRef();
   const dividerRef = useRef();
   const scrollRef = useRef();
-  const cursorRef = useRef();
 
   useEffect(() => {
-    // 커스텀 커서
-    const onMove = (e) => {
-      gsap.to(cursorRef.current, {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.15,
-        ease: "power2.out",
-      });
-    };
-    window.addEventListener("mousemove", onMove);
-
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay: 0.2 });
 
@@ -109,7 +97,7 @@ export default function HeroSection() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "40% top",
+          end: "80% top",
           scrub: true,
         },
         y: -60,
@@ -119,14 +107,11 @@ export default function HeroSection() {
 
     return () => {
       ctx.revert();
-      window.removeEventListener("mousemove", onMove);
     };
   }, []);
 
   return (
     <>
-      <div ref={cursorRef} className="cursor" />
-
       <section
         ref={sectionRef}
         style={{
@@ -190,7 +175,8 @@ export default function HeroSection() {
             ref={tagRef}
             style={{
               fontFamily: "'IBM Plex Sans KR', sans-serif",
-              fontSize: "clamp(1.0rem, 2vw, 2.4rem)",
+              fontWeight: 400,
+              fontSize: "clamp(0.8rem, 2vw, 2.0rem)",
               letterSpacing: "0.4em",
               color: "var(--accent)",
               marginBottom: "1.2rem",

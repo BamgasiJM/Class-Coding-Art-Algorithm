@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 
-const COUNT = 5000
+const COUNT = 7000
 
 // 모듈 최상단에서 한 번만 초기화
 // useMemo 내부의 Math.random() 호출은 ESLint react-hooks 규칙 위반으로 경고가 발생하므로
@@ -68,7 +68,7 @@ export default function ParticleBackground() {
         size={0.028}
         color="#ff4d1c"
         transparent
-        opacity={0.45}
+        opacity={0.65}
         sizeAttenuation
       />
     </points>

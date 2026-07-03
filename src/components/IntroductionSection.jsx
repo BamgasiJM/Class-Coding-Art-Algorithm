@@ -5,26 +5,26 @@ const KEYWORDS = [
   {
     title: 'Algorithm',
     subtitle: '알고리즘',
-    description:
-      'The brush that paints with logic. Algorithms are the foundation of creative expression in code, transforming abstract mathematical concepts into visual poetry. 논리로 그리는 붓입니다. 추상적인 수학 개념을 시각적 시(詩)로 변환하는 창의적 표현의 기초입니다.',
+    description_en: 'The brush that paints with logic. Algorithms are the foundation of creative expression in code, transforming abstract mathematical concepts into visual poetry.',
+    description_ko: '논리로 그리는 붓입니다. 추상적인 수학 개념을 시각적 시(詩)로 변환하는 창의적 표현의 기초입니다.',
   },
   {
     title: 'Data',
     subtitle: '데이터',
-    description:
-      'The pigment that flows through algorithms. Data is the raw material of digital creation — every number, every value carries the potential to become art. 알고리즘을 흐르는 물감입니다. 모든 숫자와 값이 예술로 변할 수 있는 디지털 창작의 원재료입니다.',
+    description_en: 'The pigment that flows through algorithms. Data is the raw material of digital creation — every number, every value carries the potential to become art.',
+    description_ko: '알고리즘을 흐르는 물감입니다. 모든 숫자와 값이 예술로 변할 수 있는 디지털 창작의 원재료입니다.',
   },
   {
     title: 'Canvas',
     subtitle: '캔버스',
-    description:
-      'The space where the mind unfolds. Our inner imagination becomes tangible through visual representation, where thoughts crystallize into form and color. 마음이 펼쳐지는 공간입니다. 우리의 내적 상상력이 시각적 표현을 통해 구체화되고, 생각이 형태와 색상으로 결정화됩니다.',
+    description_en: 'The space where the mind unfolds. Our inner imagination becomes tangible through visual representation, where thoughts crystallize into form and color.',
+    description_ko: '마음이 펼쳐지는 공간입니다. 우리의 내적 상상력이 시각적 표현을 통해 구체화되고, 생각이 형태와 색상으로 결정화됩니다.',
   },
   {
     title: 'Expression',
     subtitle: '표현',
-    description:
-      'The purpose that drives creation. When algorithm, data, and canvas converge, they become a vehicle for authentic expression — a way to communicate what words alone cannot. 창작을 이끄는 목적입니다. 알고리즘, 데이터, 캔버스가 만날 때, 말로는 표현할 수 없는 것을 전달하는 수단이 됩니다.',
+    description_en: 'The purpose that drives creation. When algorithm, data, and canvas converge, they become a vehicle for authentic expression — a way to communicate what words alone cannot.',
+    description_ko: '창작을 이끄는 목적입니다. 알고리즘, 데이터, 캔버스가 만날 때, 말로는 표현할 수 없는 것을 전달하는 수단이 됩니다.',
   },
 ]
 
@@ -65,7 +65,7 @@ function Keyword({ item, index }) {
       <h3
         style={{
           fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+          fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
           fontWeight: 400,
           letterSpacing: '0.05em',
           color: 'var(--accent)',
@@ -77,10 +77,10 @@ function Keyword({ item, index }) {
       <p
         style={{
           fontFamily: "'IBM Plex Sans KR', sans-serif",
-          fontWeight: 300,
-          fontSize: '0.75rem',
+          fontWeight: 400,
+          fontSize: '1.05rem',
           letterSpacing: '0.15em',
-          color: 'var(--muted)',
+          color: 'var(--fg)',
           marginBottom: '1rem',
         }}
       >
@@ -90,12 +90,17 @@ function Keyword({ item, index }) {
         style={{
           fontFamily: "'IBM Plex Sans KR', sans-serif",
           fontWeight: 300,
-          fontSize: '0.85rem',
-          lineHeight: 1.85,
-          color: 'var(--muted)',
+          fontSize: '1.0rem',
+          lineHeight: 1.65,
         }}
       >
-        {item.description}
+        <span style={{ color: 'var(--fg)' }}>
+          {item.description_en}
+        </span>
+        <span style={{ display: 'block', height: '0.4rem' }} />
+        <span style={{ color: 'var(--muted)' }}>
+          {item.description_ko}
+        </span>
       </p>
     </div>
   )
@@ -154,8 +159,8 @@ export default function IntroductionSection() {
           <h2
             style={{
               fontFamily: "'DM Mono', monospace",
-              fontSize: '0.7rem',
-              letterSpacing: '0.35em',
+              fontSize: '0.9rem',
+              letterSpacing: '0.5em',
               textTransform: 'uppercase',
               color: 'var(--muted)',
             }}
@@ -169,7 +174,7 @@ export default function IntroductionSection() {
           style={{
             fontFamily: "'Bebas Neue', sans-serif",
             fontWeight: 400,
-            fontSize: 'clamp(2.6rem, 7vw, 5rem)',
+            fontSize: 'clamp(5.6rem, 7vw, 9rem)',
             lineHeight: 1.05,
             letterSpacing: '0.02em',
             color: 'var(--fg)',
@@ -181,10 +186,10 @@ export default function IntroductionSection() {
         <p
           style={{
             fontFamily: "'IBM Plex Sans KR', sans-serif",
-            fontWeight: 300,
+            fontWeight: 400,
             fontSize: 'clamp(0.95rem, 1.6vw, 1.2rem)',
             letterSpacing: '0.05em',
-            color: 'var(--muted)',
+            color: 'var(--accent)',
             marginBottom: '4rem',
           }}
         >
@@ -220,26 +225,11 @@ export default function IntroductionSection() {
           <p
             style={{
               fontFamily: "'IBM Plex Sans KR', sans-serif",
-              fontWeight: 300,
-              fontSize: '0.95rem',
-              lineHeight: 1.9,
+              fontWeight: 400,
+              fontSize: '1.95rem',
+              lineHeight: 1.4,
               color: 'var(--fg)',
               marginBottom: '1.4rem',
-            }}
-          >
-            알고리즘 코딩 아트는 단순한 기술이 아닙니다. 그것은 우리의 내면을
-            표현하고, 디지털 캔버스 위에 우리의 상상력과 감정을 펼쳐내는
-            창의적 수단입니다. 붓 대신 알고리즘으로, 물감 대신 데이터로
-            그려지는 이 예술 형식은, 모든 디자이너와 개발자가 자신의 고유한
-            미적 언어를 발견하고 표현할 수 있는 가능성을 열어줍니다.
-          </p>
-          <p
-            style={{
-              fontFamily: "'IBM Plex Sans KR', sans-serif",
-              fontWeight: 300,
-              fontSize: '0.95rem',
-              lineHeight: 1.9,
-              color: 'var(--muted)',
             }}
           >
             Algorithmic Coding Art is not merely a technical skill — it is a
@@ -249,6 +239,21 @@ export default function IntroductionSection() {
             of paint, this art form opens endless possibilities for every
             designer and developer to discover and articulate their unique
             aesthetic language.
+          </p>
+          <p
+            style={{
+              fontFamily: "'IBM Plex Sans KR', sans-serif",
+              fontWeight: 300,
+              fontSize: '1.25rem',
+              lineHeight: 1.4,
+              color: 'var(--muted)',
+            }}
+          >
+            알고리즘 코딩 아트는 단순한 기술이 아닙니다. 그것은 우리의 내면을
+            표현하고, 디지털 캔버스 위에 우리의 상상력과 감정을 펼쳐내는
+            창의적 수단입니다. 붓 대신 알고리즘으로, 물감 대신 데이터로
+            그려지는 이 예술 형식은, 모든 디자이너와 개발자가 자신의 고유한
+            미적 언어를 발견하고 표현할 수 있는 가능성을 열어줍니다.
           </p>
         </div>
 
@@ -265,8 +270,8 @@ export default function IntroductionSection() {
         >
           <span
             style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: '0.75rem',
+              fontFamily: "'IBM Plex Sans KR', sans-serif",
+              fontSize: '0.95rem',
               letterSpacing: '0.15em',
               color: 'var(--muted)',
             }}
@@ -275,7 +280,7 @@ export default function IntroductionSection() {
           </span>
           <div
             style={{
-              width: 32,
+              width: 132,
               height: 1,
               background: 'linear-gradient(to right, var(--accent), transparent)',
             }}
