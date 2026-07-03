@@ -9,7 +9,9 @@ This is a generative art portfolio website built with **React 19 + Vite**, featu
 **Key Technologies:**
 - **Bundler & Dev Server:** Vite 8
 - **UI Framework:** React 19 (JSX)
-- **3D Graphics:** Three.js + React Three Fiber (R3F)
+- **Routing:** React Router DOM 6 (client-side routing)
+- **3D Graphics:** Three.js + React Three Fiber (R3F) — used in HeroSection background
+- **2D Generative Art:** p5.js (instance mode) — used in algorithm detail pages
 - **Animations:** GSAP 3 (with ScrollTrigger)
 - **Fonts:** Bebas Neue, DM Mono, IBM Plex Sans KR (Google Fonts)
 
@@ -29,18 +31,33 @@ npm run preview         # Preview production build locally
 ## Architecture & Code Structure
 
 ### Top-Level Layout
-- **src/App.jsx** — Main component that composes HeroSection and AlgorithmSection
-- **src/main.jsx** — Entry point (React root render)
-- **src/index.css** — Global styles (fonts, resets, layout)
+- **src/main.jsx** — Entry point; wraps `<App />` in `<BrowserRouter>`
+- **src/App.jsx** — Mounts the global `<CustomCursor />` and defines routes via `<Routes>`. Also sets a random accent color (`--accent`) on `document.documentElement` on mount.
+- **src/index.css** — Global styles (fonts, resets, layout, custom cursor)
+
+### Routing
+Two routes defined in `src/App.jsx`:
+- `/` → **HomePage** (`src/pages/HomePage.jsx`) — composes HeroSection + IntroductionSection + AlgorithmSection
+- `/algorithm/:slug` → **AlgorithmDetailPage** (`src/pages/AlgorithmDetailPage.jsx`) — per-algorithm detail view
+
+Navigation between algorithm cards and detail pages uses `<Link>`. The slug is derived from the algorithm name via `slugify()` (no manual slug field needed).
+
+### Data Layer
+- **src/data/algorithms.js** — The `ALGORITHMS` array (single source of truth, 20 items) plus helpers:
+  - `slugify(name)` — converts a name to a URL-safe slug (e.g. `'Flow Field'` → `'flow-field'`)
+  - `findAlgorithmBySlug(slug)` — looks up an algorithm by slug
+- **src/data/algorithmDetails.js** — The `ALGORITHM_DETAILS` map keyed by slug. Holds extended per-algorithm content (bilingual `longDescription`, `sketch`, `related`). Only algorithms that have been fleshed out appear here; others fall back to a "준비 중" (coming soon) state. `getAlgorithmDetail(slug)` returns the entry or `null`.
 
 ### Core Components
+
+#### CustomCursor (src/components/CustomCursor.jsx)
+GSAP-driven animated cursor (accent-colored dot) that tracks the mouse. **Mounted globally in `App.jsx`, outside `<Routes>`**, so it appears on every page (home AND detail pages). Do NOT move this back into HeroSection — that was the original bug where the cursor disappeared on the detail page. The `.cursor` style lives in `src/index.css` (`body { cursor: none }` hides the native cursor site-wide).
 
 #### HeroSection (src/components/HeroSection.jsx)
 The landing section with animated hero content and 3D particle background:
 - **R3F Canvas**: Renders 5,000 particles using Flow Field algorithm in real-time
 - **GSAP Timeline**: Sequences the tagline → divider → character-by-character title animation
-- **ScrollTrigger**: Hero content fades out smoothly as user scrolls down
-- **Custom Cursor**: GSAP-driven animated cursor with accent color tracking mouse position
+- **ScrollTrigger**: Hero content fades out on scroll (fade completes at `80% top` — intentionally late)
 - **Particle Background**: Handled by separate ParticleBackground component
 
 #### ParticleBackground (src/components/canvas/ParticleBackground.jsx)
@@ -59,24 +76,75 @@ Grid-based card display of 20 generative art algorithms:
 - **Grid Layout**: CSS Grid with `repeat(auto-fill, minmax(260px, 1fr))` — auto-wraps as viewport changes
 - **Uniform Card Heights**: Flexbox layout with `flex: 1` on description area ensures all cards match height regardless of text length
 - **Scroll-Triggered Animations**: IntersectionObserver detects card entry into viewport, GSAP animates cards sliding up from below
-- **Interactive Hover**: Border and title text color shift to accent color (`#ff4d1c`)
-- **Checkbox Toggle**: Each card has a clickable checkbox (styled as SVG square); toggles accent fill to mark algorithms discussed in presentations
+- **Interactive Hover**: Border and title text color shift to accent color
+- **Checkbox Toggle**: Each card has a clickable checkbox; toggles accent fill to mark algorithms discussed in presentations. The checkbox's `onClick` calls `e.preventDefault()` + `e.stopPropagation()` so clicking it does NOT trigger the card's `<Link>` navigation.
+- **Clickable Cards**: Each card root is a `<Link to={`/algorithm/${slugify(algo.name)}`}>` (with `textDecoration: none; color: inherit`). The `<section>` has `id="algorithms"` so the detail page's back button can scroll here (see below).
+
+#### AlgorithmDetailPage (src/pages/AlgorithmDetailPage.jsx)
+Detail view at `/algorithm/:slug`:
+- Looks up algorithm metadata via `findAlgorithmBySlug(slug)` and extended content via `getAlgorithmDetail(slug)`.
+- **Scroll to top on mount**: `useEffect(() => window.scrollTo(0, 0), [slug])` — otherwise the page inherits the previous scroll position.
+- **Header**: number, name, tags.
+- **Overview**: bilingual description. Korean (`longDescription.ko`) is shown FIRST in `--fg` (prominent); English (`longDescription.en`) SECOND in `--muted`.
+- **Visualization**: renders `<P5Canvas sketch={detail.sketch} />` (fixed square, see P5Canvas). Falls back to a "not available yet" square box if no sketch.
+- **Related Algorithms**: mini-cards linking to related algorithms, driven by the `related` array (names) in the detail entry. Grid uses `repeat(auto-fit, minmax(220px, 1fr))` — **must be `auto-fit`, not `auto-fill`**, otherwise empty grid tracks on wide screens show the container's `--border` background as gray gaps.
+- **Back button**: `navigate('/', { state: { scrollTo: 'algorithms' } })`. HomePage reads `location.state.scrollTo` and scrolls to `#algorithms`, so returning lands on the algorithm grid instead of the top hero.
+
+#### P5Canvas (src/components/artwork/P5Canvas.jsx)
+Generic wrapper that mounts a p5.js instance-mode sketch. **This component contains critical bug-prevention logic — read "p5.js Canvas Lifecycle" below before modifying it.**
+- Props: `sketch` (a `(p, size) => void` function) and `size` (canvas edge in px, default 560).
+- Renders a **fixed square** (`size × size`) container; the sketch calls `p.createCanvas(size, size)`. Canvas dimensions are decided once at mount — there is NO responsive resizing, ResizeObserver, or `windowResized`. This is intentional (see below).
+
+#### Sketches (src/components/artwork/sketches/*.js)
+One file per algorithm's p5 sketch, exported as a default `(p, size) => void` function (instance mode). Example: `flowField.js`.
+- Signature is `function sketch(p, size)` — `size` is passed in by P5Canvas; the sketch must NOT query the DOM for its container size.
+- Reads the accent color at setup via `getComputedStyle(document.documentElement).getPropertyValue('--accent')`.
+- `flowField.js`: ~300 particles following a Perlin-noise vector field, with a semi-transparent background each frame for trail effect.
 
 ---
 
 ## Key Implementation Details
 
 ### Adding Algorithm Cards
-Edit the `ALGORITHMS` array in `src/components/AlgorithmSection.jsx`:
+Edit the `ALGORITHMS` array in `src/data/algorithms.js`:
 ```js
 {
   no: '21',                        // Two-digit string for display numbering
-  name: 'Algorithm Name',          // Card title
+  name: 'Algorithm Name',          // Card title (also drives the URL slug)
   desc: 'Description of the...',   // Body text explaining the algorithm
   tags: ['tag1', 'tag2', 'tag3'],  // 3–4 category tags
 }
 ```
-Grid automatically reflows; no layout tweaks needed.
+Grid automatically reflows; no layout tweaks needed. The card becomes clickable and routes to `/algorithm/<slug>` automatically.
+
+### Adding an Algorithm Detail Page (with p5.js art)
+To flesh out a card's detail page (currently only Flow Field is complete; the other 19 show a "coming soon" fallback):
+
+1. **Create the sketch**: `src/components/artwork/sketches/<name>.js`, default-exporting `function sketch(p, size)` (p5 instance mode). Use the `size` argument for canvas dimensions — never query the DOM. Use `flowField.js` as the template.
+2. **Register the detail**: add an entry to `ALGORITHM_DETAILS` in `src/data/algorithmDetails.js`, keyed by the slug:
+   ```js
+   'trigonometric-wave': {
+     longDescription: { ko: '...', en: '...' },   // ko shown first/prominent, en second/muted
+     sketch: trigWaveSketch,                       // imported from the sketches file
+     related: ['Flow Field', 'Perlin / Simplex Noise'],  // exact names from ALGORITHMS
+   },
+   ```
+That's it — AlgorithmDetailPage picks it up by slug. No routing changes needed.
+
+### ⚠️ p5.js Canvas Lifecycle — DO NOT REGRESS
+
+**Symptom to watch for:** the p5 artwork appears offset/misaligned inside its box, often with a gray strip at the top, and/or looks like two copies of the artwork stacked vertically. It may look fine after a hard refresh or a window resize, which makes it easy to dismiss — but it is a real bug.
+
+**Root cause:** React 19 **StrictMode** (enabled in `main.jsx`) intentionally runs every effect twice in development: `mount → cleanup → mount`. If `new p5(...)` is called synchronously inside `useEffect`, the FIRST (throwaway) instance immediately creates a real `<canvas>` before its cleanup runs. That canvas is not always fully removed, so it stacks on top of the second (real) canvas → two canvases in one container.
+
+**The fix (already implemented in `P5Canvas.jsx`) — keep it this way:**
+- Defer `new p5(...)` by one frame with `requestAnimationFrame`. StrictMode's throwaway instance is cancelled (via `cancelAnimationFrame` in cleanup) BEFORE the rAF fires, so it never creates a canvas at all.
+- On cleanup: call `p5Instance.remove()` AND `container.innerHTML = ''` (belt-and-suspenders, since the p5 `<canvas>` is DOM that React does not track).
+
+**Rules to avoid re-introducing this bug:**
+1. **Never** wrap p5's `setup`/`draw` in a "disposed" guard that early-returns. A previous attempt did this; it prevented `createCanvas(size, size)` from running, so p5 silently fell back to a default **100×100** canvas that stacked on top. If you must gate anything, gate the *creation* of the instance (the rAF approach), not the sketch's lifecycle methods.
+2. **Keep the canvas a fixed square** with no resize logic. A responsive canvas (reading `container.clientWidth`/`ResizeObserver`/`windowResized`) reintroduces measurement-timing races that caused the original misalignment. Size is passed in as a prop and fixed at mount.
+3. If you ever change `P5Canvas.jsx`, **verify there is exactly one `<canvas>`** in the detail page DOM afterward (e.g. `document.querySelectorAll('canvas').length === 1`), including after navigating back-and-forth between the home page and a detail page several times.
 
 ### Animation Approach
 - **GSAP Timeline**: For sequenced, orchestrated animations (HeroSection title reveal)
@@ -87,8 +155,9 @@ Grid automatically reflows; no layout tweaks needed.
 ### Style Organization
 Global styles in `src/index.css`:
 - Font imports from Google Fonts
-- CSS variables for colors (accent: `#ff4d1c`, text colors, backgrounds)
-- Reusable utility classes for spacing and alignment
+- CSS variables for colors (`--fg`, `--muted`, `--bg`, `--card-bg`, `--border`, and `--accent`)
+- `--accent` is NOT fixed — `App.jsx` generates a **random hue** on every mount and sets `--accent` / `--accent-rgb` / `--accent-hue` on `document.documentElement`. All accent-colored UI (cursor, hovers, checkboxes, p5 particles) picks this up via the CSS variable. Sketches read it with `getComputedStyle(...).getPropertyValue('--accent')`.
+- Site-wide `user-select: none` is set in the global reset to prevent text drag-selection.
 - Component-scoped styles are defined inline or in style objects within JSX files (no separate CSS modules currently)
 
 ---
@@ -104,8 +173,9 @@ Global styles in `src/index.css`:
 ## Known Constraints & Design Decisions
 
 - **No SplitText Plugin**: Character-by-character title animations in HeroSection are custom-implemented (no GSAP Club SplitText dependency).
-- **Responsive Grid**: Algorithms grid uses CSS auto-fill for mobile responsiveness; tested on common breakpoints.
-- **Accent Color**: Primary interactive color is `#ff4d1c`; used for hover states, checkboxes, and custom cursor.
+- **Responsive Grids**: The AlgorithmSection card grid uses `auto-fill`; the AlgorithmDetailPage "Related Algorithms" grid uses `auto-fit` (deliberately different — `auto-fit` avoids gray empty tracks with a small, fixed number of related items).
+- **Accent Color**: Randomized per page load (see Style Organization). Used for hover states, checkboxes, custom cursor, and p5 particle color.
+- **p5 Canvas**: Fixed square, StrictMode-safe (see "⚠️ p5.js Canvas Lifecycle").
 
 ---
 
