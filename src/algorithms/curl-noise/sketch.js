@@ -1,6 +1,6 @@
 export default function curlNoiseSketch(p, size) {
   let particles = [];
-  let numParticles = 300;
+  let numParticles = 400;
   let stepSize = 0.1; // 수치 미분을 위한 미소 변화량
   let accentColor;
 
@@ -27,7 +27,7 @@ export default function curlNoiseSketch(p, size) {
 
   // 잠재 함수(Potential Function) 정의 - 노이즈 값을 기반으로 함
   function potential(x, y) {
-    return p.noise(x * 0.005, y * 0.005);
+    return p.noise(x * 0.002, y * 0.002);
   }
 
   // Curl Noise 벡터 계산 (2D 회전 방향 벡터)
@@ -45,8 +45,8 @@ export default function curlNoiseSketch(p, size) {
     // 계산된 속도 벡터 스케일링
     let mag = p.dist(0, 0, vx, vy);
     if (mag > 0) {
-      vx = (vx / mag) * 1.5;
-      vy = (vy / mag) * 1.5;
+      vx = (vx / mag) * 1.2;
+      vy = (vy / mag) * 1.2;
     }
 
     return { x: vx, y: vy };
@@ -81,11 +81,14 @@ export default function curlNoiseSketch(p, size) {
       // 파티클 속도에 기반한 동적 투명도 처리
       let speed = p.dist(0, 0, velocity.x, velocity.y);
       let alpha = p.map(speed, 0, 2, 50, 255);
+      alpha = p.constrain(alpha, 0, 255);
 
-      p.stroke(
-        `${accentColor}${p.hex(p.floor(p.constrain(alpha, 0, 255)), 2)}`,
-      );
-      p.strokeWeight(1.5);
+      // p5.js의 color 객체를 사용해 어떤 CSS 색상 형식이든 안정적으로 적용
+      let c = p.color(accentColor);
+      c.setAlpha(alpha);
+      p.stroke(c);
+
+      p.strokeWeight(2.5);
       p.point(pt.x, pt.y);
     }
   };

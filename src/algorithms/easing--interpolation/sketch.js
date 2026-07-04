@@ -1,156 +1,53 @@
 export default function easingInterpolationSketch(p, size) {
-  let accentColor;
+  let currentX, currentY   // 현재 원의 위치
+  let targetX, targetY     // 목적지 위치
+  let easing = 0.08        // 감속 가중치 (Easing 값)
+  let accentColor
 
-  // 움직이는 점
-  let mover;
+  p.setup = function() {
+    p.createCanvas(size, size)
 
-  // 목적지
-  let target;
-
-  // 궤적
-  let trail = [];
-
-  const maxTrail = 220;
-
-  p.setup = function () {
-    p.createCanvas(size, size);
-
+    // accent 색 읽기
     accentColor = getComputedStyle(document.documentElement)
-      .getPropertyValue("--accent")
-      .trim();
+      .getPropertyValue('--accent')
+      .trim()
 
-    mover = {
-      x: p.width * 0.5,
-      y: p.height * 0.5,
-    };
+    // 시작 및 목적지 초기 위치 설정
+    currentX = p.width / 2
+    currentY = p.height / 2
+    targetX = p.random(p.width)
+    targetY = p.random(p.height)
 
-    target = randomTarget();
-
-    p.background(8, 8, 16);
-    p.noFill();
-  };
-
-  p.draw = function () {
-    p.background(8, 8, 16, 24);
-
-    // 목적지까지의 거리
-    const dx = target.x - mover.x;
-    const dy = target.y - mover.y;
-
-    const dist = p.sqrt(dx * dx + dy * dy);
-
-    // -----------------------------
-    // Easing
-    // -----------------------------
-    const easing = 0.055;
-
-    mover.x += dx * easing;
-    mover.y += dy * easing;
-
-    // 충분히 가까워지면 새로운 목표 생성
-    if (dist < 6) {
-      target = randomTarget();
-    }
-
-    // -----------------------------
-    // Trail 저장
-    // -----------------------------
-    trail.push({
-      x: mover.x,
-      y: mover.y,
-    });
-
-    if (trail.length > maxTrail) {
-      trail.shift();
-    }
-
-    drawTrail();
-    drawTarget();
-    drawInterpolationLines();
-    drawMover();
-  };
-
-  // ------------------------------------
-  // Trail
-  // ------------------------------------
-  function drawTrail() {
-    if (trail.length < 2) return;
-
-    p.noFill();
-
-    for (let i = 1; i < trail.length; i++) {
-      const a = trail[i - 1];
-      const b = trail[i];
-
-      const t = i / trail.length;
-
-      p.stroke(accentColor);
-      p.strokeWeight(0.5 + t * 2);
-
-      p.line(a.x, a.y, b.x, b.y);
-    }
+    p.background(8, 8, 16)
   }
 
-  // ------------------------------------
-  // 보간선
-  // ------------------------------------
-  function drawInterpolationLines() {
-    p.stroke(255, 70);
-    p.strokeWeight(1);
+  p.draw = function() {
+    p.background(8, 8, 16, 150) // 잔상 효과를 위한 알파 값 적용
 
-    p.line(mover.x, mover.y, target.x, target.y);
+    // 1. 현재 위치와 목적지 사이의 거리 연산
+    let dx = targetX - currentX
+    let dy = targetY - currentY
 
-    const steps = 12;
+    // 2. 이싱(Easing) 수식을 통한 부드러운 위치 보간 연산
+    // 목적지에 가까워질수록 dx, dy 값이 작아지므로 속도가 자연스럽게 감속함
+    currentX += dx * easing
+    currentY += dy * easing
 
-    for (let i = 1; i < steps; i++) {
-      const t = i / steps;
-
-      const x = p.lerp(mover.x, target.x, t);
-
-      const y = p.lerp(mover.y, target.y, t);
-
-      p.noStroke();
-      p.fill(255, 60);
-
-      p.circle(x, y, 3);
+    // 3. 목적지에 충분히 도달했는지 확인 (거리가 1 픽셀 미만인 경우)
+    let d = p.dist(currentX, currentY, targetX, targetY)
+    if (d < 1) {
+      // 새로운 임의의 목적지 갱신
+      targetX = p.random(p.width)
+      targetY = p.random(p.height)
     }
-  }
 
-  // ------------------------------------
-  // 목표점
-  // ------------------------------------
-  function drawTarget() {
-    p.noFill();
-    p.stroke(accentColor);
-    p.strokeWeight(2);
+    // 4. 목적지 guide 시각화
+    p.noStroke()
+    p.fill(240, 240, 255, 100)
+    p.circle(targetX, targetY, 4)
 
-    const r = 10 + p.sin(p.frameCount * 0.08) * 3;
-
-    p.circle(target.x, target.y, r * 2);
-
-    p.line(target.x - 8, target.y, target.x + 8, target.y);
-
-    p.line(target.x, target.y - 8, target.x, target.y + 8);
-  }
-
-  // ------------------------------------
-  // 현재 위치
-  // ------------------------------------
-  function drawMover() {
-    p.noStroke();
-
-    p.fill(accentColor);
-
-    p.circle(mover.x, mover.y, 10);
-  }
-
-  // ------------------------------------
-  // 랜덤 목적지
-  // ------------------------------------
-  function randomTarget() {
-    return {
-      x: p.random(60, p.width - 60),
-      y: p.random(60, p.height - 60),
-    };
+    // 5. easing이 적용되어 움직이는 원
+    p.fill(accentColor)
+    p.circle(currentX, currentY, 36)
   }
 }

@@ -51,12 +51,12 @@ export default function perlinSimplexNoiseSketch(p, size) {
         const offsetY = p.map(n, 0, 1, -2, 2);
 
         // 명암
-        p.fill(brightness, brightness, brightness, 170);
+        p.fill(brightness, brightness, brightness, 120);
 
         p.circle(x * cellSize + offsetX, y * cellSize + offsetY, radius);
 
         // 높은 노이즈 값은 Accent Color 사용
-        if (n > 0.68) {
+        if (n > 0.58) {
           p.fill(accentColor);
 
           p.circle(

@@ -10,6 +10,21 @@ import fractalBrownianMotion from './fractal-brownian-motion'
 import curlNoise from './curl-noise'
 import ifsFractal from './ifs--fractal'
 import lSystem from './l-system'
+import cellularAutomata from './cellular-automata'
+import reactionDiffusion from './reaction-diffusion'
+import differentialGrowth from './differential-growth'
+import spaceColonization from './space-colonization'
+import diffusionLimitedAggregation from './diffusion-limited-aggregation'
+import voronoiDiagram from './voronoi-diagram'
+import circlePacking from './circle-packing'
+import delaunayTriangulation from './delaunay-triangulation'
+import truchetTiles from './truchet-tiles'
+import wfc from './wave-function-collapse'
+import metaballs from './sdf--metaballs'
+import particleSystem from './particle-system'
+import springConstraint from './spring--constraint'
+import boids from './boids--flocking'
+import attractorSystem from './attractor-system'
 
 export const ALGORITHM_DETAILS = {
   'flow-field': flowField,
@@ -21,6 +36,21 @@ export const ALGORITHM_DETAILS = {
   'curl-noise': curlNoise,
   'ifs--fractal': ifsFractal,
   'l-system': lSystem,
+  'cellular-automata': cellularAutomata,
+  'reaction-diffusion': reactionDiffusion,
+  'differential-growth': differentialGrowth,
+  'space-colonization': spaceColonization,
+  'diffusion-limited-aggregation': diffusionLimitedAggregation,
+  'voronoi-diagram': voronoiDiagram,
+  'circle-packing': circlePacking,
+  'delaunay-triangulation': delaunayTriangulation,
+  'attractor-system': attractorSystem,
+  'boids--flocking': boids,
+  'particle-system': particleSystem,
+  'sdf--metaballs': metaballs,
+  'spring--constraint': springConstraint,
+  'truchet-tiles': truchetTiles,
+  'wave-function-collapse': wfc,
 }
 
 export function getAlgorithmDetail(slug) {
