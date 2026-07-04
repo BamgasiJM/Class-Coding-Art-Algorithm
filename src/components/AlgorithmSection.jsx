@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
-import { ALGORITHMS, slugify } from '../data/algorithms'
+import { ALGORITHMS, slugify } from '../algorithms/catalog'
 
 function Card({ algo, index }) {
   const ref               = useRef()

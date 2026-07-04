@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "name": "Coding_Art_BamgasiJM",
+  "color": "",
+  "dockState": {
+    "zones": {
+      "left": {
+        "position": "left",
+        "visible": false,
+        "size": 260,
+        "layout": null
+      },
+      "right": {
+        "position": "right",
+        "visible": false,
+        "size": 260,
+        "layout": null
+      },
+      "bottom": {
+        "position": "bottom",
+        "visible": false,
+        "size": 240,
+        "layout": null
+      },
+      "center": {
+        "position": "center",
+        "visible": true,
+        "size": 0,
+        "layout": {
+          "type": "tabs",
+          "id": "cf82e31d-763d-486b-98b1-946b8ff16f8c",
+          "panelIds": [
+            "82c3c853-2308-4dd1-8366-2779cdd7eb8b"
+          ],
+          "activeIndex": 0
+        }
+      }
+    },
+    "locations": {
+      "82c3c853-2308-4dd1-8366-2779cdd7eb8b": {
+        "type": "dock",
+        "zone": "center",
+        "stackId": "cf82e31d-763d-486b-98b1-946b8ff16f8c"
+      }
+    }
+  },
+  "panels": {
+    "86512b18-840f-4c43-a29d-a360db4b067e": {
+      "type": "terminal",
+      "title": "cmd.exe"
+    },
+    "b3eb5538-e63d-469e-82a2-7d67c45fa836": {
+      "type": "editor",
+      "title": "C:\\Works\\Dev\\Coding_Art_BamgasiJM\\src\\main.jsx",
+      "filePath": "src/main.jsx"
+    },
+    "73e5615c-cb13-4285-9b33-df424a6754da": {
+      "type": "editor",
+      "title": "C:\\Users\\user\\AppData\\Roaming\\Cate\\settings.json",
+      "filePath": "C:\\Users\\user\\AppData\\Roaming\\Cate\\settings.json"
+    },
+    "82c3c853-2308-4dd1-8366-2779cdd7eb8b": {
+      "type": "canvas",
+      "title": "Canvas"
+    }
+  },
+  "canvases": {
+    "82c3c853-2308-4dd1-8366-2779cdd7eb8b": {
+      "id": "82c3c853-2308-4dd1-8366-2779cdd7eb8b",
+      "canvasNodes": {
+        "16018d10-f83e-4e1f-8e5d-f14ea7d4cda3": {
+          "id": "16018d10-f83e-4e1f-8e5d-f14ea7d4cda3",
+          "panelId": "86512b18-840f-4c43-a29d-a360db4b067e",
+          "origin": {
+            "x": 1180,
+            "y": 443.71875
+          },
+          "size": {
+            "width": 640,
+            "height": 400
+          },
+          "zOrder": 1,
+          "creationIndex": 0,
+          "animationState": "idle",
+          "dockLayout": {
+            "type": "tabs",
+            "id": "0ff86daf-7506-4906-8c58-162d987a8f26",
+            "panelIds": [
+              "86512b18-840f-4c43-a29d-a360db4b067e"
+            ],
+            "activeIndex": 0
+          }
+        },
+        "83c529ea-b0cf-495c-85d1-00b8accb3489": {
+          "id": "83c529ea-b0cf-495c-85d1-00b8accb3489",
+          "panelId": "b3eb5538-e63d-469e-82a2-7d67c45fa836",
+          "origin": {
+            "x": 1180,
+            "y": 880
+          },
+          "size": {
+            "width": 600,
+            "height": 500
+          },
+          "zOrder": 8,
+          "creationIndex": 1,
+          "animationState": "idle",
+          "dockLayout": {
+            "type": "tabs",
+            "id": "3ffc05dd-c31c-45ea-b335-61cdb969c935",
+            "panelIds": [
+              "b3eb5538-e63d-469e-82a2-7d67c45fa836"
+            ],
+            "activeIndex": 0
+          }
+        },
+        "9438df89-deaf-453a-8c29-4f213d1de451": {
+          "id": "9438df89-deaf-453a-8c29-4f213d1de451",
+          "panelId": "73e5615c-cb13-4285-9b33-df424a6754da",
+          "origin": {
+            "x": 500,
+            "y": 760
+          },
+          "size": {
+            "width": 640,
+            "height": 460
+          },
+          "zOrder": 10,
+          "creationIndex": 2,
+          "animationState": "idle",
+          "dockLayout": {
+            "type": "tabs",
+            "id": "a1c13caf-3228-4f4c-b97c-cd9b2924e45b",
+            "panelIds": [
+              "73e5615c-cb13-4285-9b33-df424a6754da"
+            ],
+            "activeIndex": 0
+          }
+        }
+      },
+      "zoomLevel": 2.499999959128242,
+      "viewportOffset": {
+        "x": -838.9999591282422,
+        "y": -1857.2812040873919
+      }
+    }
+  }
+}

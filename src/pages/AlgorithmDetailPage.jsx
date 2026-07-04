@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { findAlgorithmBySlug, slugify } from '../data/algorithms'
-import { getAlgorithmDetail } from '../data/algorithmDetails'
-import P5Canvas from '../components/artwork/P5Canvas'
+import { findAlgorithmBySlug, slugify } from '../algorithms/catalog'
+import { getAlgorithmDetail } from '../algorithms/details'
+import P5Canvas from '../algorithms/P5Canvas'
 
 export default function AlgorithmDetailPage() {
   const { slug } = useParams()

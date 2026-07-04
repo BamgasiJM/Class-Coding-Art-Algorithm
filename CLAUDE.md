@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a generative art portfolio website built with **React 19 + Vite**, featuring interactive 3D graphics and algorithm demonstrations. The site showcases 20 generative art algorithms across categories like Foundations, Randomness & Noise, Grammar Systems, Spatial Structures, Dynamics & Physics, Collective Behavior, Shaders & GPU, and Data & ML.
+This is a generative art portfolio website built with **React 19 + Vite**, featuring interactive 3D graphics and algorithm demonstrations. The site showcases a growing collection of generative art algorithms, loosely grouped into themes like Foundations, Randomness & Noise, Growth & Grammar Systems, Spatial Structures, Fields & Contours, Dynamics & Physics, and Collective Behavior. The count is not fixed — cards are added freely and need not belong to any group.
 
 **Key Technologies:**
 - **Bundler & Dev Server:** Vite 8
@@ -42,11 +42,24 @@ Two routes defined in `src/App.jsx`:
 
 Navigation between algorithm cards and detail pages uses `<Link>`. The slug is derived from the algorithm name via `slugify()` (no manual slug field needed).
 
-### Data Layer
-- **src/data/algorithms.js** — The `ALGORITHMS` array (single source of truth, 20 items) plus helpers:
+### Algorithms Module (`src/algorithms/`)
+All algorithm-related code lives under `src/algorithms/`, colocating each algorithm's detail text and p5 sketch in its own folder:
+
+```
+src/algorithms/
+  P5Canvas.jsx        # shared p5 wrapper (see "p5.js Canvas Lifecycle")
+  catalog.js          # ALGORITHMS list (many items) + slugify + findAlgorithmBySlug
+  details.js          # aggregates each <slug>/index.js → ALGORITHM_DETAILS + getAlgorithmDetail
+  flow-field/         # one folder per fleshed-out algorithm (folder name = slug)
+    index.js          # detail entry: { longDescription {ko,en}, sketch, related }
+    sketch.js         # the p5 instance-mode sketch (p, size) => void
+```
+
+- **src/algorithms/catalog.js** — The `ALGORITHMS` array (single source of truth, a growing list) plus helpers:
   - `slugify(name)` — converts a name to a URL-safe slug (e.g. `'Flow Field'` → `'flow-field'`)
   - `findAlgorithmBySlug(slug)` — looks up an algorithm by slug
-- **src/data/algorithmDetails.js** — The `ALGORITHM_DETAILS` map keyed by slug. Holds extended per-algorithm content (bilingual `longDescription`, `sketch`, `related`). Only algorithms that have been fleshed out appear here; others fall back to a "준비 중" (coming soon) state. `getAlgorithmDetail(slug)` returns the entry or `null`.
+- **src/algorithms/details.js** — Imports each fleshed-out algorithm's `<slug>/index.js` and assembles the `ALGORITHM_DETAILS` map keyed by slug. Each entry holds extended per-algorithm content (bilingual `longDescription`, `sketch`, `related`). Only algorithms with a folder appear here; others fall back to a "준비 중" (coming soon) state. `getAlgorithmDetail(slug)` returns the entry or `null`.
+- **src/algorithms/&lt;slug&gt;/** — Per-algorithm folder. `index.js` holds the detail text (`longDescription`, `related`) and imports its `sketch.js` (the p5 code) to export the combined detail object.
 
 ### Core Components
 
@@ -68,7 +81,7 @@ R3F component implementing a Flow Field-based particle system:
 - Imported and rendered as `<Canvas>` within HeroSection
 
 #### AlgorithmSection (src/components/AlgorithmSection.jsx)
-Grid-based card display of 20 generative art algorithms:
+Grid-based card display of the generative art algorithms:
 - **Data Structure**: `ALGORITHMS` array of objects with fields:
   ```js
   { no: '01', name: '...', desc: '...', tags: ['tag1', 'tag2', ...] }
@@ -90,23 +103,23 @@ Detail view at `/algorithm/:slug`:
 - **Related Algorithms**: mini-cards linking to related algorithms, driven by the `related` array (names) in the detail entry. Grid uses `repeat(auto-fit, minmax(220px, 1fr))` — **must be `auto-fit`, not `auto-fill`**, otherwise empty grid tracks on wide screens show the container's `--border` background as gray gaps.
 - **Back button**: `navigate('/', { state: { scrollTo: 'algorithms' } })`. HomePage reads `location.state.scrollTo` and scrolls to `#algorithms`, so returning lands on the algorithm grid instead of the top hero.
 
-#### P5Canvas (src/components/artwork/P5Canvas.jsx)
+#### P5Canvas (src/algorithms/P5Canvas.jsx)
 Generic wrapper that mounts a p5.js instance-mode sketch. **This component contains critical bug-prevention logic — read "p5.js Canvas Lifecycle" below before modifying it.**
 - Props: `sketch` (a `(p, size) => void` function) and `size` (canvas edge in px, default 560).
 - Renders a **fixed square** (`size × size`) container; the sketch calls `p.createCanvas(size, size)`. Canvas dimensions are decided once at mount — there is NO responsive resizing, ResizeObserver, or `windowResized`. This is intentional (see below).
 
-#### Sketches (src/components/artwork/sketches/*.js)
-One file per algorithm's p5 sketch, exported as a default `(p, size) => void` function (instance mode). Example: `flowField.js`.
+#### Sketches (src/algorithms/&lt;slug&gt;/sketch.js)
+One `sketch.js` per algorithm folder, exported as a default `(p, size) => void` function (instance mode). Example: `flow-field/sketch.js`.
 - Signature is `function sketch(p, size)` — `size` is passed in by P5Canvas; the sketch must NOT query the DOM for its container size.
 - Reads the accent color at setup via `getComputedStyle(document.documentElement).getPropertyValue('--accent')`.
-- `flowField.js`: ~300 particles following a Perlin-noise vector field, with a semi-transparent background each frame for trail effect.
+- `flow-field/sketch.js`: ~300 particles following a Perlin-noise vector field, with a semi-transparent background each frame for trail effect.
 
 ---
 
 ## Key Implementation Details
 
 ### Adding Algorithm Cards
-Edit the `ALGORITHMS` array in `src/data/algorithms.js`:
+Edit the `ALGORITHMS` array in `src/algorithms/catalog.js`:
 ```js
 {
   no: '21',                        // Two-digit string for display numbering
@@ -120,15 +133,20 @@ Grid automatically reflows; no layout tweaks needed. The card becomes clickable 
 ### Adding an Algorithm Detail Page (with p5.js art)
 To flesh out a card's detail page (currently only Flow Field is complete; the other 19 show a "coming soon" fallback):
 
-1. **Create the sketch**: `src/components/artwork/sketches/<name>.js`, default-exporting `function sketch(p, size)` (p5 instance mode). Use the `size` argument for canvas dimensions — never query the DOM. Use `flowField.js` as the template.
-2. **Register the detail**: add an entry to `ALGORITHM_DETAILS` in `src/data/algorithmDetails.js`, keyed by the slug:
+1. **Create the folder**: `src/algorithms/<slug>/` (folder name = the slug, e.g. `trigonometric-wave`). Use `flow-field/` as the template.
+2. **Add the sketch**: `src/algorithms/<slug>/sketch.js`, default-exporting `function sketch(p, size)` (p5 instance mode). Use the `size` argument for canvas dimensions — never query the DOM.
+3. **Add the detail**: `src/algorithms/<slug>/index.js`, importing `./sketch` and default-exporting the detail object:
    ```js
-   'trigonometric-wave': {
-     longDescription: { ko: '...', en: '...' },   // ko shown first/prominent, en second/muted
-     sketch: trigWaveSketch,                       // imported from the sketches file
+   import sketch from './sketch'
+
+   export default {
+     longDescription: { ko: '...', en: '...' },          // ko shown first/prominent, en second/muted
+     sketch,
      related: ['Flow Field', 'Perlin / Simplex Noise'],  // exact names from ALGORITHMS
-   },
+   }
    ```
+4. **Register it**: add one line to `src/algorithms/details.js` — `import <name> from './<slug>'` and a `'<slug>': <name>,` entry in `ALGORITHM_DETAILS`.
+
 That's it — AlgorithmDetailPage picks it up by slug. No routing changes needed.
 
 ### ⚠️ p5.js Canvas Lifecycle — DO NOT REGRESS
