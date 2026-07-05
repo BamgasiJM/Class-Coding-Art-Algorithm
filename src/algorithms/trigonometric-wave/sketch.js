@@ -4,7 +4,7 @@ export default function trigonometricWaveSketch(p, size) {
   let time = 0;
 
   // 웨이브 설정
-  const waveCount = 60;
+  const waveCount = 50;
   const samples = 120;
 
   // 마우스 인터랙션용 보간값
@@ -36,9 +36,9 @@ export default function trigonometricWaveSketch(p, size) {
 
   p.draw = function () {
     // 알파 트레일로 부드러운 잔상
-    p.background(8, 8, 16, 30);
+    p.background(8, 8, 16, 60);
 
-    time += 0.012;
+    time += 0.008;
 
     // 마우스 위치 보간 (부드러운 반응)
     let targetX = p.map(p.mouseX, 0, p.width, -1, 1);
@@ -49,7 +49,7 @@ export default function trigonometricWaveSketch(p, size) {
     mouseInfluenceY = p.lerp(mouseInfluenceY, targetY, 0.05);
 
     // 주파수 모듈레이션: 시간에 따라 천천히 변하는 기본 주파수
-    let fmBase = 1.5 + p.sin(time * 0.3) * 0.5;
+    let fmBase = 2.5 + p.sin(time * 0.3) * 0.5;
 
     // 1. 파동 렌더링 (뒤에서 앞으로: 원근감)
     for (let i = 0; i < waveCount; i++) {
@@ -57,10 +57,10 @@ export default function trigonometricWaveSketch(p, size) {
       const depth = t; // 0 = 먼 곳, 1 = 가까운 곳
 
       // 3D 원근 효과: 먼 파동은 작고, 가까운 파동은 크게
-      const perspective = 0.3 + depth * 0.7;
+      const perspective = 0.4 + depth * 0.7;
 
       // 화면상의 y 위치 (원근감 적용)
-      const baseY = p.map(t, 0, 1, p.height * 0.15, p.height * 0.85);
+      const baseY = p.map(t, 0, 1, p.height * 0.05, p.height * 0.95);
 
       // 가운데로 갈수록 진폭 증가 + 마우스 Y 영향
       const centerWeight = 1 - Math.abs(t - 0.5) * 2;
@@ -116,7 +116,7 @@ export default function trigonometricWaveSketch(p, size) {
       p.endShape();
     }
 
-    // 2. 중앙 리사주 오실레이터 (강화된 버전)
+    // 2. 중앙 리사주 오실레이터
     drawLissajousOscillator();
   };
 
@@ -133,12 +133,12 @@ export default function trigonometricWaveSketch(p, size) {
     const cy = p.height * 0.5;
 
     // 리사주 파라미터 (정수비)
-    const freqA = 3;
-    const freqB = 4;
-    const radius = 50 + p.sin(time * 0.5) * 10;
+    const freqA = 2;
+    const freqB = 3;
+    const radius = 110 + p.sin(time * 0.5) * 10;
 
     // 궤적을 여러 단계로 그려 꼬리 효과
-    const trailSteps = 80;
+    const trailSteps = 180;
     p.noFill();
 
     for (let k = 0; k < trailSteps; k++) {
