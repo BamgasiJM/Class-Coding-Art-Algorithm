@@ -30,6 +30,24 @@ import nBodyGravity from './n-body-gravity'
 import doublePendulum from './double-pendulum'
 import elasticCollision from './elastic-collision'
 import harmonograph from './harmonograph'
+import pernoseTiling from './penrose-tiling'
+import tspArt from './tsp-art'
+import mazeGeneration from './maze-generation'
+import escapeTimeFractal from './escape-time-fractal'
+import physarumSlimeMold from './physarum-slime-mold'
+import quadtree from './quadtree'
+import abelianSandpile from './abelian-sandpile'
+import marchingSquares from './marching-squares'
+import shapeMorphing from './shape-morphing'
+import stippling from './stippling'
+import raycastingTwoD from './2d-ray-casting'
+import strangeAttractor from './strange-attractor'
+import waveFunctionCollapse from './wave-function-collapse'
+import flowMapVisualization from './flow-map-visualization'
+import randomWalk from './random-walk'
+import dithering from './dithering'
+import agentSystem from './agent-system'
+import chladniFigures from './chladni-figures'
 
 export const ALGORITHM_DETAILS = {
   'flow-field': flowField,
@@ -61,7 +79,24 @@ export const ALGORITHM_DETAILS = {
   'double-pendulum': doublePendulum,
   'elastic-collision': elasticCollision,
   'harmonograph': harmonograph,
-  
+  'penrose-tiling': pernoseTiling,
+  'tsp-art': tspArt,
+  'maze-generation': mazeGeneration,
+  'escape-time-fractal': escapeTimeFractal,
+  'physarum-slime-mold': physarumSlimeMold,
+  'quadtree': quadtree,
+  'abelian-sandpile': abelianSandpile,
+  'marching-squares': marchingSquares,
+  'shape-morphing': shapeMorphing,
+  'stippling': stippling,
+  '2d-ray-casting': raycastingTwoD,
+  'strange-attractor': strangeAttractor,
+  'wave-function-collapse': waveFunctionCollapse,
+  'flow-map-visualization': flowMapVisualization,
+  'random-walk': randomWalk,
+  'dithering': dithering,
+  'agent-system': agentSystem,
+  'chladni-figures': chladniFigures,
 }
 
 export function getAlgorithmDetail(slug) {

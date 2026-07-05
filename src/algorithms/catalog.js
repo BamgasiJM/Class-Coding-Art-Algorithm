@@ -167,6 +167,98 @@ export const ALGORITHMS = [
     desc: 'Lorenz·Thomas attractor 방정식을 실시간으로 적분해 카오스적인 궤도를 시각화합니다.',
     tags: ['chaos', 'ODE', 'trail', 'lorenz'],
   },
+
+  // ── 추가 알고리즘 ──────────────────────────────────────────
+  {
+    no: '30', name: 'Penrose Tiling',
+    desc: '두 종류의 마름모(P2·P3)로 비주기적으로 평면을 채우는 타일링 알고리즘입니다. 자연에서 발견되지 않는 수학적 아름다움을 표현합니다.',
+    tags: ['tiling', 'aperiodic', 'geometry', 'pattern'],
+  },
+  {
+    no: '31', name: 'TSP Art',
+    desc: '수천의 점들을 단 하나의 연속 선으로 연결하는 최단 경로 문제(TSP)와 클리스틱 알고리즘을 활용해 점 아트를 한 줄로 표현합니다.',
+    tags: ['pathfinding', 'optimization', 'single-line', 'stippling'],
+  },
+  {
+    no: '32', name: 'Maze Generation',
+    desc: '깊이 우선 탐색(DFS) 기반 백트래킹으로 격자의 벽을 허물며 미로를 생성합니다. 무작위성과 경로 탐색 로직이 절차적 미로 구조를 만듭니다.',
+    tags: ['maze', 'DFS', 'backtracking', 'procedural'],
+  },
+  {
+    no: '33', name: 'Escape-Time Fractal',
+    desc: '복소평면의 점을 반복적으로 변환하여 발산 여부로 색상을 매핑합니다. 만델브로트 같은 무한 복잡한 구조의 자기 유사 경계를 시각화합니다.',
+    tags: ['fractal', 'complex-number', 'iteration', 'mandelbrot'],
+  },
+  {
+    no: '34', name: 'Physarum (Slime Mold)',
+    desc: '원형 에이전트들이 궤적(Trail)을 남기고 주변 흔적의 농도를 감지해 방향을 결정합니다. 자연에서 발견되는 유기적 네트워크 형성을 시뮬레이션합니다.',
+    tags: ['agent', 'trail', 'emergent', 'network'],
+  },
+  {
+    no: '35', name: 'Quadtree',
+    desc: '조건에 따라 2차원 공간을 재귀적으로 4분할합니다. 빠른 공간 탐색, 충돌 판정, 이미지 압축 등에 활용됩니다.',
+    tags: ['quadtree', 'recursive', 'spatial', 'subdivision'],
+  },
+  {
+    no: '36', name: 'Abelian Sandpile',
+    desc: '격자의 셀에 쌓인 모래가 높이를 넘으면 주변으로 무너져 내려지는(Avalanche) 과정을 반복해, 복잡하고 대칭적인 프랙탈 패턴을 창발합니다.',
+    tags: ['grid', 'avalanche', 'fractal', 'emergence'],
+  },
+  {
+    no: '37', name: 'Marching Squares',
+    desc: '격자의 스칼라 필드에서 등고선(iso-line)을 추출하는 알고리즘입니다. 16가지 경우로 모든 윤곽 패턴을 커버하며 필드 시각화에 활용됩니다.',
+    tags: ['contour', 'isoline', 'grid', 'scalar-field'],
+  },
+  {
+    no: '38', name: 'Shape Morphing',
+    desc: '두 개의 서로 다른 도형 사이를 보간하며 부드럽게 변형되는 과정을 시각화합니다. 최적 운송이나 극좌표 재배열을 통해 자연스러운 중간 형태를 생성합니다.',
+    tags: ['interpolation', 'blend', 'transition', 'animation'],
+  },
+  {
+    no: '39', name: 'Stippling',
+    desc: '점의 배포로 이미지를 렌더링하는 표현 기법입니다. Lloyd 알고리즘으로 점들을 반복 최적화해 자연스러운 스티플 초상화를 만듭니다.',
+    tags: ['stippling', 'voronoi', 'lloyd', 'halftone'],
+  },
+  {
+    no: '40', name: '2D Ray Casting',
+    desc: '관찰점에서 여러 방향으로 광선을 발사해 벽과 장애물과의 교차점을 계산하고, 보이는 영역(visibility polygon)을 그립니다. 조명, 그림자, 시야 판정에 활용됩니다.',
+    tags: ['raycast', 'visibility', 'shadow', 'intersection'],
+  },
+  {
+    no: '41', name: 'Strange Attractor',
+    desc: '단순한 2D 반복 맵(sin/cos 기반)을 수천 번 반복하며 점을 누적해, 복잡하고 우아한 카오스 패턴을 창발합니다. Lorenz보다 감각적이고 직관적입니다.',
+    tags: ['chaos', 'iteration', 'strange-attractor', 'fractal'],
+  },
+  {
+    no: '42', name: 'Wave Function Collapse',
+    desc: '타일 같은 제약(어떤 패턴이 인접할 수 있는지)을 정의하고, 엔트로피가 낮은 부분부터 결정해나가 전체 패턴을 생성하는 제약 충족 알고리즘입니다. 게임 맵, 픽셀 아트 생성에 활용됩니다.',
+    tags: ['constraint', 'tile', 'generative', 'procedural'],
+  },
+  {
+    no: '43', name: 'Flow Map Visualization',
+    desc: '2D 벡터 필드(블로우, 수장 함수 등)를 시각화하는 기법입니다. 선형 보간 컨볼루션(LIC)이나 스트림라인으로 흐름의 방향과 세기를 표현합니다.',
+    tags: ['vector-field', 'streamline', 'LIC', 'visualization'],
+  },
+  {
+    no: '44', name: 'Random Walk',
+    desc: '점이 매 단계마다 무작위 방향으로 이동하며 궤적을 그립니다. 브라우니 운동, 도시 구조, 산책로 같은 자연 경로의 기초가 됩니다.',
+    tags: ['random', 'walk', 'stochastic', 'path'],
+  },
+  {
+    no: '45', name: 'Dithering',
+    desc: '화려한 색을 적은 수의 색깔로 근사할 때, 패턴적 오류 확산으로 중간 톤을 표현합니다. Floyd–Steinberg나 Bayer 행렬이 대표적입니다.',
+    tags: ['pixel', 'halftone', 'error-diffusion', 'image'],
+  },
+  {
+    no: '46', name: 'Agent System',
+    desc: '독립적인 에이전트들이 단순한 규칙을 따라 이동하고 상호작용하며, 복잡한 군집 구조와 패턴을 창발시킵니다.',
+    tags: ['agent', 'behavior', 'emergence', 'swarm'],
+  },
+  {
+    no: '47', name: 'Chladni Figures',
+    desc: '2D 진동의 고유 모드(eigenmode)를 삼각함수로 합성해 공명 지진을 계산합니다. 진동이 0인 선(node line) 주위로 모래가 모여 Cymatics 현상을 시각화하고, 주파수에 따라 변하는 기하학적 패턴을 만듭니다.',
+    tags: ['resonance', 'eigenmode', 'cymatics', 'wave'],
+  },
 ]
 
 export function slugify(name) {

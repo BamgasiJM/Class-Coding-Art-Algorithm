@@ -3,7 +3,12 @@
     "allow": [
       "Bash(node --input-type=module -e ' *)",
       "Bash(rm -rf wave-function-collapse)",
-      "Bash(ls -1d wave-function-collapse)"
+      "Bash(ls -1d wave-function-collapse)",
+      "Bash(cp -r \"00_DUMMY\" \"penrose-tiling\")",
+      "Bash(cp -r \"00_DUMMY\" \"tsp-art\")",
+      "Bash(cp -r \"00_DUMMY\" \"maze-generation\")",
+      "Bash(cp -r \"00_DUMMY\" \"escape-time-fractal\")",
+      "Bash(cp -r \"00_DUMMY\" \"physarum-slime-mold\")"
     ]
   }
 }
