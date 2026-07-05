@@ -3,6 +3,21 @@ import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ALGORITHMS, slugify } from '../algorithms/catalog'
 
+// Fisher–Yates 셔플 (원본 배열 불변, 새 배열 반환)
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+// 이름(name) 알파벳 오름차순 정렬 (원본 불변)
+function sortAlpha(arr) {
+  return [...arr].sort((x, y) => x.name.localeCompare(y.name))
+}
+
 function Card({ algo, index }) {
   const ref               = useRef()
   const [hovered, setHovered]   = useState(false)
@@ -133,6 +148,17 @@ function Card({ algo, index }) {
 export default function AlgorithmSection() {
   const headingRef = useRef()
 
+  // 카드 표시 순서: 'shuffle'(랜덤, 기본값) ↔ 'alpha'(알파벳순) 토글
+  const [mode, setMode] = useState('shuffle')
+  const [displayed, setDisplayed] = useState(() => shuffle(ALGORITHMS))
+
+  function toggleOrder() {
+    const next = mode === 'shuffle' ? 'alpha' : 'shuffle'
+    setMode(next)
+    // alpha면 정렬, shuffle이면 매번 새로 섞음
+    setDisplayed(next === 'alpha' ? sortAlpha(ALGORITHMS) : shuffle(ALGORITHMS))
+  }
+
   useEffect(() => {
     const el = headingRef.current
     const observer = new IntersectionObserver(
@@ -174,6 +200,34 @@ export default function AlgorithmSection() {
           }}>
             Algorithms
           </h2>
+
+          {/* 순서 토글 버튼 — 현재 모드를 표시하고, 클릭하면 셔플 ↔ 알파벳순 전환 */}
+          <button
+            onClick={toggleOrder}
+            aria-label={mode === 'shuffle' ? '알파벳순으로 정렬' : '무작위로 섞기'}
+            style={{
+              marginLeft: 'auto',
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '0.62rem', letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              color: 'var(--muted)',
+              cursor: 'pointer',
+              transition: 'border-color 0.25s ease, color 0.25s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent)'
+              e.currentTarget.style.color = 'var(--accent)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)'
+              e.currentTarget.style.color = 'var(--muted)'
+            }}
+          >
+            {mode === 'shuffle' ? '⤨ Shuffle' : '↓ A–Z'}
+          </button>
         </div>
 
         {/*
@@ -189,7 +243,7 @@ export default function AlgorithmSection() {
           background: 'var(--border)',
           alignItems: 'stretch',
         }}>
-          {ALGORITHMS.map((a, i) => (
+          {displayed.map((a, i) => (
             // 래퍼 div: 1px gap을 구분선으로 활용 (background: var(--border))
             <div key={a.no} style={{ background: 'var(--bg)', height: '100%' }}>
               <Card algo={a} index={i} />

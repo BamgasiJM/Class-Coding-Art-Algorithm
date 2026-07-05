@@ -2,9 +2,13 @@ import sketch from "./sketch";
 
 export default {
   longDescription: {
-    en: "Fractal Brownian Motion (fBm) is an algorithmic technique that layers multiple iterations of Perlin noise—known as octaves—at progressively higher frequencies and lower amplitudes. This multi-layered approach creates intricate, self-similar fractal patterns that simulate natural phenomena like terrain, clouds, and turbulent textures. This visualization displays a grid mesh warped by continuous fBm values, showcasing the organic complexity produced by stacking noise layers.",
-    ko: "Fractal Brownian Motion (fBm)은 주파수가 점진적으로 높아지고 진폭이 낮아지는 여러 단계의 Perlin 노이즈 레이어(옥타브)를 중첩하는 알고리즘 기법입니다. 이 다층적 접근 방식은 지형, 구름, 난류 텍스처 등 자연계의 자기닮음 변동과 복잡성을 정밀하게 모사합니다. 본 구현체는 fBm 연속성 값에 의해 왜곡되는 격자 메쉬를 표현하여, 노이즈 적층이 만들어내는 유기적인 디테일을 시각화합니다.",
+    ko: "Fractal Brownian Motion(fBM)은 여러 옥타브의 Perlin 노이즈를 중첩하여 자연계의 프랙탈적 특성을 모사하는 알고리즘입니다. 각 옥타브마다 주파수는 증가하고 진폭은 감소하며, 이로 인해 큰 규모의 구조 안에 작은 규모의 디테일이 반복되는 자기유사성 패턴이 생성됩니다. 구름, 지형, 불꽃 등 자연의 유기적 형태를 표현하는 데 널리 사용됩니다.",
+    en: "Fractal Brownian Motion (fBM) is an algorithm that mimics the fractal characteristics of nature by layering multiple octaves of Perlin noise. Each octave increases in frequency while decreasing in amplitude, creating self-similar patterns where small-scale details repeat within larger structures. It is widely used to express organic forms in nature such as clouds, terrain, and fire.",
   },
   sketch,
-  related: ["Perlin / Simplex Noise", "Flow Field", "Curl Noise"],
+  related: [
+    "Perlin / Simplex Noise",
+    "Curl Noise",
+    "Diffusion-Limited Aggregation",
+  ],
 };

@@ -107,38 +107,63 @@ export const ALGORITHMS = [
     tags: ['tile', 'rotation', 'pattern', 'grid'],
   },
   {
-    no: '19', name: 'Wave Function Collapse',
-    desc: '인접 제약을 전파하며 타일을 하나씩 확정(collapse)해 전체적으로 일관된 패턴과 맵을 생성합니다.',
-    tags: ['WFC', 'constraint', 'tiling', 'entropy'],
+    no: '19', name: 'Wang Tiles',
+    desc: '변(edge)의 색을 맞춰야 하는 제약으로 타일을 배치해, 반복되지 않는 비주기 패턴을 만듭니다.',
+    tags: ['tile', 'edge-matching', 'aperiodic', 'constraint'],
+  },
+  {
+    no: '20', name: 'Poisson Disk Sampling',
+    desc: '서로 최소 간격을 유지하도록 점을 뿌려, 뭉침 없이 고르고 자연스러운 분포를 만듭니다(Bridson 알고리즘).',
+    tags: ['sampling', 'blue-noise', 'distribution', 'spatial'],
   },
 
   // ── Fields & Contours ────────────────────────────────────
   {
-    no: '20', name: 'SDF & Metaballs',
+    no: '21', name: 'SDF & Metaballs',
     desc: '부호 있는 거리 함수(SDF)로 2D 형태를 정의하고, marching squares로 등고선·메타볼을 추출해 부드럽게 융합되는 형태를 그립니다.',
     tags: ['SDF', 'metaball', 'marching-squares', 'implicit'],
   },
 
   // ── Dynamics & Physics ───────────────────────────────────
   {
-    no: '21', name: 'Particle System',
+    no: '22', name: 'Particle System',
     desc: '이미터에서 방출된 파티클에 속도·중력·감쇠를 적용해 불꽃, 연기, 비 등 자연 현상을 시뮬레이션합니다.',
     tags: ['emitter', 'lifespan', 'force', 'integration'],
   },
   {
-    no: '22', name: 'Spring & Constraint',
+    no: '23', name: 'Spring & Constraint',
     desc: '스프링 힘(Hooke)과 Verlet 적분·거리 제약으로 천, 로프, 연성 물체의 물리적 움직임을 시뮬레이션합니다.',
     tags: ['spring', 'verlet', 'constraint', 'cloth'],
+  },
+  {
+    no: '24', name: 'N-Body Gravity',
+    desc: '모든 입자가 서로 만유인력으로 끌어당기며 궤도를 이룹니다. 거리 제곱에 반비례하는 상호 인력을 적분합니다.',
+    tags: ['gravity', 'n-body', 'orbit', 'force'],
+  },
+  {
+    no: '25', name: 'Double Pendulum',
+    desc: '두 관절의 각도·각속도를 적분해 이중 진자의 운동을 시뮬레이션합니다. 초기값의 미세한 차이가 전혀 다른 궤적으로 발산하는 카오스의 대표 예입니다.',
+    tags: ['angular-velocity', 'chaos', 'gravity', 'pendulum'],
+  },
+  {
+    no: '26', name: 'Elastic Collision',
+    desc: '원-원 거리로 충돌을 판정하고 운동량·에너지 보존으로 반발 속도를 계산합니다. 당구공 같은 탄성 충돌을 재현합니다.',
+    tags: ['collision', 'momentum', 'restitution', 'physics'],
+  },
+  {
+    no: '27', name: 'Harmonograph',
+    desc: '감쇠(damping)되는 여러 사인 진동을 합성해 그리는 곡선입니다. 서서히 잦아드는 진자 운동이 정교한 리사주 궤적을 남깁니다.',
+    tags: ['damping', 'oscillation', 'lissajous', 'curve'],
   },
 
   // ── Collective Behavior & Chaos ──────────────────────────
   {
-    no: '23', name: 'Boids / Flocking',
+    no: '28', name: 'Boids / Flocking',
     desc: '분리(Separation)·정렬(Alignment)·응집(Cohesion) 세 규칙만으로 새떼·물고기떼의 군집 행동을 재현합니다.',
     tags: ['boids', 'swarm', 'agent', 'emergence'],
   },
   {
-    no: '24', name: 'Attractor System',
+    no: '29', name: 'Attractor System',
     desc: 'Lorenz·Thomas attractor 방정식을 실시간으로 적분해 카오스적인 궤도를 시각화합니다.',
     tags: ['chaos', 'ODE', 'trail', 'lorenz'],
   },

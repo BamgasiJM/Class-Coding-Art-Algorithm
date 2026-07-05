@@ -19,12 +19,17 @@ import voronoiDiagram from './voronoi-diagram'
 import circlePacking from './circle-packing'
 import delaunayTriangulation from './delaunay-triangulation'
 import truchetTiles from './truchet-tiles'
-import wfc from './wave-function-collapse'
 import metaballs from './sdf--metaballs'
 import particleSystem from './particle-system'
 import springConstraint from './spring--constraint'
 import boids from './boids--flocking'
 import attractorSystem from './attractor-system'
+import wangTiles from './wang-tiles'
+import poissonDiskSampling from './poisson-disk-sampling'
+import nBodyGravity from './n-body-gravity'
+import doublePendulum from './double-pendulum'
+import elasticCollision from './elastic-collision'
+import harmonograph from './harmonograph'
 
 export const ALGORITHM_DETAILS = {
   'flow-field': flowField,
@@ -50,7 +55,13 @@ export const ALGORITHM_DETAILS = {
   'sdf--metaballs': metaballs,
   'spring--constraint': springConstraint,
   'truchet-tiles': truchetTiles,
-  'wave-function-collapse': wfc,
+  'wang-tiles': wangTiles,
+  'poisson-disk-sampling': poissonDiskSampling,
+  'n-body-gravity': nBodyGravity,
+  'double-pendulum': doublePendulum,
+  'elastic-collision': elasticCollision,
+  'harmonograph': harmonograph,
+  
 }
 
 export function getAlgorithmDetail(slug) {

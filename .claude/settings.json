@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(rm -rf wave-function-collapse)",
+      "Bash(ls -1d wave-function-collapse)"
+    ]
+  }
+}

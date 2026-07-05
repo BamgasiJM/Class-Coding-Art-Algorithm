@@ -137,8 +137,10 @@ Curl Noise(curl-noise), IFS & Fractal(ifs--fractal), L-System(l-system), Cellula
 Reaction-Diffusion(reaction-diffusion), Differential Growth(differential-growth), Space Colonization(space-colonization),
 Diffusion-Limited Aggregation(diffusion-limited-aggregation), Voronoi Diagram(voronoi-diagram),
 Delaunay Triangulation(delaunay-triangulation), Circle Packing(circle-packing), Truchet Tiles(truchet-tiles),
-Wave Function Collapse(wave-function-collapse), SDF & Metaballs(sdf--metaballs), Particle System(particle-system),
-Spring & Constraint(spring--constraint), Boids / Flocking(boids--flocking), Attractor System(attractor-system)
+Wang Tiles(wang-tiles), Poisson Disk Sampling(poisson-disk-sampling), SDF & Metaballs(sdf--metaballs),
+Particle System(particle-system), Spring & Constraint(spring--constraint), N-Body Gravity(n-body-gravity),
+Double Pendulum(double-pendulum), Elastic Collision(elastic-collision), Harmonograph(harmonograph),
+Boids / Flocking(boids--flocking), Attractor System(attractor-system)
 
 ## 작성 대상 (← 여기만 바꿔서 요청)
 - 알고리즘 이름: Phyllotaxis
