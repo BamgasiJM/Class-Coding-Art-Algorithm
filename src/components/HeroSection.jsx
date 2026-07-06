@@ -175,9 +175,9 @@ export default function HeroSection() {
             ref={tagRef}
             style={{
               fontFamily: "'IBM Plex Sans KR', sans-serif",
-              fontWeight: 400,
+              fontWeight: 800,
               fontSize: "clamp(0.8rem, 2vw, 2.0rem)",
-              letterSpacing: "0.4em",
+              letterSpacing: "0.2em",
               color: "var(--accent)",
               marginBottom: "1.2rem",
             }}

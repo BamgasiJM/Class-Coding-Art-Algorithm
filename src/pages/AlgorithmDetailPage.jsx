@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { findAlgorithmBySlug, slugify } from '../algorithms/catalog'
 import { getAlgorithmDetail } from '../algorithms/details'
@@ -8,8 +8,13 @@ export default function AlgorithmDetailPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
 
+  // 캔버스는 마운트 시 한 번만 화면 너비에 맞춰 크기를 정한다 (반응형 리사이즈 아님 — P5Canvas 규칙 참고)
+  const [canvasSize] = useState(() =>
+    typeof window === 'undefined' ? 560 : Math.min(560, Math.floor(window.innerWidth * 0.85))
+  )
+
   useEffect(() => {
-    window.scrollTo(0, 0)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [slug])
 
   const algorithm = findAlgorithmBySlug(slug)
@@ -122,7 +127,7 @@ export default function AlgorithmDetailPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))',
             gap: '4rem',
             alignItems: 'start',
           }}
@@ -187,12 +192,12 @@ export default function AlgorithmDetailPage() {
               Visualization
             </h2>
             {detail && detail.sketch ? (
-              <P5Canvas sketch={detail.sketch} />
+              <P5Canvas sketch={detail.sketch} size={canvasSize} />
             ) : (
               <div
                 style={{
-                  width: 560,
-                  height: 560,
+                  width: canvasSize,
+                  height: canvasSize,
                   margin: '0 auto',
                   border: '1px solid var(--border)',
                   display: 'flex',
