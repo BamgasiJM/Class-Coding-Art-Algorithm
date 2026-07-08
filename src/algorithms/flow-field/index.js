@@ -2,9 +2,27 @@ import sketch from "./sketch";
 
 // Flow Field 상세 정보: 설명(ko/en), 시각화 sketch, 관련 알고리즘.
 export default {
+  // 마크다운 문자열 (react-markdown 으로 렌더링). ko는 본문(--fg), en은 보조(--muted).
   longDescription: {
-    en: "Flow Field is a foundational algorithm where particles follow velocity vectors defined by a noise field. Using Perlin noise, we create a continuous vector field that smoothly varies across space and time. Each particle senses the vector at its current position and follows that direction, creating organic, fluid-like motion patterns. This technique is widely used in particle systems, creature animation, and natural phenomena visualization.",
-    ko: "Flow Field는 파티클들이 노이즈 필드로 정의된 속도 벡터를 따르는 기본 알고리즘입니다. Perlin noise를 사용하여 공간과 시간에 걸쳐 부드럽게 변하는 연속적인 벡터 필드를 생성합니다. 각 파티클은 현재 위치의 벡터를 감지하고 그 방향을 따르며, 유기적이고 유체와 같은 동작 패턴을 만듭니다. 이 기법은 파티클 시스템, 캐릭터 애니메이션, 자연 현상 시각화에 광범위하게 사용됩니다.",
+    ko: `
+**Flow Field**는 파티클들이 노이즈 필드로 정의된 속도 벡터를 따르는 기본 알고리즘입니다.
+Perlin noise를 사용하여 공간과 시간에 걸쳐 부드럽게 변하는 연속적인 벡터 필드를 생성합니다.
+
+각 파티클은 현재 위치의 벡터를 감지하고 그 방향을 따르며, 유기적이고 유체와 같은 동작 패턴을 만듭니다.
+
+## 주요 활용 분야:
+
+- 파티클 시스템
+- 캐릭터 애니메이션
+- 자연 현상 시각화
+`,
+    en: `
+**Flow Field** is a foundational algorithm where particles follow velocity vectors defined by a noise field.
+Using Perlin noise, we create a continuous vector field that smoothly varies across space and time.
+Each particle senses the vector at its current position and follows that direction, creating organic, fluid-like motion patterns.
+
+This technique is widely used in particle systems, creature animation, and natural phenomena visualization.
+`,
   },
   sketch,
   // Playground 슬라이더 스키마. restart: true는 구조 파라미터(setup에서만 반영 → 인스턴스 재시작).

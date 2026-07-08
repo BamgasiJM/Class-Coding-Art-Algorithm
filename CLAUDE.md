@@ -142,7 +142,10 @@ To flesh out a card's detail page (currently only Flow Field is complete; the ot
    import sketch from './sketch'
 
    export default {
-     longDescription: { ko: '...', en: '...' },          // ko shown first/prominent, en second/muted
+     longDescription: {
+       ko: String.raw`...`,   // ko shown first/prominent, en second/muted
+       en: String.raw`...`,
+     },
      sketch,
      related: ['Flow Field', 'Perlin / Simplex Noise'],  // exact names from ALGORITHMS
    }
@@ -150,6 +153,12 @@ To flesh out a card's detail page (currently only Flow Field is complete; the ot
 4. **Register it**: add one line to `src/algorithms/details.js` — `import <name> from './<slug>'` and a `'<slug>': <name>,` entry in `ALGORITHM_DETAILS`.
 
 That's it — AlgorithmDetailPage picks it up by slug. No routing changes needed.
+
+### ⚠️ longDescription is Markdown + LaTeX — use `String.raw`
+
+`longDescription.ko` / `.en` are **Markdown strings**, rendered by `react-markdown` in `AlgorithmDetailPage.jsx` (with `remark-math` + `rehype-katex` for math, and `katex/dist/katex.min.css` imported there). Styling lives in `index.css` under `.markdown-body` (`--primary` = ko/`--fg`, `--muted` = en/`--muted`). So you can use headings (`##`), bold (`**`), lists (`-`), inline code, and LaTeX math (`$...$` inline, `$$...$$` block).
+
+**Always wrap these strings in `` String.raw`...` ``, not a plain backtick.** A plain template literal eats LaTeX backslashes as JS escape sequences — `\psi`→`psi`, `\frac`→(form-feed)`rac`, `\times`→(tab)`imes`, `\nabla`→(newline)`abla` — silently corrupting every formula before KaTeX sees it. `String.raw` preserves backslashes verbatim while keeping real line breaks. (Flow Field has no math so it happens to survive a plain backtick; don't rely on that — default to `String.raw` everywhere.) See `curl-noise/index.js` for a full math-heavy example.
 
 ### ⚠️ p5.js Canvas Lifecycle — DO NOT REGRESS
 

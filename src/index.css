@@ -28,6 +28,46 @@ body {
   cursor: none;
 }
 
+/* 알고리즘 설명 마크다운 (AlgorithmDetailPage) */
+.markdown-body {
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+.markdown-body--primary { color: var(--fg); margin-bottom: 1.5rem; }
+.markdown-body--muted   { color: var(--muted); }
+
+.markdown-body > *:first-child { margin-top: 0; }
+.markdown-body > *:last-child  { margin-bottom: 0; }
+
+.markdown-body p { margin-bottom: 1rem; }
+.markdown-body strong { color: var(--accent); font-weight: 400; }
+.markdown-body a { color: var(--accent); text-decoration: underline; }
+
+.markdown-body h2,
+.markdown-body h3 {
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  margin: 1.6rem 0 0.8rem;
+}
+.markdown-body h2 { font-size: 1.25rem; }
+.markdown-body h3 { font-size: 1.1rem; }
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0 0 1rem 1.2rem;
+}
+.markdown-body li { margin-bottom: 0.35rem; }
+
+.markdown-body code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
 /* 커스텀 커서 */
 .cursor {
   position: fixed;

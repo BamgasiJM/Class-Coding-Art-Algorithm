@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { findAlgorithmBySlug, slugify } from '../algorithms/catalog'
 import { getAlgorithmDetail } from '../algorithms/details'
 import P5Canvas from '../algorithms/P5Canvas'
@@ -149,27 +153,16 @@ export default function AlgorithmDetailPage() {
             </h2>
             {detail ? (
               <>
-                <p
-                  style={{
-                    fontFamily: "'IBM Plex Sans KR', sans-serif",
-                    fontSize: '1rem',
-                    lineHeight: 1.8,
-                    color: 'var(--fg)',
-                    marginBottom: '1.5rem',
-                  }}
-                >
-                  {detail.longDescription.ko}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'IBM Plex Sans KR', sans-serif",
-                    fontSize: '1rem',
-                    lineHeight: 1.8,
-                    color: 'var(--muted)',
-                  }}
-                >
-                  {detail.longDescription.en}
-                </p>
+                <div className="markdown-body markdown-body--primary">
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {detail.longDescription.ko}
+                  </ReactMarkdown>
+                </div>
+                <div className="markdown-body markdown-body--muted">
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {detail.longDescription.en}
+                  </ReactMarkdown>
+                </div>
               </>
             ) : (
               <p style={{ color: 'var(--muted)', fontStyle: 'italic' }}>
