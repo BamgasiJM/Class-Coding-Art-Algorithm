@@ -91,8 +91,10 @@ npm run preview # 빌드 결과 미리보기
 
 ### AlgorithmDetailPage
 - `findAlgorithmBySlug(slug)`로 메타데이터를, `getAlgorithmDetail(slug)`로 확장 내용을 조회합니다.
+- **최상단 스크롤**: 진입 시 `window.scrollTo({ top: 0, left: 0, behavior: 'instant' })`로 즉시 이동합니다. `behavior: 'instant'`가 핵심인데, 전역 `scroll-behavior: smooth`(`index.css`) 때문에 기본값으로 호출하면 애니메이션 스크롤이 되어 (모바일에서 캔버스 마운트로 인한 레이아웃 변화 등에) 중간에 멈춰버리는 문제가 있었습니다.
 - **개요**: 한국어(`longDescription.ko`)를 먼저 강조 표시, 영어(`longDescription.en`)를 뒤에 보조 표시.
-- **시각화**: `<P5Canvas sketch={detail.sketch} />`로 고정 정사각형 p5 캔버스를 렌더링합니다. 상세 폴더가 아직 없는 알고리즘은 "준비 중" 폴백을 보여줍니다.
+- **시각화**: `<P5Canvas sketch={detail.sketch} size={canvasSize} />`로 p5 캔버스를 렌더링합니다. 상세 폴더가 아직 없는 알고리즘은 동일 크기의 "준비 중" 폴백을 보여줍니다.
+- **모바일 대응 캔버스 크기**: `canvasSize`는 마운트 시 1회 `Math.min(560, window.innerWidth * 0.85)`로 계산됩니다(리사이즈 추적 없음 — P5Canvas 규칙 참고). 고정 560px 캔버스 + 콘텐츠 그리드의 400px 최소폭이 겹치면 모바일 레이아웃 뷰포트가 화면 너비보다 넓어져 텍스트가 잘리고 확대된 것처럼 보이는 문제가 있었습니다. 콘텐츠 그리드도 `minmax(400px, 1fr)` → `minmax(min(400px, 100%), 1fr)`로 바꿔 같은 문제를 해결했습니다.
 - **관련 알고리즘**: `related` 배열 기반 미니 카드로 서로 연결됩니다.
 
 ---

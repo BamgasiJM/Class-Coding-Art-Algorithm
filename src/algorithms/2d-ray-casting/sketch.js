@@ -7,7 +7,7 @@ export default function rayCastingSketch(p, size) {
 
   let time = 0;
 
-  const NUM_RAYS = 180;
+  const NUM_RAYS = 100;
 
   let mouseActive = false;
 
@@ -253,7 +253,7 @@ export default function rayCastingSketch(p, size) {
 
     p.fill(255, 255, 255, 230);
 
-    p.circle(light.x, light.y, 7);
+    p.circle(light.x, light.y, 9);
 
     p.fill(accentR, accentG, accentB);
 

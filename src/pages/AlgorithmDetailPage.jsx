@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { findAlgorithmBySlug, slugify } from '../algorithms/catalog'
 import { getAlgorithmDetail } from '../algorithms/details'
 import P5Canvas from '../algorithms/P5Canvas'
+import Playground from '../algorithms/Playground'
 
 export default function AlgorithmDetailPage() {
   const { slug } = useParams()
@@ -191,7 +192,9 @@ export default function AlgorithmDetailPage() {
             >
               Visualization
             </h2>
-            {detail && detail.sketch ? (
+            {detail && detail.sketch && detail.params?.length ? (
+              <Playground sketch={detail.sketch} size={canvasSize} params={detail.params} />
+            ) : detail && detail.sketch ? (
               <P5Canvas sketch={detail.sketch} size={canvasSize} />
             ) : (
               <div

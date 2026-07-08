@@ -96,10 +96,12 @@ Grid-based card display of the generative art algorithms:
 #### AlgorithmDetailPage (src/pages/AlgorithmDetailPage.jsx)
 Detail view at `/algorithm/:slug`:
 - Looks up algorithm metadata via `findAlgorithmBySlug(slug)` and extended content via `getAlgorithmDetail(slug)`.
-- **Scroll to top on mount**: `useEffect(() => window.scrollTo(0, 0), [slug])` — otherwise the page inherits the previous scroll position.
+- **Scroll to top on mount**: `useEffect(() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' }), [slug])`. The `behavior: 'instant'` is required — `html { scroll-behavior: smooth }` is set globally in `index.css`, so a bare `window.scrollTo(0, 0)` becomes an animated scroll that can be interrupted mid-flight (e.g. by layout shifting as the deferred p5 canvas mounts), landing mid-page instead of at the top. This was most visible on mobile.
 - **Header**: number, name, tags.
 - **Overview**: bilingual description. Korean (`longDescription.ko`) is shown FIRST in `--fg` (prominent); English (`longDescription.en`) SECOND in `--muted`.
-- **Visualization**: renders `<P5Canvas sketch={detail.sketch} />` (fixed square, see P5Canvas). Falls back to a "not available yet" square box if no sketch.
+- **Content grid**: the Overview/Visualization two-column layout uses `gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))'`. The `min(400px, 100%)` matters — a bare `minmax(400px, 1fr)` forces a 400px-minimum track regardless of container width, which overflowed narrow mobile viewports (see canvas sizing below).
+- **Visualization**: renders `<P5Canvas sketch={detail.sketch} size={canvasSize} />` (see P5Canvas). Falls back to a same-sized placeholder box if no sketch.
+- **Mobile-safe canvas size**: `canvasSize` is computed ONCE via a lazy `useState(() => Math.min(560, window.innerWidth * 0.85))` initializer at first mount — not tracked on resize. Without this, the fixed 560px canvas (plus the 400px grid column minimum above) forced the mobile layout viewport wider than the device width, clipping text at the edge and making the page look "zoomed in" even though `scrollY` was correctly `0`.
 - **Related Algorithms**: mini-cards linking to related algorithms, driven by the `related` array (names) in the detail entry. Grid uses `repeat(auto-fit, minmax(220px, 1fr))` — **must be `auto-fit`, not `auto-fill`**, otherwise empty grid tracks on wide screens show the container's `--border` background as gray gaps.
 - **Back button**: `navigate('/', { state: { scrollTo: 'algorithms' } })`. HomePage reads `location.state.scrollTo` and scrolls to `#algorithms`, so returning lands on the algorithm grid instead of the top hero.
 
@@ -161,7 +163,7 @@ That's it — AlgorithmDetailPage picks it up by slug. No routing changes needed
 
 **Rules to avoid re-introducing this bug:**
 1. **Never** wrap p5's `setup`/`draw` in a "disposed" guard that early-returns. A previous attempt did this; it prevented `createCanvas(size, size)` from running, so p5 silently fell back to a default **100×100** canvas that stacked on top. If you must gate anything, gate the *creation* of the instance (the rAF approach), not the sketch's lifecycle methods.
-2. **Keep the canvas a fixed square** with no resize logic. A responsive canvas (reading `container.clientWidth`/`ResizeObserver`/`windowResized`) reintroduces measurement-timing races that caused the original misalignment. Size is passed in as a prop and fixed at mount.
+2. **Keep the canvas a fixed square** with no resize logic. A responsive canvas (reading `container.clientWidth`/`ResizeObserver`/`windowResized`) reintroduces measurement-timing races that caused the original misalignment. Size is passed in as a prop and fixed at mount. (Computing that fixed value from `window.innerWidth` ONCE at mount — as `AlgorithmDetailPage` does for mobile — is fine; it's a *live* resize listener that's forbidden.)
 3. If you ever change `P5Canvas.jsx`, **verify there is exactly one `<canvas>`** in the detail page DOM afterward (e.g. `document.querySelectorAll('canvas').length === 1`), including after navigating back-and-forth between the home page and a detail page several times.
 
 ### Animation Approach
@@ -193,7 +195,7 @@ Global styles in `src/index.css`:
 - **No SplitText Plugin**: Character-by-character title animations in HeroSection are custom-implemented (no GSAP Club SplitText dependency).
 - **Responsive Grids**: The AlgorithmSection card grid uses `auto-fill`; the AlgorithmDetailPage "Related Algorithms" grid uses `auto-fit` (deliberately different — `auto-fit` avoids gray empty tracks with a small, fixed number of related items).
 - **Accent Color**: Randomized per page load (see Style Organization). Used for hover states, checkboxes, custom cursor, and p5 particle color.
-- **p5 Canvas**: Fixed square, StrictMode-safe (see "⚠️ p5.js Canvas Lifecycle").
+- **p5 Canvas**: Fixed square, StrictMode-safe (see "⚠️ p5.js Canvas Lifecycle"). On `AlgorithmDetailPage`, the fixed size itself is computed once at mount from viewport width (capped at 560px) so it fits mobile screens — see the "Mobile-safe canvas size" note above.
 
 ---
 

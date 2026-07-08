@@ -1,14 +1,26 @@
-export default function flowFieldSketch(p, size) {
+export default function flowFieldSketch(p, size, params = {}) {
   let particles = [];
   let cols, rows;
-  let scl = 25; // 그리드 셀 크기 (벡터 필드 해상도)
+  let scl; // 그리드 셀 크기 (벡터 필드 해상도) — setup에서 params로 결정 (구조 파라미터)
   let time = 0;
   let accentColor;
   let fieldColor;
 
+  // 실시간 파라미터는 매 프레임 params에서 직접 읽어 슬라이더 조작을 즉시 반영한다.
+  // 구조 파라미터(scl, count)는 setup/initParticles에서만 읽히므로 변경 시 재시작이 필요하다.
+  const P = {
+    scl: () => params.scl ?? 25,
+    count: () => params.count ?? 300,
+    noiseScale: () => params.noiseScale ?? 0.005,
+    speed: () => params.speed ?? 2,
+    damping: () => params.damping ?? 0.9,
+    timeSpeed: () => params.timeSpeed ?? 0.005,
+  };
+
   p.setup = function () {
     p.createCanvas(size, size);
 
+    scl = P.scl();
     cols = p.floor(p.width / scl);
     rows = p.floor(p.height / scl);
 
@@ -26,7 +38,8 @@ export default function flowFieldSketch(p, size) {
 
   function initParticles() {
     particles = [];
-    for (let i = 0; i < 300; i++) {
+    const count = P.count();
+    for (let i = 0; i < count; i++) {
       particles.push({
         x: p.random(p.width),
         y: p.random(p.height),
@@ -39,15 +52,14 @@ export default function flowFieldSketch(p, size) {
 
   // 특정 위치의 flow 각도 계산
   function getFlowAngle(x, y) {
-    return (
-      p.noise(x * 0.005, y * 0.005, time * 0.2) * p.TWO_PI * 2
-    );
+    const ns = P.noiseScale();
+    return p.noise(x * ns, y * ns, time * 0.2) * p.TWO_PI * 2;
   }
 
   p.draw = function () {
     // 알파 트레일로 부드러운 흔적
     p.background(8, 8, 16, 15);
-    time += 0.005;
+    time += P.timeSpeed();
 
     // 배경에 벡터 필드 시각화 (흐름장의 구조 보여주기)
     p.stroke(255, 5);
@@ -73,14 +85,17 @@ export default function flowFieldSketch(p, size) {
     p.stroke(accentColor);
     p.strokeWeight(1.5);
 
+    const speed = P.speed();
+    const damp = P.damping();
+
     for (let particle of particles) {
       let angle = getFlowAngle(particle.x, particle.y);
 
       // 속도 업데이트 (댐핑 적용으로 자연스러운 움직임)
-      let targetVx = p.cos(angle) * 2;
-      let targetVy = p.sin(angle) * 2;
-      particle.vx = particle.vx * 0.9 + targetVx * 0.1; // 댐핑
-      particle.vy = particle.vy * 0.9 + targetVy * 0.1;
+      let targetVx = p.cos(angle) * speed;
+      let targetVy = p.sin(angle) * speed;
+      particle.vx = particle.vx * damp + targetVx * (1 - damp); // 댐핑
+      particle.vy = particle.vy * damp + targetVy * (1 - damp);
 
       particle.x += particle.vx;
       particle.y += particle.vy;
