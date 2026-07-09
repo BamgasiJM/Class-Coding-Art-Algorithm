@@ -2,9 +2,54 @@ import sketch from './sketch'
 
 export default {
   longDescription: {
-    ko: 'Penrose Tiling은 두 가지 폴리곤(kite와 dart)만으로 평면을 완전히 덮으면서도 어떤 반복 패턴 없이 비주기적으로 진행되는 타일링입니다. 황금비를 기반으로 한 inflation rule을 재귀적으로 적용하면 자기 유사성을 가진 복잡한 패턴이 창발됩니다. 이는 준결정질 구조의 수학적 모델로 실제 물리 시스템에도 나타나는 현상입니다.',
-    en: 'Penrose Tiling is a non-periodic tiling of the plane using only two polygons (kite and dart) that covers the entire surface without any repeating pattern. By recursively applying inflation rules based on the golden ratio, a complex self-similar pattern emerges. This mathematical model of quasicrystalline structure appears in real physical systems.',
+    ko: 'Penrose Tiling은 두 가지 마름모(Thick Rhombus와 Thin Rhombus)를 사용하여 평면을 비주기적으로 덮는 타일링 방식입니다. P3 규칙과 황금비를 기반으로 한 분할(Inflation)을 통해 생성되며, 제공된 이미지와 같은 별 모양(Sun) 패턴에서 시작하여 자기 유사성을 가진 복잡한 기하학적 구조를 창발합니다.',
+    en: 'Penrose Tiling is a non-periodic tiling of the plane using two types of rhombuses (thick and thin). Generated via P3 rules and golden ratio inflation starting from a star (Sun) pattern, it covers the surface without repeating, emerging as a complex self-similar geometric structure.',
   },
   sketch,
+  params: [
+    { 
+      key: 'generations', 
+      label: '분할 세대 수', 
+      min: 1, 
+      max: 7, 
+      step: 1, 
+      default: 5, 
+      restart: true 
+    },
+    { 
+      key: 'initialRadius', 
+      label: '초기 반지름 비율', 
+      min: 0.2, 
+      max: 0.8, 
+      step: 0.01, 
+      default: 0.52, 
+      restart: true 
+    },
+    { 
+      key: 'goldenRatio', 
+      label: '황금비 - 1.618', 
+      min: 1.4, 
+      max: 1.8, 
+      step: 0.001, 
+      default: 1.618, 
+      restart: true 
+    },
+    { 
+      key: 'lineWeight', 
+      label: '경계선 굵기', 
+      min: 0, 
+      max: 3, 
+      step: 0.1, 
+      default: 0.8 
+    },
+    { 
+      key: 'rotationSpeed', 
+      label: '회전 속도', 
+      min: -0.02, 
+      max: 0.02, 
+      step: 0.001, 
+      default: 0 
+    },
+  ],
   related: ['IFS & Fractal', 'Truchet Tiles', 'Wang Tiles'],
 }

@@ -2,7 +2,7 @@ import sketch from './sketch'
 
 export default {
   longDescription: {
-    ko:`
+    ko: `
 **Abelian Sandpile Model**은 이산적인 격자 위에서 입자의 이동과 축적을 통해 나타나는 자기 조직화된 임계 상태(Self-Organized Criticality)를 시뮬레이션하는 확률적 알고리즘입니다. 입자가 특정 임계치를 넘어서는 순간 주변으로 흩어지는 **토플링**(Toppling) 과정을 통해, 시스템이 평형을 찾아가는 과정에서 나타나는 복잡한 패턴과 프랙탈 구조를 수학적으로 모델링합니다.
 
 ### 1. 핵심 수학적 원리
@@ -32,5 +32,43 @@ ASM의 역학은 격자 위의 각 노드에 저장된 입자의 수 $z_i$와 �
     en: 'Abelian Sandpile is a self-organized criticality model that tracks the number of "grains of sand" on each cell of a grid. When a cell exceeds a threshold (typically 4), it distributes one grain to each of its four neighbors, destabilizing them in turn and triggering cascading avalanches. Thanks to its "Abelian" property — the final state is independent of the toppling order — a single massive pile dropped at the center evolves through thousands of collapses into a strikingly symmetric fractal boundary.',
   },
   sketch,
+  params: [
+    { 
+      key: 'cellSize', 
+      label: '셀 크기 (픽셀)', 
+      min: 2, 
+      max: 12, 
+      step: 1, 
+      default: 6, 
+      restart: true 
+    },
+    { 
+      key: 'initialGrains', 
+      label: '초기 중심 모래량', 
+      min: 1000, 
+      max: 40000, 
+      step: 1000, 
+      default: 15000, 
+      restart: true 
+    },
+    { 
+      key: 'iterationsPerFrame', 
+      label: '프레임당 연산 횟수', 
+      min: 1, 
+      max: 30, 
+      step: 1, 
+      default: 2, 
+      restart: false 
+    },
+    { 
+      key: 'clickGrains', 
+      label: '클릭 시 추가 모래량', 
+      min: 1000, 
+      max: 30000, 
+      step: 1000, 
+      default: 10000, 
+      restart: false 
+    },
+  ],
   related: ['Cellular Automata', 'Diffusion-Limited Aggregation', 'IFS & Fractal'],
 }

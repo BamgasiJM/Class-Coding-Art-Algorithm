@@ -1,35 +1,38 @@
 // src/algorithms/agent-system/sketch.js
-export default function agentSystemSketch(p, size) {
+export default function agentSystemSketch(p, size, params = {}) {
   let agents = [];
   let accentColor;
 
-  // Boids 알고리즘 파라미터
-  const perceptionRadius = 50;  // 에이전트가 다른 에이전트를 인식하는 반경
-  const maxSpeed = 2;            // 최대 속도
-  const maxForce = 0.05;        // 최대 힘
-  const separationWeight = 1.5; // 분리 가중치
-  const alignmentWeight = 1.0;  // 정렬 가중치
-  const cohesionWeight = 1.2;   // 응집 가중치
+  // 파라미터 접근자 객체
+  const P = {
+    count: () => params.count ?? 200,
+    perceptionRadius: () => params.perceptionRadius ?? 50,
+    maxSpeed: () => params.maxSpeed ?? 2,
+    maxForce: () => params.maxForce ?? 0.05, // UI에는 노출하지 않으나 일관성을 위해 접근자로 관리
+    separationWeight: () => params.separationWeight ?? 1.5,
+    alignmentWeight: () => params.alignmentWeight ?? 1.0,
+    cohesionWeight: () => params.cohesionWeight ?? 1.2,
+  };
 
   p.setup = function() {
     p.createCanvas(size, size);
-
+    
     // accent 색 읽기
     accentColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--accent')
       .trim();
-
-    // 에이전트 초기화 (200개)
+    
+    // 에이전트 초기화
     agents = [];
-    for (let i = 0; i < 200; i++) {
+    const count = P.count(); // 구조: 초기화 시점에만 읽음
+    for (let i = 0; i < count; i++) {
       const angle = p.random(p.TWO_PI);
       agents.push({
         position: p.createVector(p.random(p.width), p.random(p.height)),
-        velocity: p.createVector(p.cos(angle), p.sin(angle)).mult(p.random(0.5, maxSpeed)),
+        velocity: p.createVector(p.cos(angle), p.sin(angle)).mult(p.random(0.5, P.maxSpeed())),
         acceleration: p.createVector(0, 0)
       });
     }
-
     p.background(8, 8, 16);
   };
 
@@ -37,16 +40,19 @@ export default function agentSystemSketch(p, size) {
   function separate(agent) {
     let steering = p.createVector(0, 0);
     let total = 0;
+    
+    const percRad = P.perceptionRadius();
+    const mSpeed = P.maxSpeed();
+    const mForce = P.maxForce();
+    const weight = P.separationWeight();
 
     for (let other of agents) {
       if (other === agent) continue;
-
       const distance = p.dist(
         agent.position.x, agent.position.y,
         other.position.x, other.position.y
       );
-
-      if (distance < perceptionRadius && distance > 0) {
+      if (distance < percRad && distance > 0) {
         // 거리에 반비례하는 힘 (가까울수록 강하게 밀치기)
         const diff = p.createVector(
           agent.position.x - other.position.x,
@@ -57,14 +63,12 @@ export default function agentSystemSketch(p, size) {
         total++;
       }
     }
-
     if (total > 0) {
       steering.div(total);
-      steering.setMag(maxSpeed);
+      steering.setMag(mSpeed);
       steering.sub(agent.velocity);
-      steering.limit(maxForce * separationWeight);
+      steering.limit(mForce * weight);
     }
-
     return steering;
   }
 
@@ -72,28 +76,29 @@ export default function agentSystemSketch(p, size) {
   function align(agent) {
     let steering = p.createVector(0, 0);
     let total = 0;
+    
+    const percRad = P.perceptionRadius();
+    const mSpeed = P.maxSpeed();
+    const mForce = P.maxForce();
+    const weight = P.alignmentWeight();
 
     for (let other of agents) {
       if (other === agent) continue;
-
       const distance = p.dist(
         agent.position.x, agent.position.y,
         other.position.x, other.position.y
       );
-
-      if (distance < perceptionRadius) {
+      if (distance < percRad) {
         steering.add(other.velocity);
         total++;
       }
     }
-
     if (total > 0) {
       steering.div(total);
-      steering.setMag(maxSpeed);
+      steering.setMag(mSpeed);
       steering.sub(agent.velocity);
-      steering.limit(maxForce * alignmentWeight);
+      steering.limit(mForce * weight);
     }
-
     return steering;
   }
 
@@ -101,29 +106,30 @@ export default function agentSystemSketch(p, size) {
   function cohere(agent) {
     let steering = p.createVector(0, 0);
     let total = 0;
+    
+    const percRad = P.perceptionRadius();
+    const mSpeed = P.maxSpeed();
+    const mForce = P.maxForce();
+    const weight = P.cohesionWeight();
 
     for (let other of agents) {
       if (other === agent) continue;
-
       const distance = p.dist(
         agent.position.x, agent.position.y,
         other.position.x, other.position.y
       );
-
-      if (distance < perceptionRadius) {
+      if (distance < percRad) {
         steering.add(other.position);
         total++;
       }
     }
-
     if (total > 0) {
       steering.div(total);
       steering.sub(agent.position);
-      steering.setMag(maxSpeed);
+      steering.setMag(mSpeed);
       steering.sub(agent.velocity);
-      steering.limit(maxForce * cohesionWeight);
+      steering.limit(mForce * weight);
     }
-
     return steering;
   }
 
@@ -137,6 +143,7 @@ export default function agentSystemSketch(p, size) {
 
   p.draw = function() {
     p.background(8, 8, 16, 45); // 트레일 효과를 위한 반투명 배경
+    const mSpeed = P.maxSpeed();
 
     // 모든 에이전트 업데이트
     for (let agent of agents) {
@@ -152,7 +159,7 @@ export default function agentSystemSketch(p, size) {
 
       // 속도와 위치 업데이트
       agent.velocity.add(agent.acceleration);
-      agent.velocity.limit(maxSpeed);
+      agent.velocity.limit(mSpeed);
       agent.position.add(agent.velocity);
       agent.acceleration.set(0, 0);
 
@@ -163,12 +170,10 @@ export default function agentSystemSketch(p, size) {
     // 에이전트 그리기
     p.fill(accentColor);
     p.noStroke();
-
     for (let agent of agents) {
       p.push();
       p.translate(agent.position.x, agent.position.y);
       p.rotate(agent.velocity.heading() + p.HALF_PI);
-
       // 삼각형 그리기 (에이전트 시각화)
       p.beginShape();
       p.vertex(0, -5);
