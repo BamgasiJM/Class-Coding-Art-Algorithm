@@ -1,8 +1,18 @@
-export default function curlNoiseSketch(p, size) {
+export default function curlNoiseSketch(p, size, params = {}) {
   let particles = [];
-  let numParticles = 400;
-  let stepSize = 0.1; // 수치 미분을 위한 미소 변화량
   let accentColor;
+
+  // === 파라미터 접근자
+  const P = {
+    numParticles: () => params.numParticles ?? 400,      // 구조
+    stepSize: () => params.stepSize ?? 0.1,              // 실시간
+    noiseScale: () => params.noiseScale ?? 0.002,        // 실시간
+    curlScale: () => params.curlScale ?? 1.2,            // 실시간
+    trailAlpha: () => params.trailAlpha ?? 15,           // 실시간
+    pointSize: () => params.pointSize ?? 2.5,            // 실시간
+    particleLifeMin: () => params.particleLifeMin ?? 100, // 구조
+    particleLifeMax: () => params.particleLifeMax ?? 200, // 구조
+  };
 
   p.setup = function () {
     p.createCanvas(size, size);
@@ -14,11 +24,15 @@ export default function curlNoiseSketch(p, size) {
 
     // 파티클 초기화
     particles = [];
-    for (let i = 0; i < numParticles; i++) {
+    const count = P.numParticles();
+    const lifeMin = P.particleLifeMin();
+    const lifeMax = P.particleLifeMax();
+
+    for (let i = 0; i < count; i++) {
       particles.push({
         x: p.random(p.width),
         y: p.random(p.height),
-        life: p.random(100, 200),
+        life: p.random(lifeMin, lifeMax),
       });
     }
 
@@ -27,33 +41,42 @@ export default function curlNoiseSketch(p, size) {
 
   // 잠재 함수(Potential Function) 정의 - 노이즈 값을 기반으로 함
   function potential(x, y) {
-    return p.noise(x * 0.002, y * 0.002);
+    const ns = P.noiseScale();
+    return p.noise(x * ns, y * ns);
   }
 
   // Curl Noise 벡터 계산 (2D 회전 방향 벡터)
   function getCurl(x, y) {
+    const step = P.stepSize();
+    const cs = P.curlScale();
+
     // 중앙 차분법(Central Difference)을 통한 편미분 계산
-    let n1 = potential(x, y + stepSize);
-    let n2 = potential(x, y - stepSize);
-    let n3 = potential(x + stepSize, y);
-    let n4 = potential(x - stepSize, y);
+    let n1 = potential(x, y + step);
+    let n2 = potential(x, y - step);
+    let n3 = potential(x + step, y);
+    let n4 = potential(x - step, y);
 
     // Curl = (dF/dy, -dF/dx) -> 비압축성 흐름 형성
-    let vx = (n1 - n2) / (2 * stepSize);
-    let vy = -(n3 - n4) / (2 * stepSize);
+    let vx = (n1 - n2) / (2 * step);
+    let vy = -(n3 - n4) / (2 * step);
 
     // 계산된 속도 벡터 스케일링
     let mag = p.dist(0, 0, vx, vy);
     if (mag > 0) {
-      vx = (vx / mag) * 1.2;
-      vy = (vy / mag) * 1.2;
+      vx = (vx / mag) * cs;
+      vy = (vy / mag) * cs;
     }
 
     return { x: vx, y: vy };
   }
 
   p.draw = function () {
-    p.background(8, 8, 16, 15); // 부드러운 흔적을 위한 알파 트레일 효과
+    const trail = P.trailAlpha();
+    const psize = P.pointSize();
+    const lifeMin = P.particleLifeMin();
+    const lifeMax = P.particleLifeMax();
+
+    p.background(8, 8, 16, trail);
 
     for (let i = 0; i < particles.length; i++) {
       let pt = particles[i];
@@ -75,7 +98,7 @@ export default function curlNoiseSketch(p, size) {
       ) {
         pt.x = p.random(p.width);
         pt.y = p.random(p.height);
-        pt.life = p.random(100, 200);
+        pt.life = p.random(lifeMin, lifeMax);
       }
 
       // 파티클 속도에 기반한 동적 투명도 처리
@@ -88,7 +111,7 @@ export default function curlNoiseSketch(p, size) {
       c.setAlpha(alpha);
       p.stroke(c);
 
-      p.strokeWeight(2.5);
+      p.strokeWeight(psize);
       p.point(pt.x, pt.y);
     }
   };

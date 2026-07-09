@@ -182,8 +182,8 @@ export default function flowFieldSketch(p, size, params = {}) {
 1) src/algorithms/<slug>/sketch.js 전체 코드 (변환 후)
 2) src/algorithms/<slug>/index.js 에 추가할 params 배열 (어느 위치에 넣는지도 한 줄로 안내)
 
-## 작성 대상 (← 여기만 바꿔서 요청)
-- slug(폴더명): <예: phyllotaxis>
-- 현재 sketch.js 전체 코드:
+## 작성 대상
+- slug(폴더명): phyllotaxis
+- 현재 sketch.js 전체 코드는 첨부함:
 <여기에 대상 알고리즘의 현재 sketch.js 전문을 붙여넣기>
 ````

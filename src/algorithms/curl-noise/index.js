@@ -41,5 +41,15 @@ Shader에서 Curl Noise를 구현할 때는 미분값을 어떻게 계산할지�
     en: "Curl Noise is an algorithmic technique that generates divergence-free, incompressible fluid-like velocity fields by taking the curl of a scalar potential field (typically Perlin or Simplex noise). Because the divergence is mathematically zero, particles flowing through this field naturally warp and navigate around virtual obstacles without clumping together. This implementation derives velocity vectors using numerical differentiation, resulting in elegant, turbulent, and non-intersecting pathways.",
   },
   sketch,
+  params: [
+    { key: 'numParticles', label: '파티클 개수', min: 50, max: 1000, step: 50, default: 400, restart: true },
+    { key: 'stepSize', label: '미분 스텝', min: 0.01, max: 0.5, step: 0.01, default: 0.1, unit: 'px' },
+    { key: 'noiseScale', label: '노이즈 스케일', min: 0.0005, max: 0.01, step: 0.0005, default: 0.002 },
+    { key: 'curlScale', label: '흐름 강도', min: 0.3, max: 3, step: 0.1, default: 1.2 },
+    { key: 'trailAlpha', label: '잔상 길이', min: 2, max: 30, step: 1, default: 15 },
+    { key: 'pointSize', label: '파티클 크기', min: 1, max: 6, step: 0.5, default: 2.5, unit: 'px' },
+    { key: 'particleLifeMin', label: '수명 최소값', min: 20, max: 150, step: 10, default: 100, restart: true },
+    { key: 'particleLifeMax', label: '수명 최대값', min: 150, max: 400, step: 10, default: 200, restart: true },
+  ],
   related: ["Perlin / Simplex Noise", "Flow Field", "Fractal Brownian Motion"],
 };

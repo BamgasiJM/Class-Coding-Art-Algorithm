@@ -6,5 +6,15 @@ export default {
     en: 'Stippling is an artistic technique that reproduces an image\'s tonal values solely through the density of uniform dots. This sketch first builds a brightness map of a proxy portrait, then seeds 2000 points with probability inversely proportional to brightness. It then approximates Lloyd relaxation via a spatial-hash neighbor repulsion, letting bright regions spread out while shadowed regions pack tightly. Watching the dots gradually settle into their equilibrium positions — and the portrait slowly emerge from their distribution — is the visual core of the algorithm.',
   },
   sketch,
+  params: [
+    { key: 'numPoints', label: '점 개수', min: 500, max: 5000, step: 100, default: 2000, restart: true },
+    { key: 'relaxationStrength', label: '초기 Relaxation 강도', min: 0.3, max: 1.5, step: 0.1, default: 1.0 },
+    { key: 'maxRelaxationFrames', label: 'Relaxation 지속 프레임', min: 100, max: 800, step: 50, default: 400, restart: true },
+    { key: 'minRelaxationStrength', label: '유지 Relaxation 강도', min: 0, max: 0.5, step: 0.05, default: 0.15 },
+    { key: 'pointRadiusMin', label: '점 최소 크기', min: 0.3, max: 2, step: 0.1, default: 0.7, unit: 'px' },
+    { key: 'pointRadiusMax', label: '점 최대 크기', min: 1, max: 4, step: 0.1, default: 2.0, unit: 'px' },
+    { key: 'cellSize', label: '해시 셀 크기', min: 8, max: 32, step: 2, default: 16, unit: 'px', restart: true },
+    { key: 'influenceRadius', label: '반발력 반경', min: 10, max: 50, step: 2, default: 22, unit: 'px' },
+  ],
   related: ['Voronoi Diagram', 'Poisson Disk Sampling', 'Diffusion-Limited Aggregation'],
 }

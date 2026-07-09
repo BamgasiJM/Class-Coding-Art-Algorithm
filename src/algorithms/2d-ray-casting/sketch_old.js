@@ -1,19 +1,15 @@
-export default function rayCastingSketch(p, size, params = {}) {
+export default function rayCastingSketch(p, size) {
   let walls = [];
+
   let accentR, accentG, accentB;
+
   let light = { x: size / 2, y: size / 2 };
+
   let time = 0;
 
-  // === 파라미터 접근자
-  const P = {
-    numRays: () => params.numRays ?? 100,                    // 실시간
-    centerSquareSize: () => params.centerSquareSize ?? 0.08, // 구조
-    triangleSize: () => params.triangleSize ?? 0.07,         // 구조
-    timeSpeed: () => params.timeSpeed ?? 0.008,              // 실시간
-    shadowBlur: () => params.shadowBlur ?? 0.06,             // 실시간
-    shadowIntensity: () => params.shadowIntensity ?? 0.9,    // 실시간
-    lightIntensity: () => params.lightIntensity ?? 90,       // 실시간
-  };
+  const NUM_RAYS = 100;
+
+  let mouseActive = false;
 
   p.setup = function () {
     p.createCanvas(size, size);
@@ -25,21 +21,25 @@ export default function rayCastingSketch(p, size, params = {}) {
     const tmp = p.color(hex);
 
     accentR = p.red(tmp);
+
     accentG = p.green(tmp);
+
     accentB = p.blue(tmp);
 
     buildWalls();
+
     p.background(8, 8, 16);
   };
 
+  // 중앙 사각 기둥 (기존 로직 그대로) + 주변 삼각 기둥 3개
   function buildWalls() {
     walls = [];
 
-    const cs = size * P.centerSquareSize();
+    const cs = size * 0.08;
     const cx = size / 2;
     const cy = size / 2;
 
-    // 중앙 사각 기둥
+    // 중앙 사각 기둥 (그대로)
     walls.push({
       a: { x: cx - cs, y: cy - cs },
       b: { x: cx + cs, y: cy - cs },
@@ -57,13 +57,14 @@ export default function rayCastingSketch(p, size, params = {}) {
       b: { x: cx - cs, y: cy - cs },
     });
 
-    // 주변 삼각 기둥 3개
-    const triR = size * P.triangleSize();
-    addTriangle(size * 0.25, size * 0.25, triR, 0);
-    addTriangle(size * 0.75, size * 0.25, triR, Math.PI);
-    addTriangle(size * 0.5, size * 0.8, triR, 0);
+    // 주변 삼각 기둥 3개 (정삼각형, 중앙 기둥과 겹치지 않는 위치에 고정)
+    const triR = size * 0.07;
+    addTriangle(size * 0.25, size * 0.25, triR, 0); // 좌상단, 꼭짓점 ↑
+    addTriangle(size * 0.75, size * 0.25, triR, Math.PI); // 우상단, 꼭짓점 ↓
+    addTriangle(size * 0.5, size * 0.8, triR, 0); // 하단 중앙, 꼭짓점 ↑
   }
 
+  // 정삼각형 벽 세그먼트 3개를 walls에 추가 (중심, 외접원 반지름, 회전 각도)
   function addTriangle(cx, cy, r, rotation) {
     const verts = [];
     for (let i = 0; i < 3; i++) {
@@ -88,6 +89,8 @@ export default function rayCastingSketch(p, size, params = {}) {
     const t =
       ((b1.x - b2.x) * (a1.y - b1.y) - (b1.y - b2.y) * (a1.x - b1.x)) / denom;
 
+    // 벽(b1→b2) 위의 위치를 나타내는 파라미터 (부호 수정: 이전엔 반대 부호라 유효 구간 밖을 통과시킴)
+
     const u =
       ((a1.x - a2.x) * (a1.y - b1.y) - (a1.y - a2.y) * (a1.x - b1.x)) / denom;
 
@@ -100,10 +103,13 @@ export default function rayCastingSketch(p, size, params = {}) {
 
   function castRay(origin, angle) {
     const farX = origin.x + p.cos(angle) * size * 2;
+
     const farY = origin.y + p.sin(angle) * size * 2;
+
     const far = { x: farX, y: farY };
 
     let closest = null;
+
     let minT = Infinity;
 
     for (const w of walls) {
@@ -111,6 +117,7 @@ export default function rayCastingSketch(p, size, params = {}) {
 
       if (hit && hit.t < minT) {
         minT = hit.t;
+
         closest = hit;
       }
     }
@@ -124,8 +131,11 @@ export default function rayCastingSketch(p, size, params = {}) {
     for (const w of walls) {
       for (const pt of [w.a, w.b]) {
         const base = p.atan2(pt.y - light.y, pt.x - light.x);
-        angles.push(base - 0.001);
+
+        angles.push(base - 0.001); // 오프셋을 약간 키움
+
         angles.push(base);
+
         angles.push(base + 0.001);
       }
     }
@@ -135,33 +145,41 @@ export default function rayCastingSketch(p, size, params = {}) {
 
   function updateLightAuto() {
     const rx = size * 0.32;
+
     const ry = size * 0.32;
 
     light.x = size / 2 + p.sin(time * 0.6) * rx;
+
     light.y = size / 2 + p.sin(time * 0.9 + 1.3) * ry;
   }
 
   p.draw = function () {
-    time += P.timeSpeed();
+    time += 0.008;
 
     const mouseIn =
       p.mouseX > 0 && p.mouseX < size && p.mouseY > 0 && p.mouseY < size;
 
     if (mouseIn) {
       light.x = p.mouseX;
+
       light.y = p.mouseY;
-    } else {
-      updateLightAuto();
+
+      mouseActive = true;
+    } else if (mouseActive) {
+      mouseActive = false;
     }
+
+    if (!mouseActive) updateLightAuto();
 
     p.background(8, 8, 16);
 
     const critical = collectCriticalAngles();
+
     const rays = [];
 
-    const numRays = P.numRays();
-    for (let i = 0; i < numRays; i++) {
-      const a = p.map(i, 0, numRays, 0, p.TWO_PI);
+    for (let i = 0; i < NUM_RAYS; i++) {
+      const a = p.map(i, 0, NUM_RAYS, 0, p.TWO_PI);
+
       rays.push(castRay(light, a));
     }
 
@@ -171,25 +189,31 @@ export default function rayCastingSketch(p, size, params = {}) {
 
     rays.sort((p1, p2) => {
       const a1 = p.atan2(p1.y - light.y, p1.x - light.x);
+
       const a2 = p.atan2(p2.y - light.y, p2.x - light.x);
+
       return a1 - a2;
     });
 
+    // visibility polygon: 실제 도형 그대로 한 번만 채우고,
+
+    // 캔버스 shadowBlur로 가장자리에 부드러운 광원 확산을 준다
+
     const ctx = p.drawingContext;
+
     p.noStroke();
 
-    const blurAmount = size * P.shadowBlur();
-    const shadowAlpha = p.map(P.shadowIntensity(), 0, 1, 0, 255);
-    ctx.shadowColor = `rgba(${accentR}, ${accentG}, ${accentB}, ${P.shadowIntensity()})`;
-    ctx.shadowBlur = blurAmount;
+    ctx.shadowColor = `rgba(${accentR}, ${accentG}, ${accentB}, 0.9)`;
 
-    const lightAlpha = P.lightIntensity();
-    p.fill(accentR, accentG, accentB, lightAlpha);
+    ctx.shadowBlur = size * 0.06;
+
+    p.fill(accentR, accentG, accentB, 90);
+
     drawPolygon(rays, 1.0);
 
     ctx.shadowBlur = 0;
 
-    // 폴리곤 가리기
+    // ⭐ 사각/삼각 폴리곤을 각각 닫힌 도형으로 한 번씩 채워서 polygon을 가림
     p.fill(8, 8, 16);
     p.stroke(230, 230, 240, 220);
     p.strokeWeight(1.2);
@@ -223,31 +247,70 @@ export default function rayCastingSketch(p, size, params = {}) {
     p.vertex(walls[11].b.x, walls[11].b.y);
     p.endShape(p.CLOSE);
 
-    // 광원 (고정값)
+    // 광원
+
     p.noStroke();
+
     p.fill(255, 255, 255, 230);
+
     p.circle(light.x, light.y, 9);
 
     p.fill(accentR, accentG, accentB);
+
     p.circle(light.x, light.y, 3);
   };
 
   function drawPolygon(rays, scale) {
     p.beginShape();
+
     p.vertex(light.x, light.y);
 
     for (const pt of rays) {
       const x = light.x + (pt.x - light.x) * scale;
+
       const y = light.y + (pt.y - light.y) * scale;
+
       p.vertex(x, y);
     }
 
     const first = rays[0];
+
     p.vertex(
       light.x + (first.x - light.x) * scale,
+
       light.y + (first.y - light.y) * scale,
     );
 
     p.endShape(p.CLOSE);
   }
+
+  p.mousePressed = function () {
+    if (p.mouseX >= 0 && p.mouseX < size && p.mouseY >= 0 && p.mouseY < size) {
+      const newCs = p.random(size * 0.04, size * 0.14);
+
+      const cx = size / 2;
+
+      const cy = size / 2;
+
+      walls[0] = {
+        a: { x: cx - newCs, y: cy - newCs },
+        b: { x: cx + newCs, y: cy - newCs },
+      };
+
+      walls[1] = {
+        a: { x: cx + newCs, y: cy - newCs },
+        b: { x: cx + newCs, y: cy + newCs },
+      };
+
+      walls[2] = {
+        a: { x: cx + newCs, y: cy + newCs },
+        b: { x: cx - newCs, y: cy + newCs },
+      };
+
+      walls[3] = {
+        a: { x: cx - newCs, y: cy + newCs },
+        b: { x: cx - newCs, y: cy - cs },
+      };
+    }
+  };
 }

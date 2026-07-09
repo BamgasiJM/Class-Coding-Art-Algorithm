@@ -1,4 +1,4 @@
-import sketch from './sketch'
+import sketch from "./sketch";
 
 export default {
   longDescription: {
@@ -8,10 +8,77 @@ export default {
   },
 
   sketch,
-
-  related: [
-    'IFS & Fractal',
-    'L-System',
-    'Space Colonization',
+  params: [
+    {
+      key: "pointCount",
+      label: "포인트 개수",
+      min: 200,
+      max: 2000,
+      step: 50,
+      default: 900,
+      restart: true,
+    },
+    {
+      key: "spacing",
+      label: "나선 간격",
+      min: 2,
+      max: 20,
+      step: 1,
+      default: 8,
+      unit: "px",
+      restart: true,
+    },
+    {
+      key: "goldenAngle",
+      label: "회전 각도",
+      min: 10,
+      max: 180,
+      step: 0.5,
+      default: 137.5,
+      unit: "°",
+    },
+    {
+      key: "maxPointSize",
+      label: "중심 점 크기",
+      min: 2,
+      max: 15,
+      step: 0.5,
+      default: 7.5,
+      unit: "px",
+    },
+    {
+      key: "minPointSize",
+      label: "외곽 점 크기",
+      min: 0.5,
+      max: 15,
+      step: 0.5,
+      default: 2,
+      unit: "px",
+    },
+    {
+      key: "maxAlpha",
+      label: "중심부 불투명도",
+      min: 50,
+      max: 255,
+      step: 5,
+      default: 200,
+    },
+    {
+      key: "minAlpha",
+      label: "외곽 불투명도",
+      min: 10,
+      max: 100,
+      step: 5,
+      default: 50,
+    },
+    {
+      key: "brightnessFade",
+      label: "밝기 감소 정도",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      default: 0.5,
+    },
   ],
-}
+  related: ["IFS & Fractal", "L-System", "Space Colonization"],
+};
