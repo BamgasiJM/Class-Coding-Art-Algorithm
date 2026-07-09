@@ -1,39 +1,58 @@
-export default function sdfMetaballsSketch(p, size) {
+export default function sdfMetaballsSketch(p, size, params = {}) {
   let balls = []
-  let numBalls = 6
-  let step = 4 // 낮을 수록 해상도 향상
   let accentColor
   let bufferImg
+
+  // === 파라미터 접근자
+  const P = {
+    numBalls: () => params.numBalls ?? 6,                      // 구조
+    step: () => params.step ?? 4,                              // 구조
+    ballRadiusMin: () => params.ballRadiusMin ?? 0.08,         // 구조
+    ballRadiusMax: () => params.ballRadiusMax ?? 0.15,         // 구조
+    ballSpeedMin: () => params.ballSpeedMin ?? -1.5,           // 구조
+    ballSpeedMax: () => params.ballSpeedMax ?? 1.5,            // 구조
+    sdfThreshold: () => params.sdfThreshold ?? 1.0,            // 실시간
+    sdfAlphaMin: () => params.sdfAlphaMin ?? 10,               // 실시간
+    sdfAlphaMax: () => params.sdfAlphaMax ?? 255,              // 실시간
+    sdfAlphaRange: () => params.sdfAlphaRange ?? 3.0,          // 실시간
+  };
 
   p.setup = function() {
     p.createCanvas(size, size)
     p.pixelDensity(1)
 
-    // accent 색 읽기
     accentColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--accent')
       .trim()
 
-    // 픽셀 조작용 이미지 버퍼 생성
     bufferImg = p.createImage(size, size)
 
-    // 메타볼 초기화
-    balls = []
-    for (let i = 0; i < numBalls; i++) {
-      balls.push({
-        x: p.random(p.width),
-        y: p.random(p.height),
-        vx: p.random(-1.5, 1.5),
-        vy: p.random(-1.5, 1.5),
-        r: p.random(size * 0.08, size * 0.15)
-      })
-    }
+    initBalls()
 
     p.background(8, 8, 16)
   }
 
+  function initBalls() {
+    balls = []
+    const numB = P.numBalls()
+    const radMin = P.ballRadiusMin()
+    const radMax = P.ballRadiusMax()
+    const spdMin = P.ballSpeedMin()
+    const spdMax = P.ballSpeedMax()
+
+    for (let i = 0; i < numB; i++) {
+      balls.push({
+        x: p.random(p.width),
+        y: p.random(p.height),
+        vx: p.random(spdMin, spdMax),
+        vy: p.random(spdMin, spdMax),
+        r: p.random(p.width * radMin, p.width * radMax)
+      })
+    }
+  }
+
   p.draw = function() {
-    // 1. 메타볼 위치 업데이트 및 벽면 반사
+    // 1. メタボール位置更新 及び 壁面反射
     for (let ball of balls) {
       ball.x += ball.vx
       ball.y += ball.vy
@@ -42,20 +61,25 @@ export default function sdfMetaballsSketch(p, size) {
       if (ball.y < 0 || ball.y > p.height) ball.vy *= -1
     }
 
-    // 2. accent 색상 파싱 (한 번만 수행)
+    // 2. accent色解析
     let ac = p.color(accentColor)
     let acR = p.red(ac)
     let acG = p.green(ac)
     let acB = p.blue(ac)
 
-    // 3. 픽셀 버퍼 직접 조작으로 성능 최적화
+    // 3. ピクセルバッファ直接操作
+    const stp = P.step()
+    const threshold = P.sdfThreshold()
+    const alphaMin = P.sdfAlphaMin()
+    const alphaMax = P.sdfAlphaMax()
+    const alphaRange = P.sdfAlphaRange()
+
     bufferImg.loadPixels()
 
-    for (let x = 0; x < p.width; x += step) {
-      for (let y = 0; y < p.height; y += step) {
+    for (let x = 0; x < p.width; x += stp) {
+      for (let y = 0; y < p.height; y += stp) {
         let sum = 0
 
-        // 각 좌표에서 메타볼들의 잠재 필드 합산
         for (let ball of balls) {
           let dx = x - ball.x
           let dy = y - ball.y
@@ -65,17 +89,14 @@ export default function sdfMetaballsSketch(p, size) {
           }
         }
 
-        // SDF 값에 따른 색상 및 알파 계산
         let alpha = 0
-        if (sum > 1.0) {
-          // 임계값 초과 시 거리 필드 강도에 따라 알파 매핑
-          alpha = p.map(sum, 1.0, 3.0, 10, 255)
+        if (sum > threshold) {
+          alpha = p.map(sum, threshold, threshold + alphaRange, alphaMin, alphaMax)
           alpha = p.constrain(alpha, 0, 255)
         }
 
-        // step 크기만큼 픽셀 블록 채우기
-        for (let sx = 0; sx < step; sx++) {
-          for (let sy = 0; sy < step; sy++) {
+        for (let sx = 0; sx < stp; sx++) {
+          for (let sy = 0; sy < stp; sy++) {
             let px = x + sx
             let py = y + sy
             if (px < p.width && py < p.height) {
@@ -92,7 +113,6 @@ export default function sdfMetaballsSketch(p, size) {
 
     bufferImg.updatePixels()
 
-    // 4. 배경 초기화 후 버퍼를 한 번에 복사
     p.background(8, 8, 16)
     p.image(bufferImg, 0, 0)
   }

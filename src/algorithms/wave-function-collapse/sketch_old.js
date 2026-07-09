@@ -1,5 +1,5 @@
-export default function waveFunctionCollapseSketch(p, size, params = {}) {
-  let gridSize
+export default function waveFunctionCollapseSketch(p, size) {
+  let gridSize = 20
   let cellSize
   let grid = []
   let finished = false
@@ -18,26 +18,21 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
     { sockets: [1, 1, 1, 1], weight: 1 }, // 7: 십자
   ]
 
-  // === 파라미터 접근자
-  const P = {
-    gridSize: () => params.gridSize ?? 20,                // 구조
-    restartDelayMs: () => params.restartDelayMs ?? 2000,  // 실시간
-    uncertaintyAlphaMax: () => params.uncertaintyAlphaMax ?? 200, // 실시간
-    uncertaintyAlphaMin: () => params.uncertaintyAlphaMin ?? 30,  // 실시간
-  };
-
+  // 두 타일이 dir 방향으로 인접 가능한지 판정
+  // dir: 0=상(b가 위), 1=우(b가 오른쪽), 2=하(b가 아래), 3=좌(b가 왼쪽)
   function compatible(aIdx, bIdx, dir) {
     let a = TILES[aIdx]
     let b = TILES[bIdx]
-    if (dir === 0) return a.sockets[0] === b.sockets[2]
-    if (dir === 1) return a.sockets[1] === b.sockets[3]
-    if (dir === 2) return a.sockets[2] === b.sockets[0]
-    if (dir === 3) return a.sockets[3] === b.sockets[1]
+    if (dir === 0) return a.sockets[0] === b.sockets[2] // a상 == b하
+    if (dir === 1) return a.sockets[1] === b.sockets[3] // a우 == b좌
+    if (dir === 2) return a.sockets[2] === b.sockets[0] // a하 == b상
+    if (dir === 3) return a.sockets[3] === b.sockets[1] // a좌 == b우
     return false
   }
 
   class Cell {
     constructor() {
+      // 초기에는 모든 타일 가능 (슈퍼포지션)
       this.options = []
       for (let i = 0; i < TILES.length; i++) {
         for (let w = 0; w < TILES[i].weight; w++) {
@@ -70,13 +65,14 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
 
   function getNeighbors(i, j) {
     let neighbors = []
-    if (j > 0) neighbors.push({ i: i, j: j - 1, dir: 0 })
-    if (i < gridSize - 1) neighbors.push({ i: i + 1, j: j, dir: 1 })
-    if (j < gridSize - 1) neighbors.push({ i: i, j: j + 1, dir: 2 })
-    if (i > 0) neighbors.push({ i: i - 1, j: j, dir: 3 })
+    if (j > 0) neighbors.push({ i: i, j: j - 1, dir: 0 }) // 상
+    if (i < gridSize - 1) neighbors.push({ i: i + 1, j: j, dir: 1 }) // 우
+    if (j < gridSize - 1) neighbors.push({ i: i, j: j + 1, dir: 2 }) // 하
+    if (i > 0) neighbors.push({ i: i - 1, j: j, dir: 3 }) // 좌
     return neighbors
   }
 
+  // 붕괴 후 인접 셀의 불가능한 옵션을 전파
   function propagate(ci, cj) {
     let stack = [{ i: ci, j: cj }]
     while (stack.length > 0) {
@@ -95,6 +91,7 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
         }
 
         if (allowed.length === 0) {
+          // 모순 발생 시 해당 셀 초기화
           nCell.options = []
           for (let t = 0; t < TILES.length; t++) {
             for (let w = 0; w < TILES[t].weight; w++) nCell.options.push(t)
@@ -121,6 +118,7 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
     finished = false
   }
 
+  // 엔트로피가 가장 낮은 미결정 셀 찾기
   function findLowestEntropy() {
     let minEntropy = Infinity
     let candidates = []
@@ -145,22 +143,20 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
     let cx = x + cellSize / 2
     let cy = y + cellSize / 2
 
-    if (tileIdx === 0) return
+    if (tileIdx === 0) return // 빈 타일
 
     let s = TILES[tileIdx].sockets
     p.stroke(accentColor)
     p.strokeWeight(cellSize * 0.12)
 
-    if (s[0] === 1) p.line(cx, cy, cx, y)
-    if (s[1] === 1) p.line(cx, cy, x + cellSize, cy)
-    if (s[2] === 1) p.line(cx, cy, cx, y + cellSize)
-    if (s[3] === 1) p.line(cx, cy, x, cy)
+    if (s[0] === 1) p.line(cx, cy, cx, y) // 상
+    if (s[1] === 1) p.line(cx, cy, x + cellSize, cy) // 우
+    if (s[2] === 1) p.line(cx, cy, cx, y + cellSize) // 하
+    if (s[3] === 1) p.line(cx, cy, x, cy) // 좌
   }
 
   p.setup = function() {
     p.createCanvas(size, size)
-    
-    gridSize = P.gridSize()
     cellSize = size / gridSize
 
     accentColor = getComputedStyle(document.documentElement)
@@ -174,10 +170,6 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
   p.draw = function() {
     p.background(8, 8, 16)
 
-    const restartDelay = P.restartDelayMs()
-    const uncAlphaMax = P.uncertaintyAlphaMax()
-    const uncAlphaMin = P.uncertaintyAlphaMin()
-
     if (!finished) {
       let idx = findLowestEntropy()
       if (idx !== -1) {
@@ -190,7 +182,7 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
         restartTimer = p.millis()
       }
     } else {
-      if (p.millis() - restartTimer > restartDelay) {
+      if (p.millis() - restartTimer > 2000) {
         initGrid()
       }
     }
@@ -202,7 +194,7 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
         if (cell.collapsed) {
           drawTile(i, j, cell.value)
         } else {
-          let alpha = p.map(cell.entropy(), 1, TILES.length * 2, uncAlphaMax, uncAlphaMin)
+          let alpha = p.map(cell.entropy(), 1, TILES.length * 2, 200, 30)
           p.noStroke()
           let c = p.color(accentColor)
           c.setAlpha(alpha)

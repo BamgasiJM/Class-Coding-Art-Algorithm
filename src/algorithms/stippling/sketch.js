@@ -33,7 +33,7 @@ export default function stipplingSketch(p, size, params = {}) {
 
     // 이미지 비동기 로드
     try {
-      img = await p.loadImage('/img/image_1.jpg');
+      img = await p.loadImage('/img/image_2.jpg');
       generateBrightnessMapFromImage();
       initPoints();
       isReady = true;
@@ -75,7 +75,7 @@ export default function stipplingSketch(p, size, params = {}) {
 
         // Grayscale 변환
         const gray = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
-        brightness[y * size + x] = p.constrain(1 - gray, 0, 1); // gray를 1에서 빼지 않으면 반전
+        brightness[y * size + x] = p.constrain(1 - gray, 0, 1); // (gray, 0, 1) 반전
       }
     }
 

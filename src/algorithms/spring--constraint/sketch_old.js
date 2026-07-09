@@ -1,19 +1,8 @@
-export default function springConstraintSketch(p, size, params = {}) {
+export default function springConstraintSketch(p, size) {
   let nodes = [];
   let springs = [];
   let accentColor;
   let time = 0;
-  let cols, rows;
-
-  // === 파라미터 접근자
-  const P = {
-    spacing: () => params.spacing ?? 50,                    // 구조
-    stiffness: () => params.stiffness ?? 0.04,              // 실시간
-    gravity: () => params.gravity ?? 0.1,                   // 실시간
-    damping: () => params.damping ?? 0.98,                  // 실시간
-    mouseInfluenceRadius: () => params.mouseInfluenceRadius ?? 80, // 실시간
-    mouseInfluenceStrength: () => params.mouseInfluenceStrength ?? 0.5, // 실시간
-  };
 
   p.setup = function () {
     p.createCanvas(size, size);
@@ -22,26 +11,22 @@ export default function springConstraintSketch(p, size, params = {}) {
       .getPropertyValue("--accent")
       .trim();
 
-    initNodes();
-    p.background(8, 8, 16);
-  };
-
-  function initNodes() {
-    const sp = P.spacing();
-    cols = p.floor(p.width / sp) + 1;
-    rows = p.floor(p.height / sp) + 1;
+    // 격자 구조 노드
+    const spacing = 50;
+    const cols = p.floor(p.width / spacing) + 1;
+    const rows = p.floor(p.height / spacing) + 1;
 
     nodes = [];
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
-        const x = j * sp;
-        const y = i * sp;
+        const x = j * spacing;
+        const y = i * spacing;
         nodes.push({
           x,
           y,
           px: x,
           py: y,
-          pinned: i === 0,
+          pinned: i === 0, // 위쪽 고정
           vx: 0,
           vy: 0,
         });
@@ -53,14 +38,13 @@ export default function springConstraintSketch(p, size, params = {}) {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         const idx = i * cols + j;
-        const stiff = P.stiffness();
         // 우측 연결
         if (j < cols - 1) {
           springs.push({
             n1: idx,
             n2: idx + 1,
-            restLength: sp,
-            stiffness: stiff,
+            restLength: spacing,
+            stiffness: 0.04,
           });
         }
         // 하단 연결
@@ -68,27 +52,24 @@ export default function springConstraintSketch(p, size, params = {}) {
           springs.push({
             n1: idx,
             n2: idx + cols,
-            restLength: sp,
-            stiffness: stiff,
+            restLength: spacing,
+            stiffness: 0.04,
           });
         }
       }
     }
-  }
+
+    p.background(8, 8, 16);
+  };
 
   p.draw = function () {
     p.background(8, 8, 16);
     time += 0.016;
 
-    const grav = P.gravity();
-    const damp = P.damping();
-    const mouseR = P.mouseInfluenceRadius();
-    const mouseStr = P.mouseInfluenceStrength();
-
     // 중력
     for (let node of nodes) {
       if (!node.pinned) {
-        node.vy += grav;
+        node.vy += 0.1;
       }
     }
 
@@ -123,9 +104,10 @@ export default function springConstraintSketch(p, size, params = {}) {
         node.x += ax;
         node.y += ay;
 
-        node.vx *= damp;
-        node.vy *= damp;
+        node.vx *= 0.98;
+        node.vy *= 0.98;
 
+        // 경계
         node.x = p.constrain(node.x, 0, p.width);
         node.y = p.constrain(node.y, 0, p.height);
       }
@@ -137,9 +119,9 @@ export default function springConstraintSketch(p, size, params = {}) {
         const dx = node.x - p.mouseX;
         const dy = node.y - p.mouseY;
         const dist = p.sqrt(dx * dx + dy * dy);
-        if (dist < mouseR) {
-          node.vx += (dx / dist) * mouseStr;
-          node.vy += (dy / dist) * mouseStr;
+        if (dist < 80) {
+          node.vx += (dx / dist) * 0.5;
+          node.vy += (dy / dist) * 0.5;
         }
       }
     }

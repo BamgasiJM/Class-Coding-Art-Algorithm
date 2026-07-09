@@ -1,13 +1,21 @@
-export default function circlePackingSketch(p, size) {
+export default function circlePackingSketch(p, size, params = {}) {
   let circles = [];
-  let maxCircles = 150; // 60fps 유지를 위한 최대 원 개수 제한
-  let attemptsPerFrame = 5; // 프레임당 새 원 배치를 시도할 횟수
   let accentColor;
+
+  // === 파라미터 접근자
+  const P = {
+    maxCircles: () => params.maxCircles ?? 150,            // 구조
+    attemptsPerFrame: () => params.attemptsPerFrame ?? 5,  // 구조
+    growthRate: () => params.growthRate ?? 0.5,            // 실시간
+    initialRadius: () => params.initialRadius ?? 1,        // 구조
+    minDistance: () => params.minDistance ?? 2,            // 실시간
+    maxRadiusForWeight: () => params.maxRadiusForWeight ?? 30, // 실시간
+    lineWeightMax: () => params.lineWeightMax ?? 5.5,      // 실시간
+  };
 
   p.setup = function () {
     p.createCanvas(size, size);
 
-    // accent 색 읽기
     accentColor = getComputedStyle(document.documentElement)
       .getPropertyValue("--accent")
       .trim();
@@ -16,29 +24,31 @@ export default function circlePackingSketch(p, size) {
     p.background(8, 8, 16);
   };
 
-  // 새로운 원을 생성할 수 있는지 검사하는 함수
   function createNewCircle() {
     let x = p.random(p.width);
     let y = p.random(p.height);
+    const minDist = P.minDistance();
 
-    // 기존에 존재하는 원의 내부에 생성되는지 확인
     for (let c of circles) {
       let d = p.dist(x, y, c.x, c.y);
-      if (d < c.r + 2) {
-        return null; // 겹치면 무효 처리
+      if (d < c.r + minDist) {
+        return null;
       }
     }
 
-    // 초기 반지름 1로 시작하는 새 원 객체 반환
-    return { x, y, r: 1, growing: true };
+    const initR = P.initialRadius();
+    return { x, y, r: initR, growing: true };
   }
 
   p.draw = function () {
     p.background(8, 8, 16);
 
-    // 1. 설정된 횟수만큼 새로운 원 배치 시도
-    if (circles.length < maxCircles) {
-      for (let i = 0; i < attemptsPerFrame; i++) {
+    // 1. 새로운 원 배치 시도
+    const maxC = P.maxCircles();
+    const attPerFrame = P.attemptsPerFrame();
+
+    if (circles.length < maxC) {
+      for (let i = 0; i < attPerFrame; i++) {
         let newC = createNewCircle();
         if (newC !== null) {
           circles.push(newC);
@@ -46,10 +56,13 @@ export default function circlePackingSketch(p, size) {
       }
     }
 
-    // 2. 원의 크기 확장 및 충돌 처리 연산
+    // 2. 원의 크기 확장 및 충돌 처리
+    const growthR = P.growthRate();
+    const minDist = P.minDistance();
+
     for (let c of circles) {
       if (c.growing) {
-        // 캔버스 경계에 닿으면 성장을 멈춤
+        // 경계 충돌 검사
         if (
           c.x - c.r <= 0 ||
           c.x + c.r >= p.width ||
@@ -58,11 +71,11 @@ export default function circlePackingSketch(p, size) {
         ) {
           c.growing = false;
         } else {
-          // 다른 원들과 부딪히는지 검사
+          // 다른 원과의 충돌 검사
           for (let other of circles) {
             if (c !== other) {
               let d = p.dist(c.x, c.y, other.x, other.y);
-              if (d < c.r + other.r + 2) {
+              if (d < c.r + other.r + minDist) {
                 c.growing = false;
                 break;
               }
@@ -70,19 +83,21 @@ export default function circlePackingSketch(p, size) {
           }
         }
 
-        // 성장이 멈추지 않았다면 반지름 확장
+        // 성장
         if (c.growing) {
-          c.r += 0.5;
+          c.r += growthR;
         }
       }
     }
 
-    // 3. 생성된 모든 원 렌더링
+    // 3. 원 렌더링
+    const maxRForWeight = P.maxRadiusForWeight();
+    const lineWMax = P.lineWeightMax();
+
     p.noFill();
     p.stroke(accentColor);
     for (let c of circles) {
-      // 크기(반지름)에 비례하여 선의 굵기를 다르게 매핑
-      let weight = p.map(c.r, 1, 30, 0.4, 5.5);
+      let weight = p.map(c.r, 1, maxRForWeight, 0.4, lineWMax);
       p.strokeWeight(weight);
       p.circle(c.x, c.y, c.r * 2);
     }
