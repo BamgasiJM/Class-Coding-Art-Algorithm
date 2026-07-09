@@ -90,14 +90,18 @@ body {
   grid-template-columns: auto 1fr;
 }
 
-@media (max-width: 1024px) {
-  .algorithm-detail-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
 .algorithm-visualization {
   position: sticky;
   top: 0;
   height: fit-content;
+}
+
+@media (max-width: 1024px) {
+  .algorithm-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .algorithm-visualization {
+    position: static;
+  }
 }
