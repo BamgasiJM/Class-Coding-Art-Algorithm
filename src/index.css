@@ -81,3 +81,23 @@ body {
   transition: transform 0.1s ease;
   mix-blend-mode: difference;
 }
+
+/* 알고리즘 상세 페이지 레이아웃 (Visualization sticky + Overview/Related scrollable) */
+.algorithm-detail-layout {
+  display: grid;
+  gap: 4rem;
+  align-items: start;
+  grid-template-columns: auto 1fr;
+}
+
+@media (max-width: 1024px) {
+  .algorithm-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.algorithm-visualization {
+  position: sticky;
+  top: 0;
+  height: fit-content;
+}
