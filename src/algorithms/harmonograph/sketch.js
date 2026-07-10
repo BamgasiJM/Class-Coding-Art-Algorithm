@@ -1,9 +1,17 @@
-export default function harmonographSketch(p, size) {
+export default function harmonographSketch(p, size, params = {}) {
   let accentColor;
   let oscillators = []; // 4개의 진동자 (x축 2개, y축 2개)
   let time = 0;
-  let pointsPerFrame = 80; // 프레임당 그릴 점 수
-  let maxTime = 100; // 시뮬레이션 총 시간 (감쇠 완료 시점)
+  let maxTime; // 시뮬레이션 총 시간 (감쇠 완료 시점)
+
+  const P = {
+    pointsPerFrame: () => params.pointsPerFrame ?? 80,
+    maxTime: () => params.maxTime ?? 100,
+    dt: () => params.dt ?? 0.02,
+    amplitude: () => params.amplitude ?? 0.3,
+    secondaryAmplitude: () => params.secondaryAmplitude ?? 0.15,
+    frequencyOffset: () => params.frequencyOffset ?? 1.01,
+  };
 
   p.setup = function () {
     p.createCanvas(size, size);
@@ -13,6 +21,8 @@ export default function harmonographSketch(p, size) {
       .getPropertyValue("--accent")
       .trim();
 
+    maxTime = P.maxTime();
+
     initOscillators();
     p.background(8, 8, 16);
   };
@@ -21,6 +31,7 @@ export default function harmonographSketch(p, size) {
   function initOscillators() {
     oscillators = [];
     time = 0;
+    maxTime = P.maxTime();
 
     // 정수 비율의 주파수로 리사주 패턴 형성 (1:2, 2:3, 3:4 등)
     let baseFreq = p.random([1, 2, 3]);
@@ -33,17 +44,21 @@ export default function harmonographSketch(p, size) {
     ];
     let chosenRatio = ratios[p.floor(p.random(ratios.length))];
 
+    const amp1 = size * P.amplitude();
+    const amp2 = size * P.secondaryAmplitude();
+    const freqOffset = P.frequencyOffset();
+
     // x축 진동자 2개
     oscillators.push({
       freq: baseFreq * chosenRatio[0],
       phase: p.random(p.TWO_PI),
-      amp: size * 0.3,
+      amp: amp1,
       damping: p.random(0.008, 0.015),
     });
     oscillators.push({
-      freq: baseFreq * chosenRatio[0] * 1.01, // 미세한 주파수 차이로 복잡한 패턴
+      freq: baseFreq * chosenRatio[0] * freqOffset,
       phase: p.random(p.TWO_PI),
-      amp: size * 0.15,
+      amp: amp2,
       damping: p.random(0.01, 0.02),
     });
 
@@ -51,13 +66,13 @@ export default function harmonographSketch(p, size) {
     oscillators.push({
       freq: baseFreq * chosenRatio[1],
       phase: p.random(p.TWO_PI),
-      amp: size * 0.3,
+      amp: amp1,
       damping: p.random(0.008, 0.015),
     });
     oscillators.push({
-      freq: baseFreq * chosenRatio[1] * 1.01,
+      freq: baseFreq * chosenRatio[1] * freqOffset,
       phase: p.random(p.TWO_PI),
-      amp: size * 0.15,
+      amp: amp2,
       damping: p.random(0.01, 0.02),
     });
 
@@ -103,7 +118,8 @@ export default function harmonographSketch(p, size) {
     p.stroke(accentColor);
     p.strokeWeight(1.2);
 
-    let dt = 0.02; // 시간 간격 (곡선의 부드러움 제어)
+    const pointsPerFrame = P.pointsPerFrame();
+    const dt = P.dt();
 
     for (let i = 0; i < pointsPerFrame; i++) {
       if (time >= maxTime) break;

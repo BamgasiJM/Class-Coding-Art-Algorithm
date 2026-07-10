@@ -1,8 +1,14 @@
-export default function easingInterpolationSketch(p, size) {
+export default function easingInterpolationSketch(p, size, params = {}) {
   let currentX, currentY   // 현재 원의 위치
   let targetX, targetY     // 목적지 위치
-  let easing = 0.08        // 감속 가중치 (Easing 값)
   let accentColor
+
+  const P = {
+    easing: () => params.easing ?? 0.08,
+    circleRadius: () => params.circleRadius ?? 36,
+    trailAlpha: () => params.trailAlpha ?? 150,
+    targetRadius: () => params.targetRadius ?? 4,
+  }
 
   p.setup = function() {
     p.createCanvas(size, size)
@@ -22,7 +28,12 @@ export default function easingInterpolationSketch(p, size) {
   }
 
   p.draw = function() {
-    p.background(8, 8, 16, 150) // 잔상 효과를 위한 알파 값 적용
+    const easing = P.easing()
+    const circleRadius = P.circleRadius()
+    const trailAlpha = P.trailAlpha()
+    const targetRadius = P.targetRadius()
+
+    p.background(8, 8, 16, trailAlpha) // 잔상 효과를 위한 알파 값 적용
 
     // 1. 현재 위치와 목적지 사이의 거리 연산
     let dx = targetX - currentX
@@ -44,10 +55,10 @@ export default function easingInterpolationSketch(p, size) {
     // 4. 목적지 guide 시각화
     p.noStroke()
     p.fill(240, 240, 255, 100)
-    p.circle(targetX, targetY, 4)
+    p.circle(targetX, targetY, targetRadius)
 
     // 5. easing이 적용되어 움직이는 원
     p.fill(accentColor)
-    p.circle(currentX, currentY, 36)
+    p.circle(currentX, currentY, circleRadius)
   }
 }

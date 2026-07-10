@@ -1,58 +1,80 @@
-export default function escapeTimeFractalSketch(p, size) {
-  let gridSize = 60
-  let cellSize
-  let accentColor
+export default function escapeTimeFractalSketch(p, size, params = {}) {
+  let accentR, accentG, accentB;
+  let time = 0;
+
+  const P = {
+    gridSize: () => params.gridSize ?? 60,
+    baseMaxIter: () => params.baseMaxIter ?? 20,
+    animSpeed: () => params.animSpeed ?? 0.3,
+    xyMultiplier: () => params.xyMultiplier ?? 2.0,
+    panX: () => params.panX ?? -0.75,
+    panY: () => params.panY ?? 0.0,
+    zoom: () => params.zoom ?? 1.0,
+  };
 
   p.setup = function() {
-    p.createCanvas(size, size)
-    cellSize = size / gridSize
+    p.createCanvas(size, size);
 
-    // accent 색 읽기
-    accentColor = getComputedStyle(document.documentElement)
+    const accentColorStr = getComputedStyle(document.documentElement)
       .getPropertyValue('--accent')
-      .trim()
+      .trim();
+    const c = p.color(accentColorStr);
+    accentR = p.red(c);
+    accentG = p.green(c);
+    accentB = p.blue(c);
 
-    p.background(8, 8, 16)
-    p.noStroke()
-  }
+    p.background(8, 8, 16);
+    p.noStroke();
+  };
 
   p.draw = function() {
-    p.background(8, 8, 16)
+    p.background(8, 8, 16);
 
-    // 시간이 흐를수록 maxIter를 서서히 늘려 "성장"하는 듯한 효과
-    let currentMaxIter = 20 + p.floor(p.frameCount * 0.3) % 40
+    const currentGridSize = P.gridSize();
+    const cellSize = size / currentGridSize;
+    
+    time += P.animSpeed();
+    const currentMaxIter = P.baseMaxIter() + p.floor(time) % 40;
 
-    for (let j = 0; j < gridSize; j++) {
-      for (let i = 0; i < gridSize; i++) {
-        // 캔버스 좌표를 복소평면 좌표로 매핑 (만델브로트 표준 영역)
-        let x0 = p.map(i, 0, gridSize, -2.5, 1.0)
-        let y0 = p.map(j, 0, gridSize, -1.25, 1.25)
+    const startColor = p.color(20, 20, 35);
+    const endColor = p.color(accentR, accentG, accentB);
+    const insideColor = p.color(8, 8, 16);
 
-        let x = 0.0
-        let y = 0.0
-        let iter = 0
+    const xyMult = P.xyMultiplier();
+    const z = P.zoom();
+    const pX = P.panX();
+    const pY = P.panY();
 
-        // z = z² + c 반복, |z|² > 4 이면 발산으로 판정
+    const mapW = 3.5 / z;
+    const mapH = 2.5 / z;
+
+    for (let j = 0; j < currentGridSize; j++) {
+      for (let i = 0; i < currentGridSize; i++) {
+        let x0 = p.map(i, 0, currentGridSize, pX - mapW / 2, pX + mapW / 2);
+        let y0 = p.map(j, 0, currentGridSize, pY - mapH / 2, pY + mapH / 2);
+
+        let x = 0.0;
+        let y = 0.0;
+        let iter = 0;
+
         while (x * x + y * y <= 4.0 && iter < currentMaxIter) {
-          let xtemp = x * x - y * y + x0
-          y = 2 * x * y + y0
-          x = xtemp
-          iter++
+          let xtemp = x * x - y * y + x0;
+          y = xyMult * x * y + y0;
+          x = xtemp;
+          iter++;
         }
 
-        let c
+        let c;
         if (iter === currentMaxIter) {
-          // 발산하지 않은 내부 점: 배경색과 동일하게 처리
-          c = p.color(8, 8, 16)
+          c = insideColor;
         } else {
-          // 발산한 점: 반복 횟수에 비례해 accent 색과 어두운 색을 보간
-          let t = iter / currentMaxIter
-          c = p.lerpColor(p.color(20, 20, 35), p.color(accentColor), t)
+          let t = iter / currentMaxIter;
+          c = p.lerpColor(startColor, endColor, t);
         }
 
-        p.fill(c)
-        p.rect(i * cellSize, j * cellSize, cellSize, cellSize)
+        p.fill(c);
+        p.rect(i * cellSize, j * cellSize, cellSize, cellSize);
       }
     }
-  }
+  };
 }

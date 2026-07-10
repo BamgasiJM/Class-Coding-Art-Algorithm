@@ -1,18 +1,20 @@
-export default function reactionDiffusionSketch(p, size, params = {}) {
+export default function reactionDiffusionSketch(p, size) {
   let gridA = [];
   let gridB = [];
   let nextA = [];
   let nextB = [];
   let accentColor;
   let img;
-  let viewSize;
 
-  const P = {
-    feed: () => params.feed ?? 0.055,
-    k: () => params.k ?? 0.062,
-    speed: () => params.speed ?? 3,
-    trailAlpha: () => params.trailAlpha ?? 50,
-  };
+  // 더 작은 해상도로 연산량 대폭 감소
+  let viewSize = 80;
+  let scaleFactor = size / viewSize;
+
+  // 그레이-스콧 모델 파라미터
+  let dA = 1.0;
+  let dB = 0.5;
+  let feed = 0.055;
+  let k = 0.062;
 
   p.setup = function () {
     p.createCanvas(size, size);
@@ -24,10 +26,6 @@ export default function reactionDiffusionSketch(p, size, params = {}) {
 
     // 이미지 버퍼 생성 (깜빡거림 방지)
     img = p.createImage(size, size);
-
-    // 더 작은 해상도로 연산량 대폭 감소
-    viewSize = 80;
-    let scaleFactor = size / viewSize;
 
     // 1차원 배열 초기화
     let totalCells = viewSize * viewSize;
@@ -52,19 +50,11 @@ export default function reactionDiffusionSketch(p, size, params = {}) {
   };
 
   p.draw = function () {
-    const dA = 1.0;
-    const dB = 0.5;
-    const feed = P.feed();
-    const k = P.k();
-    const speed = P.speed();
-    const trailAlpha = P.trailAlpha();
-    const scaleFactor = size / viewSize;
-
     // 알파 트레일 효과로 깜빡거림 제거
-    p.background(8, 8, 16, trailAlpha);
+    p.background(8, 8, 16, 50);
 
-    // 반응 시뮬레이션
-    for (let iter = 0; iter < speed; iter++) {
+    // 반응 시뮬레이션 (3회 반복으로 감소)
+    for (let iter = 0; iter < 3; iter++) {
       for (let x = 1; x < viewSize - 1; x++) {
         for (let y = 1; y < viewSize - 1; y++) {
           let idx = x + y * viewSize;

@@ -1,24 +1,38 @@
-export default function perlinSimplexNoiseSketch(p, size) {
+export default function perlinSimplexNoiseSketch(
+  p,
+  size,
+  params = {},
+) {
   let accentColor;
-
-  // 노이즈 스케일
-  const scale = 0.08;
 
   // 시간
   let zoff = 0;
 
   // 격자 크기
-  const cellSize = 18;
-
+  let cellSize;
   let cols;
   let rows;
+
+  const P = {
+    cellSize: () => params.cellSize ?? 18,
+    noiseScale: () => params.noiseScale ?? 0.08,
+    timeSpeed: () => params.timeSpeed ?? 0.01,
+    threshold: () => params.threshold ?? 0.58,
+    radiusMultiplier: () =>
+      params.radiusMultiplier ?? 1.4,
+    jitter: () => params.jitter ?? 2,
+  };
 
   p.setup = function () {
     p.createCanvas(size, size);
 
-    accentColor = getComputedStyle(document.documentElement)
+    accentColor = getComputedStyle(
+      document.documentElement,
+    )
       .getPropertyValue("--accent")
       .trim();
+
+    cellSize = P.cellSize();
 
     cols = p.ceil(p.width / cellSize);
     rows = p.ceil(p.height / cellSize);
@@ -31,32 +45,70 @@ export default function perlinSimplexNoiseSketch(p, size) {
     p.background(8, 8, 16);
 
     let yoff = 0;
+    const scale = P.noiseScale();
 
     for (let y = 0; y < rows; y++) {
       let xoff = 0;
 
       for (let x = 0; x < cols; x++) {
         // 3D Perlin Noise
-        const n = p.noise(xoff, yoff, zoff);
+        const n = p.noise(
+          xoff,
+          yoff,
+          zoff,
+        );
 
         // 밝기
-        const brightness = p.map(n, 0, 1, 20, 255);
+        const brightness = p.map(
+          n,
+          0,
+          1,
+          20,
+          255,
+        );
 
         // 원 크기
-        const radius = p.map(n, 0, 1, 1, cellSize * 1.4);
+        const radius = p.map(
+          n,
+          0,
+          1,
+          1,
+          cellSize *
+            P.radiusMultiplier(),
+        );
 
-        // 약간의 위치 흔들림
-        const offsetX = p.map(n, 0, 1, -2, 2);
+        // 위치 흔들림
+        const offsetX = p.map(
+          n,
+          0,
+          1,
+          -P.jitter(),
+          P.jitter(),
+        );
 
-        const offsetY = p.map(n, 0, 1, -2, 2);
+        const offsetY = p.map(
+          n,
+          0,
+          1,
+          -P.jitter(),
+          P.jitter(),
+        );
 
-        // 명암
-        p.fill(brightness, brightness, brightness, 120);
+        p.fill(
+          brightness,
+          brightness,
+          brightness,
+          120,
+        );
 
-        p.circle(x * cellSize + offsetX, y * cellSize + offsetY, radius);
+        p.circle(
+          x * cellSize + offsetX,
+          y * cellSize + offsetY,
+          radius,
+        );
 
         // 높은 노이즈 값은 Accent Color 사용
-        if (n > 0.58) {
+        if (n > P.threshold()) {
           p.fill(accentColor);
 
           p.circle(
@@ -73,6 +125,6 @@ export default function perlinSimplexNoiseSketch(p, size) {
     }
 
     // 시간 변화
-    zoff += 0.01;
+    zoff += P.timeSpeed();
   };
 }

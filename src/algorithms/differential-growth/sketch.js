@@ -1,23 +1,26 @@
-export default function differentialGrowthSketch(p, size) {
+export default function differentialGrowthSketch(p, size, params = {}) {
   let nodes = [];
-  let maxNodes = 300; // 60fps 유지를 위한 최대 노드 개수 제어
-  let maxForce = 0.5;
-  let maxSpeed = 2;
+  let accentR, accentG, accentB;
 
-  // 디퍼런셜 그로스 파라미터
-  let rInner = 18; // 노드 간 반발 반경
-  let rOuter = 12; // 노드 간 삽입 조건 반경
-  let accentColor;
+  const P = {
+    maxNodes: () => params.maxNodes ?? 300,
+    rInner: () => params.rInner ?? 18,
+    rOuter: () => params.rOuter ?? 12,
+    maxForce: () => params.maxForce ?? 0.5,
+    maxSpeed: () => params.maxSpeed ?? 2,
+  };
 
   p.setup = function () {
     p.createCanvas(size, size);
 
-    // accent 색 읽기
-    accentColor = getComputedStyle(document.documentElement)
+    const accentColorStr = getComputedStyle(document.documentElement)
       .getPropertyValue("--accent")
       .trim();
+    const c = p.color(accentColorStr);
+    accentR = p.red(c);
+    accentG = p.green(c);
+    accentB = p.blue(c);
 
-    // 중앙에 작은 원형태로 초기 노드 배치
     nodes = [];
     let initRadius = 30;
     let initNodesCount = 40;
@@ -34,21 +37,25 @@ export default function differentialGrowthSketch(p, size) {
     p.background(8, 8, 16);
   };
 
-  // 두 노드 사이의 최적 거리를 유지하기 위한 반발력 및 결합력 연산
   function updateGrowth() {
     let forces = [];
     for (let i = 0; i < nodes.length; i++) {
       forces.push({ fx: 0, fy: 0, count: 0 });
     }
 
-    // 1. 근접 노드 간 반발력(Separation Force) 계산
+    const rIn = P.rInner();
+    const rOut = P.rOuter();
+    const mForce = P.maxForce();
+    const mSpeed = P.maxSpeed();
+    const mNodes = P.maxNodes();
+
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         let d = p.dist(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
-        if (d < rInner && d > 0) {
+        if (d < rIn && d > 0) {
           let diffX = nodes[i].x - nodes[j].x;
           let diffY = nodes[i].y - nodes[j].y;
-          let scale = (rInner - d) / d; // 가까울수록 강한 반발력
+          let scale = (rIn - d) / d;
 
           forces[i].fx += diffX * scale;
           forces[i].fy += diffY * scale;
@@ -61,12 +68,10 @@ export default function differentialGrowthSketch(p, size) {
       }
     }
 
-    // 2. 인접 노드 간 결합력(Cohesion Force) 및 물리 법칙 반영
     for (let i = 0; i < nodes.length; i++) {
       let leftIdx = (i - 1 + nodes.length) % nodes.length;
       let rightIdx = (i + 1) % nodes.length;
 
-      // 인접 노드들의 중심점 방향으로 약한 인력 작용
       let cx = (nodes[leftIdx].x + nodes[rightIdx].x) / 2;
       let cy = (nodes[leftIdx].y + nodes[rightIdx].y) / 2;
 
@@ -78,37 +83,32 @@ export default function differentialGrowthSketch(p, size) {
         forces[i].fy /= forces[i].count;
       }
 
-      // 반발력과 결합력의 조합
       let totalFx = forces[i].fx + cohX * 0.1;
       let totalFy = forces[i].fy + cohY * 0.1;
 
-      // 최대 가속도 제한
       let mag = p.dist(0, 0, totalFx, totalFy);
-      if (mag > maxForce) {
-        totalFx = (totalFx / mag) * maxForce;
-        totalFy = (totalFy / mag) * maxForce;
+      if (mag > mForce) {
+        totalFx = (totalFx / mag) * mForce;
+        totalFy = (totalFy / mag) * mForce;
       }
 
       nodes[i].vx += totalFx;
       nodes[i].vy += totalFy;
 
-      // 속도 제한 및 위치 업데이트
       let speed = p.dist(0, 0, nodes[i].vx, nodes[i].vy);
-      if (speed > maxSpeed) {
-        nodes[i].vx = (nodes[i].vx / speed) * maxSpeed;
-        nodes[i].vy = (nodes[i].vy / speed) * maxSpeed;
+      if (speed > mSpeed) {
+        nodes[i].vx = (nodes[i].vx / speed) * mSpeed;
+        nodes[i].vy = (nodes[i].vy / speed) * mSpeed;
       }
 
       nodes[i].x += nodes[i].vx;
       nodes[i].y += nodes[i].vy;
 
-      // 마찰력 및 저항 가중치 추가
       nodes[i].vx *= 0.8;
       nodes[i].vy *= 0.8;
     }
 
-    // 3. 거리 조건에 따른 분열 및 새 노드 삽입 (Adaptive Subdivision)
-    if (nodes.length < maxNodes) {
+    if (nodes.length < mNodes) {
       for (let i = nodes.length - 1; i >= 0; i--) {
         let nextIdx = (i + 1) % nodes.length;
         let d = p.dist(
@@ -118,25 +118,24 @@ export default function differentialGrowthSketch(p, size) {
           nodes[nextIdx].y,
         );
 
-        // 두 연결 노드 간의 거리가 바깥 경계를 넘으면 중간 지점에 새 노드 추가
-        if (d > rOuter) {
+        if (d > rOut) {
           let midX = (nodes[i].x + nodes[nextIdx].x) / 2;
           let midY = (nodes[i].y + nodes[nextIdx].y) / 2;
           nodes.splice(nextIdx, 0, { x: midX, y: midY, vx: 0, vy: 0 });
         }
       }
+    } else if (nodes.length > mNodes) {
+      nodes.length = mNodes;
     }
   }
 
   p.draw = function () {
     p.background(8, 8, 16);
 
-    // 생장 및 가속 벡터 역학 계산 업데이트
     updateGrowth();
 
-    // 디퍼런셜 그로스 선 루프 드로잉
     p.noFill();
-    p.stroke(accentColor);
+    p.stroke(accentR, accentG, accentB);
     p.strokeWeight(2);
     p.beginShape();
     for (let i = 0; i < nodes.length; i++) {
@@ -144,7 +143,6 @@ export default function differentialGrowthSketch(p, size) {
     }
     p.endShape(p.CLOSE);
 
-    // 연결점 가독성을 돕는 결합 도트 시각화
     p.fill(240, 240, 255);
     p.noStroke();
     for (let i = 0; i < nodes.length; i++) {
