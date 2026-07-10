@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a generative art portfolio website built with **React 19 + Vite**, featuring interactive 3D graphics and algorithm demonstrations. The site showcases a growing collection of generative art algorithms, loosely grouped into themes like Foundations, Randomness & Noise, Growth & Grammar Systems, Spatial Structures, Fields & Contours, Dynamics & Physics, and Collective Behavior. The count is not fixed — cards are added freely and need not belong to any group.
+This is a generative art portfolio website built with **React 19 + Vite**, featuring interactive 3D graphics and algorithm demonstrations. The site showcases **47 generative art algorithms** (and growing), loosely grouped into themes like Foundations, Randomness & Noise, Growth & Grammar Systems, Spatial Structures, Fields & Contours, Dynamics & Physics, and Collective Behavior. Each algorithm includes an interactive p5.js visualization with **View/Play mode toggle** and real-time parameter adjustment. The count is not fixed — cards are added freely and need not belong to any group.
 
 **Key Technologies:**
 - **Bundler & Dev Server:** Vite 8
@@ -47,19 +47,21 @@ All algorithm-related code lives under `src/algorithms/`, colocating each algori
 
 ```
 src/algorithms/
-  P5Canvas.jsx        # shared p5 wrapper (see "p5.js Canvas Lifecycle")
-  catalog.js          # ALGORITHMS list (many items) + slugify + findAlgorithmBySlug
-  details.js          # aggregates each <slug>/index.js → ALGORITHM_DETAILS + getAlgorithmDetail
-  flow-field/         # one folder per fleshed-out algorithm (folder name = slug)
-    index.js          # detail entry: { longDescription {ko,en}, sketch, related }
-    sketch.js         # the p5 instance-mode sketch (p, size) => void
+  P5Canvas.jsx            # shared p5 wrapper (see "p5.js Canvas Lifecycle")
+  PlaygroundCanvas.jsx    # p5 wrapper with parameter support (used by Playground)
+  Playground.jsx          # View/Play mode toggle + parameter sliders panel
+  catalog.js              # ALGORITHMS list (many items) + slugify + findAlgorithmBySlug
+  details.js              # aggregates each <slug>/index.js → ALGORITHM_DETAILS + getAlgorithmDetail
+  <slug>/                 # one folder per fleshed-out algorithm (folder name = slug)
+    index.js              # detail entry: { longDescription {ko,en}, sketch, params?, related }
+    sketch.js             # the p5 instance-mode sketch (p, size, paramsRef?) => void
 ```
 
 - **src/algorithms/catalog.js** — The `ALGORITHMS` array (single source of truth, a growing list) plus helpers:
   - `slugify(name)` — converts a name to a URL-safe slug (e.g. `'Flow Field'` → `'flow-field'`)
   - `findAlgorithmBySlug(slug)` — looks up an algorithm by slug
-- **src/algorithms/details.js** — Imports each fleshed-out algorithm's `<slug>/index.js` and assembles the `ALGORITHM_DETAILS` map keyed by slug. Each entry holds extended per-algorithm content (bilingual `longDescription`, `sketch`, `related`). Only algorithms with a folder appear here; others fall back to a "준비 중" (coming soon) state. `getAlgorithmDetail(slug)` returns the entry or `null`.
-- **src/algorithms/&lt;slug&gt;/** — Per-algorithm folder. `index.js` holds the detail text (`longDescription`, `related`) and imports its `sketch.js` (the p5 code) to export the combined detail object.
+- **src/algorithms/details.js** — Imports each fleshed-out algorithm's `<slug>/index.js` and assembles the `ALGORITHM_DETAILS` map keyed by slug. Each entry holds extended per-algorithm content (bilingual `longDescription`, `sketch`, optional `params`, `related`). Only algorithms with a folder appear here; others fall back to a "준비 중" (coming soon) state. `getAlgorithmDetail(slug)` returns the entry or `null`.
+- **src/algorithms/&lt;slug&gt;/** — Per-algorithm folder. `index.js` holds the detail text (`longDescription`, `related`), optional parameter definitions (`params`), and imports its `sketch.js` (the p5 code) to export the combined detail object.
 
 ### Core Components
 
@@ -100,7 +102,7 @@ Detail view at `/algorithm/:slug`:
 - **Header**: number, name, tags.
 - **Overview**: bilingual description. Korean (`longDescription.ko`) is shown FIRST in `--fg` (prominent); English (`longDescription.en`) SECOND in `--muted`.
 - **Content grid**: the Overview/Visualization two-column layout uses `gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))'`. The `min(400px, 100%)` matters — a bare `minmax(400px, 1fr)` forces a 400px-minimum track regardless of container width, which overflowed narrow mobile viewports (see canvas sizing below).
-- **Visualization**: renders `<P5Canvas sketch={detail.sketch} size={canvasSize} />` (see P5Canvas). Falls back to a same-sized placeholder box if no sketch.
+- **Visualization**: renders `<Playground sketch={detail.sketch} size={canvasSize} params={detail.params} />` if the algorithm has parameters; otherwise renders `<P5Canvas sketch={detail.sketch} size={canvasSize} />`. Falls back to a same-sized placeholder box if no sketch.
 - **Mobile-safe canvas size**: `canvasSize` is computed ONCE via a lazy `useState(() => Math.min(560, window.innerWidth * 0.85))` initializer at first mount — not tracked on resize. Without this, the fixed 560px canvas (plus the 400px grid column minimum above) forced the mobile layout viewport wider than the device width, clipping text at the edge and making the page look "zoomed in" even though `scrollY` was correctly `0`.
 - **Related Algorithms**: mini-cards linking to related algorithms, driven by the `related` array (names) in the detail entry. Grid uses `repeat(auto-fit, minmax(220px, 1fr))` — **must be `auto-fit`, not `auto-fill`**, otherwise empty grid tracks on wide screens show the container's `--border` background as gray gaps.
 - **Back button**: `navigate('/', { state: { scrollTo: 'algorithms' } })`. HomePage reads `location.state.scrollTo` and scrolls to `#algorithms`, so returning lands on the algorithm grid instead of the top hero.
@@ -110,9 +112,26 @@ Generic wrapper that mounts a p5.js instance-mode sketch. **This component conta
 - Props: `sketch` (a `(p, size) => void` function) and `size` (canvas edge in px, default 560).
 - Renders a **fixed square** (`size × size`) container; the sketch calls `p.createCanvas(size, size)`. Canvas dimensions are decided once at mount — there is NO responsive resizing, ResizeObserver, or `windowResized`. This is intentional (see below).
 
+#### Playground (src/algorithms/Playground.jsx)
+Wrapper component that provides **View/Play mode toggle** and real-time parameter adjustment for p5.js sketches:
+- Props: `sketch`, `size` (default 560), and `params` array (optional).
+- **View Mode** (default): Shows only the canvas, no controls. Artwork appears with default parameter values.
+- **Play Mode**: Reveals parameter sliders below the canvas. Each slider can adjust a parameter in real-time or trigger a canvas restart (if `param.restart === true`).
+- **Parameter Definition**: Each `params` entry has `{ key, label, min, max, step, default, unit?, restart? }`.
+- **Restart Behavior**: Parameters with `restart: true` trigger a canvas restart (`restartNonce` increment), useful for structural changes. Parameters without it update values smoothly in real-time.
+- **Reset Button**: Resets all parameters to their default values in Play mode.
+
+#### PlaygroundCanvas (src/algorithms/PlaygroundCanvas.jsx)
+Variant of P5Canvas that accepts a `paramsRef` (mutable parameters object) and `restartNonce` (restart trigger). Used by Playground:
+- Props: `sketch`, `size`, `paramsRef` (mutable object), `restartNonce` (number, incremented to trigger restart).
+- The sketch function receives `(p, size, paramsRef)` instead of just `(p, size)`, allowing it to read live parameter values from `paramsRef.current.key`.
+- Canvas mounts afresh whenever `restartNonce` changes, allowing sketches that set initial state based on parameters.
+
 #### Sketches (src/algorithms/&lt;slug&gt;/sketch.js)
-One `sketch.js` per algorithm folder, exported as a default `(p, size) => void` function (instance mode). Example: `flow-field/sketch.js`.
-- Signature is `function sketch(p, size)` — `size` is passed in by P5Canvas; the sketch must NOT query the DOM for its container size.
+One `sketch.js` per algorithm folder, exported as a default function (instance mode). Example: `flow-field/sketch.js`.
+- **Standard signature** (no parameters): `function sketch(p, size)` — used with P5Canvas.
+- **Parameterized signature**: `function sketch(p, size, paramsRef)` — used with PlaygroundCanvas. The sketch reads live values via `paramsRef.current.paramKey`.
+- `size` is passed in; the sketch must NOT query the DOM for its container size.
 - Reads the accent color at setup via `getComputedStyle(document.documentElement).getPropertyValue('--accent')`.
 - `flow-field/sketch.js`: ~300 particles following a Perlin-noise vector field, with a semi-transparent background each frame for trail effect.
 
@@ -133,10 +152,12 @@ Edit the `ALGORITHMS` array in `src/algorithms/catalog.js`:
 Grid automatically reflows; no layout tweaks needed. The card becomes clickable and routes to `/algorithm/<slug>` automatically.
 
 ### Adding an Algorithm Detail Page (with p5.js art)
-To flesh out a card's detail page (currently only Flow Field is complete; the other 19 show a "coming soon" fallback):
+To flesh out a card's detail page:
 
-1. **Create the folder**: `src/algorithms/<slug>/` (folder name = the slug, e.g. `trigonometric-wave`). Use `flow-field/` as the template.
-2. **Add the sketch**: `src/algorithms/<slug>/sketch.js`, default-exporting `function sketch(p, size)` (p5 instance mode). Use the `size` argument for canvas dimensions — never query the DOM.
+1. **Create the folder**: `src/algorithms/<slug>/` (folder name = the slug, e.g. `trigonometric-wave`).
+2. **Add the sketch**: `src/algorithms/<slug>/sketch.js`, default-exporting `function sketch(p, size)` OR `function sketch(p, size, paramsRef)` (p5 instance mode).
+   - Use the `size` argument for canvas dimensions — never query the DOM.
+   - If the algorithm has parameters, read them from `paramsRef.current.key` inside `draw()` (or anywhere you need them).
 3. **Add the detail**: `src/algorithms/<slug>/index.js`, importing `./sketch` and default-exporting the detail object:
    ```js
    import sketch from './sketch'
@@ -147,12 +168,25 @@ To flesh out a card's detail page (currently only Flow Field is complete; the ot
        en: String.raw`...`,
      },
      sketch,
+     params: [                 // optional; if present, Playground renders with View/Play toggle
+       {
+         key: 'speed',
+         label: 'Speed',
+         min: 0.1,
+         max: 3,
+         step: 0.1,
+         default: 1,
+         unit: 'x',
+         restart: false,       // smooth real-time update (true = restart canvas on change)
+       },
+       // ... more params
+     ],
      related: ['Flow Field', 'Perlin / Simplex Noise'],  // exact names from ALGORITHMS
    }
    ```
 4. **Register it**: add one line to `src/algorithms/details.js` — `import <name> from './<slug>'` and a `'<slug>': <name>,` entry in `ALGORITHM_DETAILS`.
 
-That's it — AlgorithmDetailPage picks it up by slug. No routing changes needed.
+That's it — AlgorithmDetailPage picks it up by slug. If `params` is present, it renders `<Playground>` with sliders; otherwise just `<P5Canvas>`. No routing changes needed.
 
 ### ⚠️ longDescription is Markdown + LaTeX — use `String.raw`
 
@@ -205,6 +239,8 @@ Global styles in `src/index.css`:
 - **Responsive Grids**: The AlgorithmSection card grid uses `auto-fill`; the AlgorithmDetailPage "Related Algorithms" grid uses `auto-fit` (deliberately different — `auto-fit` avoids gray empty tracks with a small, fixed number of related items).
 - **Accent Color**: Randomized per page load (see Style Organization). Used for hover states, checkboxes, custom cursor, and p5 particle color.
 - **p5 Canvas**: Fixed square, StrictMode-safe (see "⚠️ p5.js Canvas Lifecycle"). On `AlgorithmDetailPage`, the fixed size itself is computed once at mount from viewport width (capped at 560px) so it fits mobile screens — see the "Mobile-safe canvas size" note above.
+- **View/Play Mode**: The Playground component keeps the canvas instance alive while toggling between View (clean artworkonly) and Play (sliders below). Toggling mode does NOT remount the canvas — it only shows/hides the slider panel. This avoids visual flicker and maintains smooth parameter animation.
+- **Parameter Restart Behavior**: Parameters with `restart: true` increment `restartNonce`, which unmounts and remounts the p5 canvas. Use `restart: true` for parameters that control initial structure or algorithm setup (e.g., particle count); use `restart: false` (default) for real-time visual parameters (e.g., speed, color multiplier).
 
 ---
 

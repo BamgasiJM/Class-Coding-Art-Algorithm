@@ -36,6 +36,10 @@ export default function ditheringSketch(p, size, params = {}) {
     cols = p.floor(size / CELL);
     rows = p.floor(size / CELL);
 
+    // draw()가 requestAnimationFrame으로 곧바로 시작되므로, loadImage 콜백이 오기 전에도
+    // brightness가 undefined가 아니도록 미리 채워둔다 (프로덕션 네트워크 지연 시 race 방지).
+    brightness = new Float32Array(cols * rows);
+
     const hex = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
     const tmp = p.color(hex);
     accentR = p.red(tmp); accentG = p.green(tmp); accentB = p.blue(tmp);
