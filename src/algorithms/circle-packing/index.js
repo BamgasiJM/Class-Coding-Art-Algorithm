@@ -4,7 +4,7 @@ export default {
   longDescription: {
     en: "Circle Packing is a geometric packing algorithm that populates a defined space with non-overlapping circles. New circles are randomly spawned at minimal sizes and organically grow until they contact the boundary of an adjacent circle or the edge of the canvas. This constrained scaling models natural saturation and growth phenomena, resulting in intricate visual hierarchies and structures reminiscent of biological cells and stone arrangements.",
     ko: String.raw`
-**Circle Packing(원 채우기)**은 정해진 공간 내에 서로 겹치지 않으면서 가능한 많은 원들을 배치하는 **기하학적 최적화 문제**로, 각 원이 성장 제약 조건 하에서 유기적으로 확장하는 과정을 통해 자연계의 **공간 점유(Space Occupancy)** 현상을 모델링합니다. 생물학적 세포, 거품 구조, 돌맹이 자갈밭, 꽃 씨앗 배치 등 자연에서 관찰되는 최적화된 배치 패턴을 수학적으로 재현하며, 제약 조건 기반의 증분적(Incremental) 성장으로부터 복잡한 시각적 계층과 미적 질서가 자동으로 창발합니다.
+**Circle Packing**(원 채우기)은 정해진 공간 내에 서로 겹치지 않으면서 가능한 많은 원들을 배치하는 **기하학적 최적화 문제**로, 각 원이 성장 제약 조건 속에서 커지는 과정을 통해 자연계의 **공간 점유(Space Occupancy)** 현상을 모델링합니다. 세포, 거품 구조, 자갈밭, 꽃 씨앗 배치 등 자연에서 볼 수 있는 최적화된 배치 패턴을 수학적으로 재현하는 방법입니다. 이런 조건 기반의 성장을 통해 복잡하지만 질서 있는 아트워크가 자동으로 생성 됩니다.
 
 ### 1. 핵심 수학적 원리
 각 원의 위치와 크기는 다음의 제약 조건을 만족해야 합니다:
@@ -28,9 +28,9 @@ export default {
 
 ### 2. 주요 특징 및 장점
 - **자연 모방(Biomimicry):** 세포 분열, 유기체 조직화, 거품 형성 등 자연의 공간 점유 패턴을 정확히 재현합니다.
-- **창발적 아름다움:** 단순한 성장 규칙만으로도 복잡하고 조화로운 배치가 자동으로 형성되며, 각 원의 크기 분포가 시각적 계층을 만듭니다.
+- **생성의 아름다움:** 단순한 성장 규칙만으로도 복잡하고 조화로운 배치가 자동으로 형성되며, 각 원의 크기 분포는 특별한 시각적 패턴을 만듭니다.
 - **공간 활용도:** 탐욕적(Greedy) 접근으로도 상당한 수준의 공간 채우기를 달성하며, 이는 NP-완전 문제인 원 패킹 문제의 실용적 근사 해법입니다.
-- **인터랙티브성:** 실시간으로 성장이 진행되어, 마치 살아있는 유기체처럼 시각적 변화를 관찰할 수 있습니다.
+- **실시간 변화:** 실시간으로 성장이 진행되어, 마치 살아있는 유기체가 자라는 듯한 변화를 관찰할 수 있습니다.
 
 ### 3. 구현 시 고려 사항
 - **공간 분할 최적화:** 모든 원과의 거리를 매번 확인하면 $O(n^2)$이 되므로, 공간 분할 구조(Grid, Quadtree)를 사용하여 인접한 원만 검사합니다.

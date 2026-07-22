@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**Abelian Sandpile Model**은 이산적인 격자 위에서 입자의 이동과 축적을 통해 나타나는 자기 조직화된 임계 상태(Self-Organized Criticality)를 시뮬레이션하는 확률적 알고리즘입니다. 입자가 특정 임계치를 넘어서는 순간 주변으로 흩어지는 **토플링**(Toppling) 과정을 통해, 시스템이 평형을 찾아가는 과정에서 나타나는 복잡한 패턴과 프랙탈 구조를 수학적으로 모델링합니다.
+**Abelian Sandpile Model**(ASM)은 이산적인 격자 위에서 입자의 이동과 축적을 통해 나타나는 **자기 조직화된 임계 상태**(Self-Organized Criticality)를 시뮬레이션하는 확률적 알고리즘입니다. 입자가 특정 임계치를 넘어서는 순간 주변으로 흩어지는 **토플링**(Toppling) 과정을 통해, 시스템이 평형을 찾아가는 과정에서 나타나는 복잡한 패턴과 프랙탈 구조를 수학적으로 모델링합니다.
 
 ### 1. 핵심 수학적 원리
 ASM의 역학은 격자 위의 각 노드에 저장된 입자의 수 $z_i$와 인접 노드 간의 연결 상태를 기반으로 정의됩니다.
