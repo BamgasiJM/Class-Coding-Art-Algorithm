@@ -148,9 +148,9 @@ function Card({ algo, index }) {
 export default function AlgorithmSection() {
   const headingRef = useRef()
 
-  // 카드 표시 순서: 'shuffle'(랜덤, 기본값) ↔ 'alpha'(알파벳순) 토글
-  const [mode, setMode] = useState('shuffle')
-  const [displayed, setDisplayed] = useState(() => shuffle(ALGORITHMS))
+  // 카드 표시 순서: 'alpha'(알파벳순, 기본값) ↔ 'shuffle'(랜덤) 토글
+  const [mode, setMode] = useState('alpha')
+  const [displayed, setDisplayed] = useState(() => sortAlpha(ALGORITHMS))
 
   function toggleOrder() {
     const next = mode === 'shuffle' ? 'alpha' : 'shuffle'
@@ -204,7 +204,7 @@ export default function AlgorithmSection() {
           {/* 순서 토글 버튼 — 현재 모드를 표시하고, 클릭하면 셔플 ↔ 알파벳순 전환 */}
           <button
             onClick={toggleOrder}
-            aria-label={mode === 'shuffle' ? '알파벳순으로 정렬' : '무작위로 섞기'}
+            aria-label={mode === 'alpha' ? '무작위로 섞기' : '알파벳순으로 정렬'}
             style={{
               marginLeft: 'auto',
               fontFamily: "'DM Mono', monospace",
@@ -226,7 +226,7 @@ export default function AlgorithmSection() {
               e.currentTarget.style.color = 'var(--muted)'
             }}
           >
-            {mode === 'shuffle' ? '⤨ Shuffle' : '↓ A–Z'}
+            {mode === 'alpha' ? '⤨ Shuffle' : '↓ A–Z'}
           </button>
         </div>
 

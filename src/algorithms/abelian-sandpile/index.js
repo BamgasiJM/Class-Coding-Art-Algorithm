@@ -2,7 +2,7 @@ import sketch from './sketch'
 
 export default {
   longDescription: {
-    ko: `
+    ko: String.raw`
 **Abelian Sandpile Model**은 이산적인 격자 위에서 입자의 이동과 축적을 통해 나타나는 자기 조직화된 임계 상태(Self-Organized Criticality)를 시뮬레이션하는 확률적 알고리즘입니다. 입자가 특정 임계치를 넘어서는 순간 주변으로 흩어지는 **토플링**(Toppling) 과정을 통해, 시스템이 평형을 찾아가는 과정에서 나타나는 복잡한 패턴과 프랙탈 구조를 수학적으로 모델링합니다.
 
 ### 1. 핵심 수학적 원리
@@ -29,7 +29,7 @@ ASM의 역학은 격자 위의 각 노드에 저장된 입자의 수 $z_i$와 �
 - **Complexity Science:** 자연계의 지진, 산사태, 혹은 신경망의 발화 패턴과 같이 임계 상태에서 발생하는 비선형적 현상을 연구하는 물리 모델로 사용됩니다.
 - **Statistical Physics:** 통계 역학적 관점에서 입자의 분포와 상전이(Phase Transition) 현상을 시뮬레이션하는 데 기여합니다.    
 `,
-    en: 'Abelian Sandpile is a self-organized criticality model that tracks the number of "grains of sand" on each cell of a grid. When a cell exceeds a threshold (typically 4), it distributes one grain to each of its four neighbors, destabilizing them in turn and triggering cascading avalanches. Thanks to its "Abelian" property — the final state is independent of the toppling order — a single massive pile dropped at the center evolves through thousands of collapses into a strikingly symmetric fractal boundary.',
+    en: String.raw`Abelian Sandpile is a self-organized criticality model that tracks the number of grains of sand on each cell of a grid. When a cell exceeds a threshold (typically 4), it distributes one grain to each of its four neighbors, destabilizing them in turn and triggering cascading avalanches. Thanks to its Abelian property — the final state is independent of the toppling order — a single massive pile dropped at the center evolves through thousands of collapses into a strikingly symmetric fractal boundary.`,
   },
   sketch,
   params: [
