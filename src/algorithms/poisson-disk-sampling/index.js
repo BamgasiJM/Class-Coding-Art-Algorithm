@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**Poisson Disk Sampling(푸아송 원판 샘플링)**은 **최소 간격 제약(Minimum Distance Constraint)**을 만족하면서 **균일하게 공간을 채우는** 점 분포를 생성하는 알고리즘입니다. **완전 무작위 분포(White Noise)**는 점들이 뭉쳐있는 **클러스터링** 현상을 보이고, **규칙적 격자(Grid)**는 부자연스러운 주기성을 갖는 반면, **Poisson Disk Sampling**은 두 극단 사이의 **최적 균형**을 달성합니다. 이는 **청색 소음(Blue Noise)** 스펙트럼 특성을 가지며, 자연계의 나무 배치, 털 분포, 신경 세포 배열 등을 정확히 모델링합니다. **Bridson 알고리즘**은 **활성 목록(Active List)**과 **공간 해시 그리드(Spatial Hash Grid)**를 사용하여 선형 시간 복잡도로 효율적 구현을 제공합니다.
+**Poisson Disk Sampling**(푸아송 원판 샘플링)은 **최소 간격 제약**을 만족하면서 **균일하게 공간을 채우는** 점 분포를 생성하는 알고리즘입니다. 완전 무작위 분포는 점들이 뭉쳐있는 클러스터링 현상을 보이고, 규칙적 격자(Grid)는 부자연스러운 주기성을 갖는 반면, Poisson Disk Sampling은 두 극단 사이의 **최적 균형**을 달성합니다. 이는 **청색 소음(Blue Noise)** 스펙트럼 특성을 가지며, 자연계의 나무 배치, 털 분포, 신경 세포 배열 등을 정확히 모델링합니다. **Bridson 알고리즘**은 활성 목록(Active List)과 공간 해시 그리드(Spatial Hash Grid)를 사용하여 선형 시간 복잡도로 효율적 구현을 제공합니다.
 
 ### 1. 핵심 수학적 원리
 1. **최소 거리 제약:**

@@ -6,7 +6,7 @@ export default {
 Reaction-Diffusion models the mathematical interaction of two chemical substances (or morphogens) diffusing through space and reacting with one another. The Gray-Scott model describes feed, kill, and diffusion rates that generate self-organized patterns: stripes, spots, spirals, and labyrinths. These patterns emerge from Turing instability, where a stable equilibrium becomes unstable under diffusion, causing spatial organization. The algorithm precisely reproduces zebra stripes, leopard spots, coral skeletons, and bacterial colonies—demonstrating how morphogenesis emerges from local biochemical rules, with no global design.
     `,
     ko: String.raw`
-**Reaction-Diffusion(반응 확산)**은 **공간상에서 확산되며 상호작용하는 두 종류의 화학 물질** (또는 **형태형성 인자, Morphogen**)의 **수학적 역학(Dynamics)**을 모델링하는 알고리즘입니다. **Gray-Scott 모델**은 **공급율(Feed)**, **소비율(Kill)**, **확산 계수(Diffusion Rate)**를 통해 **자기 조직화된 패턴(Self-Organized Pattern)**을 생성합니다: 줄무늬, 점, 나선, 미로 구조 등. 이는 **Turing 불안정성(Turing Instability)**이라는 현상에서 비롯되는데, **확산이 없을 때 안정한 평형**이 **확산 존재 하에서 불안정화**되어 **공간적 구조(Spatial Pattern)**가 자발적으로 형성됩니다. 얼룩말의 줄무늬, 표범의 반점, 산호의 골격, 박테리아 집단 배치 등을 정확히 재현하여, **전역 설계 없이 국소 규칙만으로 복잡한 형태형성이 일어나는 생물학적 현상**을 증명합니다.
+**Reaction-Diffusion**(반응 확산)은 **공간상에서 확산되며 상호작용하는 두 종류의 화학 물질** (또는 **형태형성 인자, Morphogen**)의 역학(Dynamics)을 모델링하는 알고리즘입니다. **Gray-Scott 모델**은 공급율(Feed), 소비율(Kill), 확산 계수(Diffusion Rate)를 통해 **자기 조직화된 패턴(Self-Organized Pattern)** 을 생성합니다. 이는 **Turing 불안정성(Turing Instability)**이라는 현상에서 비롯되는데, **확산이 없을 때 안정한 평형**이 **확산 존재 하에서 불안정화**되어 공간적 구조가 형성됩니다. 얼룩말의 줄무늬, 표범의 반점, 산호의 골격, 박테리아 집단 배치 등을 정확히 재현하여, **전역 설계 없이 국소 규칙만으로 복잡한 형태형성이 일어나는 생물학적 현상**을 증명합니다.
 
 ### 1. 핵심 수학적 원리
 1. **두 화학 물질:**

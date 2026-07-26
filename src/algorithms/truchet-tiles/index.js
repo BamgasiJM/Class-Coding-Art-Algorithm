@@ -3,7 +3,7 @@ import sketch from "./sketch";
 export default {
   longDescription: {
     ko: String.raw`
-**Truchet Tiles(트루셰 타일)**는 각 **단위 타일(Unit Tile)**이 한 모서리에서 반대 모서리로 연결되는 **곡선(Arc)** 또는 **선분(Line)**을 가진 **타일 패턴(Tile Pattern)**입니다. 모든 타일의 기하학적 구조는 동일하지만, **회전 방향(Orientation)**을 **노이즈(Noise)** 또는 **규칙(Rule)**으로 제어하면 **연속적인 경로(Continuous Paths)**와 **복잡한 흐름 구조(Complex Flow Pattern)**가 자발적으로 형성됩니다. **Perlin Noise**로 회전을 조절하면 **유기적이고 부드러운 흐름**, **규칙으로 조절하면 정교한 미로나 기하학적 패턴**을 생성합니다. 이는 **Wang Tiles**보다 간단하면서도 강력한 **절차적 생성** 도구입니다.
+**Truchet Tiles**(트루셰 타일)는 각 단위 타일(Unit Tile)이 한 모서리에서 반대 모서리로 연결되는 **곡선(Arc)** 또는 **선분(Line)** 을 가진 **타일 패턴**입니다. 모든 타일의 기하학적 구조는 동일하지만, 회전 방향(Orientation)을 **노이즈** 또는 **규칙**으로 제어하면 **연속적인 경로**와 **복잡한 흐름 구조**가 자발적으로 형성됩니다. **Perlin Noise**로 회전을 조절하면 유기적이고 부드러운 흐름, 규칙으로 조절하면 정교한 미로나 기하학적 패턴을 생성합니다.
 
 ### 1. 핵심 수학적 원리
 1. **기본 Truchet 타일:**

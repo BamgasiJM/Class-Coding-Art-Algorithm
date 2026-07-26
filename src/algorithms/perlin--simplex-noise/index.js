@@ -6,7 +6,7 @@ export default {
 Perlin Noise and Simplex Noise are gradient noise algorithms designed to produce natural, organic pseudo-random textures and structures. Unlike pure white noise, they generate smooth, continuous transitions between points via spatial gradient interpolation. Perlin Noise (1983) uses a cubic lattice and linear/cubic interpolation; Simplex Noise (2002) improves efficiency via n-dimensional simplicial lattices. Both are foundational to terrain generation, cloud simulation, texture synthesis, and flow field visualization in computer graphics and generative art.
     `,
     ko: String.raw`
-**Perlin / Simplex Noise(펄린/심플렉스 노이즈)**는 **자연스럽고 유기적인 의사 난수(Pseudo-Random) 텍스처와 구조**를 생성하는 **그래디언트 노이즈(Gradient Noise) 알고리즘**입니다. 완전히 독립적인 **화이트 노이즈(White Noise)**와 달리, **공간적 그래디언트(Spatial Gradient)**를 **보간(Interpolation)**하여 연속적이고 부드러운 전이를 만들어냅니다. **Perlin Noise**(1983)는 3차 격자와 선형/3차 보간을 사용하고, **Simplex Noise**(2002)는 심플렉스 격자를 통해 더 효율적인 $n$차원 구현을 제공합니다. 두 알고리즘 모두 지형 생성, 구름 시뮬레이션, 텍스처 합성, 흐름장 시각화 등 컴퓨터 그래픽과 제너레이티브 아트의 기초입니다.
+**Perlin / Simplex Noise**(펄린/심플렉스 노이즈)는 **자연스럽고 유기적인 텍스처와 구조**를 생성하는 그래디언트 노이즈(Gradient Noise) 알고리즘입니다. 완전히 독립적인 화이트 노이즈(White Noise)와 달리, **공간 그래디언트(Spatial Gradient)** 를 보간(Interpolation)하여 연속적이고 부드러운 전이를 만들어냅니다. **Perlin Noise**(1983)는 3차 격자와 선형/3차 보간을 사용하고, **Simplex Noise**(2002)는 심플렉스 격자를 통해 더 효율적인 $n$차원 구현을 제공합니다. 두 알고리즘 모두 지형 생성, 구름 시뮬레이션, 텍스처 합성, 흐름장 시각화 등 컴퓨터 그래픽과 제너레이티브 아트의 기초입니다.
 
 ### 1. 핵심 수학적 원리
 1. **Perlin Noise의 구조:**
@@ -15,7 +15,7 @@ Perlin Noise and Simplex Noise are gradient noise algorithms designed to produce
    - 각 코너에서 그래디언트와 위치 벡터의 **점곱(Dot Product)** 계산:
      - $(g_{00} \cdot \mathbf{r}_{00}, g_{01} \cdot \mathbf{r}_{01}, g_{10} \cdot \mathbf{r}_{10}, g_{11} \cdot \mathbf{r}_{11})$
 
-2. **Interpolation (보간):**
+2. **보간 (Interpolation):**
    - 선형 보간: $\text{lerp}(a, b, t) = a(1-t) + bt$
    - **Fade Curve** (부드러운 보간): $f(t) = t^3(10 - 15t + 6t^2)$ 또는 유사한 3차 함수
    - $f(t)$는 $f(0) = 0, f(1) = 1, f'(0) = f'(1) = 0$을 만족 (양 끝에서 미분이 0)
@@ -31,8 +31,8 @@ Perlin Noise and Simplex Noise are gradient noise algorithms designed to produce
    - $\lambda$ = 주파수 배수 (보통 2)
 
 ### 2. 주요 특징 및 장점
-- **극도의 자연성:** 수학적으로 부드러우면서도 생물학적 복잡성 표현.
-- **해상도 독립성:** 어느 스케일에서든 일관되고 자연스러운 패턴.
+- **자연스러운 노이즈:** 수학적으로 부드러우면서도 생물학적 복잡성 표현.
+- **해상도 일관성:** 어느 스케일에서든 일관되고 자연스러운 패턴.
 - **계산 효율성:** $O(n)$ 시간으로 임의 점의 값 계산 가능; 전체 필드 사전계산 불필요.
 - **확장 가능성:** 옥타브 합성, 도메인 왜곡(Domain Warping), 밀도 보정 등 다양한 변형 가능.
 

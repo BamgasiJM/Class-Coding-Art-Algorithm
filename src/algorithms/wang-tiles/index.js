@@ -3,7 +3,7 @@ import sketch from "./sketch";
 export default {
   longDescription: {
     ko: String.raw`
-**Wang Tiles(왕 타일)**은 각 **정사각형 타일의 네 변에 색(또는 패턴)**이 할당된 **제약 충족 타일링(Constraint-Satisfaction Tiling)** 알고리즘입니다. **타일링 규칙:** 인접한 두 타일의 공유 변(Shared Edge)의 색이 반드시 일치해야 합니다. 이 **국소 제약(Local Constraint)**만으로도, **유한한 타일 집합(일반적으로 16개 이하)**으로부터 **반복되지 않는 비주기적 패턴(Aperiodic Pattern)**을 생성할 수 있습니다. 이는 **Penrose Tiling**보다 계산이 훨씬 간단하면서도 수학적 깊이가 있으며, **게임 맵, 텍스처, 바닥 패턴** 등에서 강력한 절차적 생성 도구입니다.
+**Wang Tiles**(왕 타일)은 각 **정사각형 타일의 네 변에 색(또는 패턴)** 이 할당된 **제약 충족 타일링(Constraint-Satisfaction Tiling)** 알고리즘입니다. 인접한 두 타일의 공유 변(Shared Edge)의 색이 반드시 일치해야 한다는 규칙이 있습니다. 이 국소 제약만으로도, **유한한 타일 집합**(일반적으로 16개 이하)으로부터 **반복되지 않는 비주기적 패턴**을 생성할 수 있습니다. 이는 **Penrose Tiling**보다 계산이 훨씬 간단하면서도 수학적 깊이가 있으며, **게임 맵, 텍스처, 바닥 패턴** 등에서 강력한 절차적 생성 도구입니다.
 
 ### 1. 핵심 수학적 원리
 1. **타일 정의:**
@@ -59,7 +59,7 @@ params: [
     min: 20,
     max: 80,
     step: 2,
-    default: 40,
+    default: 48,
     unit: 'px',
     restart: true,
   },
@@ -67,7 +67,7 @@ params: [
     key: 'numColorVariations',
     label: '경계 색상 수',
     min: 2,
-    max: 8,
+    max: 5,
     step: 1,
     default: 3,
     restart: true,
@@ -75,27 +75,27 @@ params: [
   {
     key: 'tileComplexity',
     label: '타일 종류 수',
-    min: 4,
-    max: 32,
+    min: 24,
+    max: 48,
     step: 1,
-    default: 12,
+    default: 32,
     restart: true,
   },
   {
     key: 'gridLineAlpha',
     label: '구분선 투명도',
     min: 0,
-    max: 180,
+    max: 125,
     step: 5,
-    default: 80,
+    default: 60,
   },
   {
     key: 'tileOutlineWeight',
     label: '외곽선 두께',
     min: 0,
-    max: 5,
+    max: 3,
     step: 0.1,
-    default: 2,
+    default: 1,
   },
   {
     key: 'colorBrightness',

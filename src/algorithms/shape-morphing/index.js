@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**Shape Morphing(형태 변형)**은 **서로 다른 두 도형(Source Shape & Target Shape)**을 **동일한 수의 정점(Vertex)**으로 재구성한 후, **선형 보간(Linear Interpolation, Lerp)**을 이용하여 부드럽게 변형시키는 애니메이션 알고리즘입니다. 원과 별처럼 위상적으로(Topologically) 전혀 다른 형태 사이에서도, **균등하게 샘플링된 정점들** 사이의 **일대일 대응(Point Correspondence)**을 확립하면 자연스러운 중간 형태가 생성됩니다. 시간 매개변수를 주기적으로 변화시키면, 도형이 쉼 없이 두 형태 사이를 오가며 **호흡하듯 신체적 리듬**을 표현합니다.
+**Shape Morphing**(형태 변형)은 **서로 다른 두 도형**(Source Shape & Target Shape)을 **동일한 수의 정점**(Vertex)으로 재구성한 후, **선형 보간**(Linear Interpolation, Lerp)을 이용하여 부드럽게 변형시키는 애니메이션 알고리즘입니다. 원과 별처럼 위상적으로 전혀 다른 형태 사이에서도, **균등하게 샘플링된 정점들** 사이의 **일대일 대응**을 확립하면 자연스러운 중간 형태가 생성됩니다. 시간 매개변수를 주기적으로 변화시키면 의도에 맞는 움직임을 표현할 수 있습니다.
 
 ### 1. 핵심 수학적 원리
 1. **정점 샘플링:**

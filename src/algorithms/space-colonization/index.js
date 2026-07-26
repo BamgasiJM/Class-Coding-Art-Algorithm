@@ -6,7 +6,7 @@ export default {
 Space Colonization simulates the growth patterns of branching networks—tree limbs, leaf veins, blood vessels, neurons, root systems. The algorithm distributes attraction points throughout space representing resources or leaves. Starting from a root node, iteratively grow branch segments toward the nearest unclaimed attraction point. Once a segment reaches an attractor, that attractor is "consumed" and removed. The result: a naturally optimized dendritic network that branches to reach all attractors, limited only by physical constraints. This matches both the mathematical optimality of minimal spanning trees and the organic aesthetics of biological growth.
     `,
     ko: String.raw`
-**Space Colonization(공간 개척)**은 **나뭇가지의 분기 구조, 잎맥의 망상 조직, 혈관 계통, 신경 네트워크, 뿌리 시스템** 등 **생물학적 수지상 구조(Dendritic Network)**의 생장 패턴을 모사하는 **탐욕 알고리즘(Greedy Algorithm)**입니다. 성장 공간에 **자원 또는 잎을 상징하는 유인점(Attraction Point)**들을 무작위로 분포시키고, **시작 노드(Root)**에서 시작하여 반복적으로 **가장 가까운 미획득 유인점을 향해 가지 선분**을 뻗어냅니다. 가지가 유인점에 도달하면 그 유인점은 **소비(Consumed)**되어 제거되며, 이 과정을 반복하면 **한정된 공간 내에서 스스로 최적화되는 완전한 연결 네트워크**가 형성됩니다. 수학적으로 **최소 신장 트리(Minimum Spanning Tree)의 최적성**과 **생물학적 성장의 유기적 미학**을 동시에 달성합니다.
+**Space Colonization**(공간 개척)은 **나뭇가지의 분기 구조, 잎맥의 망상 조직, 혈관 계통, 신경 네트워크, 뿌리 시스템** 등 생물학적 수지상 구조(Dendritic Structure)의 생장 패턴을 모사하는 **탐욕 알고리즘(Greedy Algorithm)** 입니다. 성장 공간에 자원을 상징하는 유인점(Attraction Point)들을 무작위로 분포시키고, 시작 노드에서 시작하여 반복적으로 가장 가까운 미획득 유인점을 향해 가지 선분을 뻗어냅니다. 가지가 유인점에 도달하면 그 유인점은 소비되어 제거되며, 이 과정을 반복하면 **한정된 공간 내에서 스스로 최적화되는 완전한 연결 네트워크**가 형성됩니다. 수학적으로 **최소 신장 트리(Minimum Spanning Tree)의 최적성**과 **생물학적 성장의 유기적 미학**을 동시에 달성합니다.
 
 ### 1. 핵심 수학적 원리
 1. **알고리즘 단계:**

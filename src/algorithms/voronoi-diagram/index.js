@@ -6,7 +6,7 @@ export default {
 Voronoi Diagram is a fundamental geometric partition of a plane into regions based on proximity to specific seed points. Each region (Voronoi cell) contains all locations closer to its seed than to any other seed. The boundaries are the perpendicular bisectors of seed pairs. Voronoi Diagrams model natural spatial distribution: giraffe spots, dragonfly wing cells, dried mud cracks, foam structures, and even galactic superclusters exhibit Voronoi-like patterns. This implementation animates moving seeds, creating a dynamic, flowing geometric cellular mesh that reveals how local proximity rules govern global structure.
     `,
     ko: String.raw`
-**Voronoi Diagram(보로노이 다이어그램)**은 **평면 또는 고차원 공간을 특정 점(Seed Point)**들과의 **근접성(Proximity)**을 기반으로 분할하는 **기본적인 기하학 알고리즘**입니다. 각 **보로노이 셀(Voronoi Cell)**은 **다른 어떤 핵점보다 자신의 핵점에 더 가까운 모든 좌표들의 집합**입니다. **경계(Boundary)**는 인접한 핵점 쌍의 **수직이등분선(Perpendicular Bisector)**으로 구성됩니다. 이 단순한 근접성 규칙으로부터 **기린의 반점, 잠자리 날개의 육각형 셀, 가뭄으로 갈라진 논, 비눗방울 거품, 은하 초대(Superclusters)** 등 자연 현상의 **공간 분할 패턴**이 창발적으로 형성됩니다. 이는 **국소 규칙이 전역 구조를 어떻게 지배하는지**를 보여주는 강력한 예제입니다.
+**Voronoi Diagram**(보로노이 다이어그램)은 **평면 또는 고차원 공간**을 점들의 **근접성(Proximity)을 기반으로 분할**하는 기하학 알고리즘입니다. 각 보로노이 셀(Voronoi Cell)은 다른 어떤 핵점보다 자신의 핵점에 더 가까운 모든 좌표들의 집합입니다. 경계는 인접한 핵점 쌍의 수직이등분선으로 구성됩니다. 이 단순한 근접성 규칙으로부터 **기린의 반점, 잠자리 날개의 육각형 셀, 가뭄으로 갈라진 논, 비눗방울 거품, 초은하단의 구조** 등 자연 현상의 **공간 분할 패턴**이 형성됩니다. 이는 **국소 규칙이 전역 구조를 어떻게 지배하는지**를 보여주는 강력한 예제입니다.
 
 ### 1. 핵심 수학적 원리
 1. **보로노이 셀 정의:**

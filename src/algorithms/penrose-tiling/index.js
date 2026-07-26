@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**Penrose Tiling(펜로즈 타일링)**은 두 종류의 **마름모(Rhombus, 굵은 마름모와 가는 마름모)**만을 사용하여 평면을 **비주기적(Aperiodic)**으로 완전히 덮는 혁신적인 타일링 기하학적 패턴입니다. **황금비(Golden Ratio)** $\phi = \frac{1+\sqrt{5}}{2}$를 기반으로 한 **분할 규칙(Inflation Rules)**을 반복 적용하면, 원자적 규칙성이 없으면서도 국소적으로는 엄격한 타일 결합 제약을 만족하는 무한히 복잡한 구조가 생성됩니다. **Roger Penrose**가 1974년 발견한 이 패턴은 수학, 물리, 예술의 교집합에서 가장 흥미로운 사례이며, 자연계의 준결정체(Quasicrystal) 구조에서도 발견됩니다.
+**Penrose Tiling**(펜로즈 타일링)은 두 종류의 **마름모(Rhombus, 굵은 마름모와 가는 마름모)** 만을 사용하여 평면을 비주기적으로 완전히 덮는 타일링 패턴입니다. **황금비(Golden Ratio)** $\phi = \frac{1+\sqrt{5}}{2}$를 기반으로 한 **분할 규칙(Inflation Rules)** 을 반복 적용하면, 원자적 규칙성이 없으면서도 국소적으로는 엄격한 타일 결합 제약을 만족하는 무한히 복잡한 구조가 생성됩니다. **Roger Penrose**가 1974년 발견한 이 패턴은 수학, 물리, 예술의 교집합에서 가장 흥미로운 사례이며, 자연계의 준결정체(Quasicrystal) 구조에서도 발견됩니다.
 
 ### 1. 핵심 수학적 원리
 1. **두 마름모의 정의:**
@@ -55,18 +55,18 @@ Penrose Tiling is a remarkable non-periodic tiling of the plane using only two t
       key: 'generations', 
       label: '분할 세대 수', 
       min: 1, 
-      max: 7, 
+      max: 4, 
       step: 1, 
-      default: 5, 
+      default: 2, 
       restart: true 
     },
     { 
       key: 'initialRadius', 
       label: '초기 반지름 비율', 
       min: 0.2, 
-      max: 0.8, 
+      max: 0.6, 
       step: 0.01, 
-      default: 0.52, 
+      default: 0.35, 
       restart: true 
     },
     { 
@@ -84,7 +84,7 @@ Penrose Tiling is a remarkable non-periodic tiling of the plane using only two t
       min: 0, 
       max: 3, 
       step: 0.1, 
-      default: 0.8 
+      default: 0.2 
     },
     { 
       key: 'rotationSpeed', 
@@ -92,7 +92,7 @@ Penrose Tiling is a remarkable non-periodic tiling of the plane using only two t
       min: -0.02, 
       max: 0.02, 
       step: 0.001, 
-      default: 0 
+      default: 0.001 
     },
   ],
   related: ['IFS & Fractal', 'Truchet Tiles', 'Wang Tiles'],

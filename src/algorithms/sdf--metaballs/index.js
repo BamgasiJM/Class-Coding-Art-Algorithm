@@ -3,7 +3,7 @@ import sketch from "./sketch";
 export default {
   longDescription: {
     ko: String.raw`
-**SDF(Signed Distance Field) & Metaballs(메타볼)**는 **부호 있는 거리장(Signed Distance Field)**을 기반으로 여러 **영향 구(Influence Sphere)**의 거리 기여도를 **합산(Summation)**하여 **부드러운 블롭 형태(Smooth Blob Shape)**를 형성하는 알고리즘입니다. 각 화면 픽셀에 대해 모든 구까지의 **가중 거리(Weighted Distance)**를 누적하고, **임계값(Threshold)**과 비교하여 경계를 결정합니다. 결과적으로 **겹치는 구들이 자연스럽게 병합되고**, **변형되는 유기적 형태(Morphing Organic Shape)**와 **유동감 있는 표면**이 표현됩니다. 이는 게임, 영화, 시뮬레이션에서 **물질의 흐름, 젤 같은 몸체, 액체 표면** 등을 효과적으로 렌더링하는 도구입니다.
+**SDF(Signed Distance Field) & Metaballs(메타볼)** 는 **부호 있는 거리장**(Signed Distance Field)을 기반으로 여러 영향 구(Influence Sphere)의 거리 기여도를 합산하여 **부드러운 블롭(Blob) 형태**를 형성하는 알고리즘입니다. 각 화면 픽셀에 대해 모든 구까지의 가중 거리(Weighted Distance)를 누적하고, 임계값(Threshold)과 비교하여 경계를 결정합니다. 결과적으로 **겹치는 구들이 자연스럽게 병합**되고, 변형되는 유기적 형태와 유동감 있는 표면이 표현됩니다. 이는 게임, 영화, 시뮬레이션에서 **물질의 흐름, 젤 같은 몸체, 액체 표면** 등을 효과적으로 렌더링하는 도구입니다.
 
 ### 1. 핵심 수학적 원리
 1. **부호 있는 거리장(SDF):**

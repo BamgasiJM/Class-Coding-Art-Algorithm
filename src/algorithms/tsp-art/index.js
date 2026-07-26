@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**TSP Art(외판원 미술)**는 이미지의 밝기를 **스티플 점(Stipple Points)**의 분포로 정의한 뒤, **외판원 문제(Traveling Salesman Problem, TSP)**의 **근사 해결(Approximation Algorithm)**을 통해 **단 하나의 연속선**이 모든 점을 효율적으로 순회하는 기법입니다. **최근접 이웃 휴리스틱(Nearest-Neighbor Heuristic)**으로 초기 경로를 빠르게 구성한 뒤, **2-opt 지역 탐색(Local Search)**으로 교차하는 구간을 제거하여 경로를 점진적으로 단축합니다. 수학적 최적화 문제의 해를 시각 예술로 표현함으로써, **알고리즘과 미학의 완벽한 결합**을 보여줍니다.
+**TSP Art**는 이미지의 밝기를 **스티플 점(Stipple Points)** 의 분포로 정의한 뒤, **외판원 문제(Traveling Salesman Problem, TSP)** 의 근사 해결을 통해 **단 하나의 연속선**이 모든 점을 **효율적으로 순회하는 기법**입니다. **최근접 이웃 휴리스틱**(Nearest-Neighbor Heuristic)으로 초기 경로를 빠르게 구성한 뒤, **2-opt 지역 탐색**(Local Search)으로 교차하는 구간을 제거하여 경로를 점진적으로 단축합니다.
 
 ### 1. 핵심 수학적 원리
 1. **점 분포 생성(Stipple Placement):**

@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**Strange Attractor(이상한 끌개)**는 **동역학계(Dynamical System)**에서 시간 진화 과정에 궤적이 수렴하는 **불변 집합(Invariant Set)**입니다. 특히 **De Jong Attractor**는 단순한 **2D 반복 맵(Iterative Map)**을 수천 번 반복하면서, 초기 조건과 무관하게 **고정된 "이상한" 형태**로 수렴하는 궤적을 생성합니다. 이 과정에서 극도로 세밀하고 자기유사적인 프랙탈 구조가 드러나며, **극히 단순한 선형 아닌 함수**로부터 **극도의 복잡성**이 창발되는 **카오스 이론**의 핵심을 시각화합니다.
+**Strange Attractor**(이상한 끌개)는 동역학계(Dynamical System)에서 시간 진화 과정에 궤적이 수렴하는 불변 집합(Invariant Set)입니다. 특히 **De Jong Attractor**는 단순한 **2D 반복 맵을 수천 번 반복**하면서, 초기 조건과 무관하게 고정된 **"이상한" 형태**로 수렴하는 궤적을 생성합니다. 이 과정에서 세밀하고 자기유사적인 프랙탈 구조가 드러나며, 단순한 비선형 함수로부터 극도의 복잡성이 발현되는 **카오스 이론**의 핵심을 시각화합니다.
 
 ### 1. 핵심 수학적 원리
 1. **De Jong Attractor의 반복 공식:**

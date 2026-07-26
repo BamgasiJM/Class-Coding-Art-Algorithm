@@ -11,14 +11,14 @@ export default function wangTilesSketch(p, size, params = {}) {
   // 파라미터 접근자
   const P = {
     // 구조 파라미터
-    tileSize: () => params.tileSize ?? 40,
-    numColorVariations: () => params.numColorVariations ?? 4,
-    tileComplexity: () => params.tileComplexity ?? 8,
+    tileSize: () => params.tileSize ?? 48,
+    numColorVariations: () => params.numColorVariations ?? 5,
+    tileComplexity: () => params.tileComplexity ?? 24,
     colorSaturation: () => params.colorSaturation ?? 1.0,
-    colorBrightness: () => params.colorBrightness ?? 0.8,
+    colorBrightness: () => params.colorBrightness ?? 1.0,
 
     // 실시간 파라미터
-    gridLineWeight: () => params.gridLineWeight ?? 1,
+    gridLineWeight: () => params.gridLineWeight ?? 0.4,
     tileOutlineWeight: () => params.tileOutlineWeight ?? 2,
     gridLineAlpha: () => params.gridLineAlpha ?? 80,
   };

@@ -8,14 +8,14 @@ export default function penroseTilingSketch(p, size, params = {}) {
 
   // 파라미터 접근자 객체 (기본값 설정 포함)
   const P = {
-    // 분할 세대 수 (기본 5)
-    generations: () => params.generations ?? 5,
-    // 초기 도형의 화면 대비 반지름 비율 (기본 0.52)
-    initialRadius: () => params.initialRadius ?? 0.52,
+    // 분할 세대 수 (기본 2)
+    generations: () => params.generations ?? 2,
+    // 초기 도형의 화면 대비 반지름 비율 (기본 0.35)
+    initialRadius: () => params.initialRadius ?? 0.35,
     // 펜로즈 타일링의 기반이 되는 황금비 설정
     goldenRatio: () => params.goldenRatio ?? 1.6180339887,
     // 렌더링 시 그려질 외곽선의 두께
-    lineWeight: () => params.lineWeight ?? 0.8,
+    lineWeight: () => params.lineWeight ?? 0.3,
     // 매 프레임마다 더해질 캔버스 전체 회전 속도
     rotationSpeed: () => params.rotationSpeed ?? 0,
   };
