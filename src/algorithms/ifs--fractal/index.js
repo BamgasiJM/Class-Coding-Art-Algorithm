@@ -4,7 +4,7 @@ export default {
   longDescription: {
     en: "IFS (Iterated Function System) & Fractal explores self-similar structures created by applying a set of affine transformations repeatedly. Using a chaos game approach, random functions are picked based on specific probabilities to map points dynamically. This implementation generates the famous Barnsley Fern, visualizing how complex, organic, and lifelike natural geometries emerge from deterministic linear algebraic matrices.",
     ko: String.raw`
-**IFS (Iterated Function System) & Fractal**은 일련의 **아핀 변환(Affine Transformation)** 여러 개를 **반복적으로 무작위 선택**하여 적용하는 방식으로 **프랙탈 자기닮음 구조(Self-Similar Fractal Structures)**를 생성하는 강력한 알고리즘입니다. **카오스 게임(Chaos Game)** 방식을 기반으로 하여, 확률에 따라 변환 함수를 무작위로 선택하고 좌표를 반복적으로 변환하면, 결정론적인 선형대수 변환만으로도 극도로 자연스럽고 생명력 있는 기하학적 형태(나뭇잎, 고사리, 나무 등)가 자동으로 창발합니다. 본 구현은 유명한 **바른슬리 고사리(Barnsley Fern)**를 생성하여, 선형 행렬식 속에서 어떻게 복잡한 생물 구조가 나타나는지를 보여줍니다.
+**IFS (Iterated Function System) & Fractal**은 일련의 **아핀 변환(Affine Transformation)** 여러 개를 **반복적으로 무작위 선택**하여 적용하는 방식으로 **프랙탈 자기닮음 구조(Self-Similar Fractal Structures)**를 생성하는 강력한 알고리즘입니다. **카오스 게임(Chaos Game)** 방식을 기반으로 하여, 확률에 따라 변환 함수를 무작위로 선택하고 좌표를 반복적으로 변환하면, 결정론적인 선형대수 변환만으로도 극도로 자연스럽고 생명력 있는 기하학적 형태(나뭇잎, 고사리, 나무 등)가 자동으로 생성됩니다.
 
 ### 1. 핵심 수학적 원리
 1. **아핀 변환(Affine Transformation):**
@@ -27,13 +27,13 @@ export default {
    - 어트랙터 $A$는 다음을 만족: $A = \bigcup_{i=1}^{N} T_i(A)$
    - 즉, 전체가 각 변환된 부분들의 합집합과 동일 (프랙탈 특성)
 
-5. **바른슬리 고사리의 변환:**
+5. **바른슬리 고사리(Barnsley Fern)의 변환:**
    - 총 4개의 변환으로 정의됨 (각각 가지, 잎맥, 줄기 등을 표현)
    - 각 변환의 확률은 조심스럽게 설계됨 (예: 0.02, 0.15, 0.13, 0.70)
 
 ### 2. 주요 특징 및 장점
-- **극도의 단순성과 복잡성:** 몇 개의 선형 변환 행렬만으로 정교한 생물 구조를 완벽히 재현합니다.
-- **자연 모사의 완벽함:** 바른슬리 고사리는 실제 고사리와 거의 구분되지 않을 정도로 현실적입니다.
+- **단순함에서 복잡함으로:** 몇 개의 선형 변환 행렬만으로 정교한 생물 구조를 완벽히 재현합니다.
+- **자연 모사:** 바른슬리 고사리는 실제 고사리와 거의 구분되지 않을 정도로 현실적입니다.
 - **확률의 마법:** 각 변환의 확률을 미세 조정하면 다양한 식물 형태(나무, 꽃, 산호 등) 생성 가능.
 - **계산 효율성:** $O(n)$ 시간에 $n$개 점을 생성하므로 매우 빠릅니다.
 

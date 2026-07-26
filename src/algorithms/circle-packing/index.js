@@ -4,17 +4,17 @@ export default {
   longDescription: {
     en: "Circle Packing is a geometric packing algorithm that populates a defined space with non-overlapping circles. New circles are randomly spawned at minimal sizes and organically grow until they contact the boundary of an adjacent circle or the edge of the canvas. This constrained scaling models natural saturation and growth phenomena, resulting in intricate visual hierarchies and structures reminiscent of biological cells and stone arrangements.",
     ko: String.raw`
-**Circle Packing**(원 채우기)은 정해진 공간 내에 서로 겹치지 않으면서 가능한 많은 원들을 배치하는 **기하학적 최적화 문제**로, 각 원이 성장 제약 조건 속에서 커지는 과정을 통해 자연계의 **공간 점유(Space Occupancy)** 현상을 모델링합니다. 세포, 거품 구조, 자갈밭, 꽃 씨앗 배치 등 자연에서 볼 수 있는 최적화된 배치 패턴을 수학적으로 재현하는 방법입니다. 이런 조건 기반의 성장을 통해 복잡하지만 질서 있는 아트워크가 자동으로 생성 됩니다.
+**Circle Packing**(원 채우기)은 정해진 공간 내에 서로 겹치지 않으면서 가능한 많은 원들을 배치하는 **기하학적 최적화 문제**로, 각 원이 제약을 지키며 커지는 과정을 통해 자연계의 **공간 점유**(Space Occupancy) 현상을 모델링합니다. 세포, 거품 구조, 자갈밭, 꽃 씨앗 배치 등 자연에서 볼 수 있는 최적화된 배치 패턴을 수학적으로 재현하는 방법입니다. 이런 조건 기반의 성장을 통해 복잡하지만 질서 있는 아트워크가 자동으로 생성 됩니다.
 
 ### 1. 핵심 수학적 원리
 각 원의 위치와 크기는 다음의 제약 조건을 만족해야 합니다:
 
 1. **원의 표현:** 원 $C_i = (\mathbf{p}_i, r_i)$ (중심 $\mathbf{p}_i$, 반지름 $r_i$)
 
-2. **비겹침 제약(Non-Overlapping Constraint):**
+2. **비겹침 제약**(Non-Overlapping Constraint):
    - 임의의 두 원 $C_i, C_j$에 대해: $\|\mathbf{p}_i - \mathbf{p}_j\| \geq r_i + r_j + \epsilon$ (여기서 $\epsilon$는 최소 갭)
 
-3. **경계 제약(Boundary Constraint):**
+3. **경계 제약**(Boundary Constraint):
    - 모든 원이 캔버스 내부에 포함: $\|\mathbf{p}_i\| + r_i \leq R_{canvas}$
 
 4. **성장 과정:** 새 원이 추가될 때:

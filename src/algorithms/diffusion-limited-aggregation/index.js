@@ -3,8 +3,9 @@ import sketch from "./sketch";
 export default {
   longDescription: {
     en: "Diffusion-Limited Aggregation (DLA) is an algorithmic process where particles undergoing Brownian motion (random walk) cluster together to form beautiful, organic, dendritic structures. Driven by diffusion rather than direct attraction, wandering particles solidify the moment they collide with the pre-existing cluster. This simulation produces complex, self-similar branch-like clusters that accurately model physical phenomena like lightning paths, coral growth, and mineral crystallization.",
+    
     ko: String.raw`
-**Diffusion-Limited Aggregation(DLA, 확산 제한 응집)**은 **브라운 운동(Brownian Motion)**에 의해 임의로 이동하는 입자들이 서로 **비탄성 충돌(Inelastic Collision)**을 통해 응집되는 과정을 모델링하는 확률적 알고리즘입니다. 중력이나 인력이 아닌, **무작위 확산**만에 의존하여 입자들이 기존 클러스터에 붙어가므로, 번개의 경로, 산호 방산체의 성장, 광물 결정화, 박테리아 집락(Colony) 등 자연에서 관찰되는 극도로 복잡한 **수지상(Dendritic)** 또는 **분지형(Branching)** 구조를 정밀하게 재현합니다. DLA로부터 생성되는 클러스터는 **자기닮음(Self-Similar)** 성질을 가지며 **프랙탈 차원**을 갖습니다.
+**Diffusion-Limited Aggregation**(DLA, 확산 제한 응집)은 **브라운 운동**(Brownian Motion)에 의해 임의로 이동하는 입자들이 서로 **비탄성 충돌**(Inelastic Collision)을 통해 응집되는 과정을 모델링하는 확률적 알고리즘입니다. 중력이나 인력이 아닌, **무작위 확산**만에 의존하여 입자들이 기존 클러스터에 붙어가므로, 번개의 경로, 산호 군체의 성장, 광물의 결정화, 박테리아 군집 등 자연에서 관찰되는 복잡한 **수지상(Dendritic)** 또는 **분지형(Branching)** 구조를 정밀하게 재현합니다. DLA로부터 생성되는 클러스터는 **자기닮음(Self-Similar)** 성질을 가지며 **프랙탈 차원**을 갖습니다.
 
 ### 1. 핵심 수학적 원리
 확산 제한 응집 과정은 다음과 같이 정의됩니다:
@@ -13,7 +14,7 @@ export default {
    - 입자 위치 $\mathbf{p}(t+1) = \mathbf{p}(t) + \Delta \mathbf{r}$ (여기서 $\Delta \mathbf{r}$는 균등 무작위 방향/거리)
    - 각 프레임에서 보행 거리: $\|\Delta \mathbf{r}\| = \text{step\_size}$ (고정값)
 
-2. **응집 조건(Sticking Condition):**
+2. **응집 조건:**
    - 입자가 기존 클러스터와의 거리가 임계값 $r_{stick}$ 이하가 되면, 즉시 고정
    - 고정된 입자는 클러스터의 일부가 되어 더 이상 움직이지 않음
 

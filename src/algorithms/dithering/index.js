@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**Dithering(디더링)**은 **제한된 색상 팔레트(Restricted Color Palette)**를 사용하여 연속적인 톤(Continuous Tone)을 재현하는 **신호 처리 및 그래픽 양자화 기법**입니다. 컴퓨터의 초기 시대 모니터와 프린터의 색상 해상도가 제한되었을 때, 청색 소음(Blue Noise)이나 오차 확산(Error Diffusion)을 통해 제한된 색깔 수로도 풍부한 톤을 인지하도록 속이는 시각적 착각 기법입니다. 현대에는 레트로 미학, 예술적 스타일화, 이미지 압축에서 의도적으로 사용되며, 확률적 패턴의 수학적 아름다움과 실용성을 동시에 보여줍니다.
+**Dithering**(디더링)은 **제한된 색상 팔레트**를 사용하여 연속적인 톤(Continuous Tone)을 재현하는 **신호 처리 및 그래픽 양자화 기법**입니다. 컴퓨터의 초기 시대 모니터와 프린터의 색상 해상도가 제한되었을 때, 청색 소음(Blue Noise)이나 오차 확산(Error Diffusion)을 통해 제한된 색깔 수로도 풍부한 톤을 인지하도록 시각을 속이는 기법입니다. 현대에는 레트로 스타일의 구현, 이미지 압축에서 의도적으로 사용되며 확률적 패턴의 수학적 아름다움과 실용성을 동시에 보여줍니다.
 
 ### 1. 핵심 수학적 원리
 디더링의 기본 과정은 다음과 같습니다:
@@ -49,10 +49,9 @@ export default {
 
 ### 4. 활용 분야
 - **구식 미디어 재현:** 팩스, 초기 컴퓨터 그래픽, 신문 인쇄 느낌의 감정적 표현.
-- **레트로/복고 예술:** 8비트/16비트 게임 스타일의 이미지 변환, 픽셀 아트 생성.
+- **레트로 스타일:** 8비트/16비트 게임 스타일의 이미지 변환, 픽셀 아트 생성.
 - **이미지 압축:** 색 깊이를 줄이면서도 시각적 품질을 유지 (예: GIF, 제한된 팔레트 PNG).
 - **인쇄 기술:** 색상 프린터에서 여러 색 판(CMYK)으로의 분해, 점 크기 조정을 통한 톤 표현.
-- **접근성(Accessibility):** 색약자가 구별하기 쉬운 색상 팔레트로 변환하는 전처리.
 - **데이터 시각화:** 제한된 색상으로 그래디언트나 히트맵을 표현하되, 정보 손실을 최소화.
     `,
     en: 'Dithering is a quantization technique that reproduces continuous tones using a restricted color palette. This sketch binarizes a smoothly generated brightness field with both methods, letting you tune the scale, threshold, and image brightness correction in real time via parameters.',

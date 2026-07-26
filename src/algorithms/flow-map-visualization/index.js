@@ -3,7 +3,7 @@ import sketch from './sketch'
 export default {
   longDescription: {
     ko: String.raw`
-**Flow Map Visualization(흐름 지도 시각화)**는 2D **벡터 필드(Vector Field)** $\mathbf{F}(x, y)$를 **입자 추적(Particle Advection) 없이** 정적 그리드 기반으로 시각화하는 기법입니다. 화면을 일정한 해상도의 격자로 분할하고, 각 격자 셀의 중심에 작은 **선분(Line Segment)**을 배치한 후, 그 선분의 **회전 각도(Orientation)** 와 **투명도(Alpha)** 를 벡터 필드(예: Perlin Noise)에 실시간으로 매핑합니다. 이 방식은 공간 전체의 유동적인 장 분포, 에너지 흐름, 힘의 방향을 기하학적이고 추상적인 텍스처로 **정적이면서도 동적으로** 표현하며, 입자 기반 방식보다 계산이 효율적입니다.
+**Flow Map Visualization**(흐름 지도 시각화)는 2D **벡터 필드(Vector Field)** $\mathbf{F}(x, y)$를 정적 그리드 기반으로 시각화하는 기법입니다. 화면을 일정한 해상도의 격자로 분할하고, 각 격자 셀의 중심에 작은 **선분(Line Segment)** 을 배치한 후, 그 선분의 **회전 각도(Orientation)** 와 **투명도(Alpha)** 를 벡터 필드(예: Perlin Noise)에 실시간으로 매핑합니다. 이 방식은 공간 전체의 유동적인 장 분포, 에너지 흐름, 힘의 방향을 기하학적이고 추상적인 텍스처로 **정적이면서도 동적으로** 표현하며, 입자 기반 방식보다 계산이 효율적입니다.
 
 ### 1. 핵심 수학적 원리
 1. **벡터 필드 정의:**

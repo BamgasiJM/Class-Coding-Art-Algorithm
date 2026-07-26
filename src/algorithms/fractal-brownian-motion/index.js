@@ -3,7 +3,7 @@ import sketch from './sketch';
 export default {
   longDescription: {
     ko: String.raw`
-**Fractal Brownian Motion(fBM, 프랙탈 브라우니안 모션)**은 여러 **옥타브(Octaves)**의 **Perlin 노이즈**를 누적하여 자연계의 **프랙탈적 자기유사성(Self-Similarity)**을 수학적으로 모사하는 알고리즘입니다. 각 옥타브마다 주파수는 2배씩 증가하고 진폭은 기하급수적으로 감소하며 ($\text{amplitude} = \text{amplitude} \times \text{persistence}$), 이로 인해 **큰 규모의 구조 내에 작은 규모의 세밀한 디테일이 반복되는 자기유사성 패턴**이 생성됩니다. **도메인 워핑(Domain Warping)** 기법과 결합하면 구름, 지형, 불꽃, 파도 등 자연의 극도로 유기적인 형태를 유동적이고 설득력 있게 표현할 수 있습니다.
+**Fractal Brownian Motion**(fBM, 프랙탈 브라우니안 모션)은 여러 **옥타브(Octaves)** 의 **Perlin 노이즈**를 누적하여 자연계의 **자기유사성(Self-Similarity)** 을 수학적으로 모사하는 알고리즘입니다. 각 옥타브마다 주파수는 2배씩 증가하고 진폭은 기하급수적으로 감소하며, 이로 인해 **큰 규모의 구조 내에 작은 규모의 세밀한 디테일이 반복**되는 자기유사성 패턴이 생성됩니다. **도메인 워핑(Domain Warping)** 기법과 결합하면 구름, 지형, 불꽃, 파도 등 자연의 극도로 유기적인 형태를 유동적이고 설득력 있게 표현할 수 있습니다.
 
 ### 1. 핵심 수학적 원리
 1. **단일 Perlin 노이즈:**
