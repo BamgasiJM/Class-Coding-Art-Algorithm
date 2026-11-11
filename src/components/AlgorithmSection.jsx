@@ -18,38 +18,23 @@ function sortAlpha(arr) {
   return [...arr].sort((x, y) => x.name.localeCompare(y.name))
 }
 
-function Card({ algo, index }) {
-  const ref               = useRef()
+// 카드 등장 애니메이션 설정
+// - 카드마다 Observer를 두지 않고, 그리드 하나에 Observer 하나만 둡니다.
+// - rootMargin으로 카드가 화면 하단에 닿기 전에 미리 등장을 시작해, 스크롤 시 기다리는 느낌을 줄입니다.
+// - 같은 스크롤에서 함께 들어온 카드들만 짧게 순차 등장합니다.
+//   지연은 전체 목록 위치가 아니라 "이번에 보이는 묶음" 기준이라 아래쪽 카드도 기다리지 않습니다.
+const REVEAL_STEP = 0.05   // 묶음 안에서 카드 간 간격 (초)
+const REVEAL_MAX = 0.3     // 묶음 전체의 최대 지연 (초)
+const REVEAL_ROOT_MARGIN = '0px 0px 15% 0px'
+
+function Card({ algo }) {
   const [hovered, setHovered]   = useState(false)
   const [checked, setChecked]   = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-
-    // IntersectionObserver로 뷰포트 진입 감지 → GSAP 등장 애니메이션
-    // ScrollTrigger 대신 사용 — React 렌더링 사이클과의 타이밍 충돌 없음
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          gsap.to(el, {
-            y: 0, opacity: 1,
-            duration: 0.75, ease: 'power3.out',
-            delay: index * 0.1,
-          })
-          observer.unobserve(el) // 한 번만 실행
-        }
-      },
-      { threshold: 0.1 }
-    )
-    observer.observe(el)
-
-    return () => observer.disconnect()
-  }, [index])
 
   return (
     <Link
       to={`/algorithm/${slugify(algo.name)}`}
-      ref={ref}
+      className="algo-card"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -147,6 +132,7 @@ function Card({ algo, index }) {
 
 export default function AlgorithmSection() {
   const headingRef = useRef()
+  const gridRef = useRef()
 
   // 카드 표시 순서: 'alpha'(알파벳순, 기본값) ↔ 'shuffle'(랜덤) 토글
   const [mode, setMode] = useState('alpha')
@@ -171,6 +157,45 @@ export default function AlgorithmSection() {
       { threshold: 0.1 }
     )
     observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  // 카드 등장: 그리드 전체에 Observer 하나를 두고, 화면에 들어온 카드 묶음을 한 번에 애니메이션
+  // - 카드 목록은 고정되어 있고 셔플은 순서만 바꾸므로, 마운트 시 한 번만 관찰하면 됩니다.
+  // - 한 번 등장한 카드는 unobserve 해서 이후 스크롤 비용을 없앱니다.
+  useEffect(() => {
+    const grid = gridRef.current
+    if (!grid) return
+    const cards = grid.querySelectorAll('.algo-card')
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) =>
+            (a.boundingClientRect.top - b.boundingClientRect.top) ||
+            (a.boundingClientRect.left - b.boundingClientRect.left)
+          )
+          .map(e => e.target)
+
+        if (visible.length === 0) return
+        visible.forEach(el => observer.unobserve(el))
+
+        gsap.to(visible, {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: 'power3.out',
+          stagger: {
+            amount: Math.min(REVEAL_MAX, visible.length * REVEAL_STEP),
+            from: 'start',
+          },
+        })
+      },
+      { threshold: 0, rootMargin: REVEAL_ROOT_MARGIN }
+    )
+
+    cards.forEach(card => observer.observe(card))
     return () => observer.disconnect()
   }, [])
 
@@ -236,17 +261,20 @@ export default function AlgorithmSection() {
           - alignItems: stretch (기본값): 같은 행의 모든 카드가 동일 높이
           - 카드 추가 시 ALGORITHMS 배열에 객체만 추가하면 자동으로 반영됨
         */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: '1px',
-          background: 'var(--border)',
-          alignItems: 'stretch',
-        }}>
-          {displayed.map((a, i) => (
+        <div
+          ref={gridRef}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: '1px',
+            background: 'var(--border)',
+            alignItems: 'stretch',
+          }}
+        >
+          {displayed.map((a) => (
             // 래퍼 div: 1px gap을 구분선으로 활용 (background: var(--border))
             <div key={a.no} style={{ background: 'var(--bg)', height: '100%' }}>
-              <Card algo={a} index={i} />
+              <Card algo={a} />
             </div>
           ))}
         </div>
