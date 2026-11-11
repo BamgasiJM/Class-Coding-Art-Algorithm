@@ -11,7 +11,6 @@ export default function reactionDiffusionSketch(p, size, params = {}) {
     feed: () => params.feed ?? 0.055,
     k: () => params.k ?? 0.062,
     speed: () => params.speed ?? 3,
-    trailAlpha: () => params.trailAlpha ?? 50,
   };
 
   p.setup = function () {
@@ -57,11 +56,9 @@ export default function reactionDiffusionSketch(p, size, params = {}) {
     const feed = P.feed();
     const k = P.k();
     const speed = P.speed();
-    const trailAlpha = P.trailAlpha();
     const scaleFactor = size / viewSize;
 
-    // 알파 트레일 효과로 깜빡거림 제거
-    p.background(8, 8, 16, trailAlpha);
+    // 아래에서 모든 픽셀을 새로 그리므로 배경을 따로 지우지 않습니다.
 
     // 반응 시뮬레이션
     for (let iter = 0; iter < speed; iter++) {

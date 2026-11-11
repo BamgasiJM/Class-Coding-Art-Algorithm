@@ -54,7 +54,8 @@ export default function spaceColonizationSketch(p, size, params = {}) {
     const maxD = P.maxDist();
     const brLen = P.branchLength();
 
-    while (!found) {
+    // 먹이에 닿을 때까지 줄기를 키운다. 무한 반복을 막기 위해 최대 2000번까지만 시도한다.
+    for (let step = 0; !found && step < 2000; step++) {
       for (let leaf of leaves) {
         let d = p.dist(current.x, current.y, leaf.x, leaf.y);
         if (d < maxD) {
@@ -134,6 +135,7 @@ export default function spaceColonizationSketch(p, size, params = {}) {
         let avgX = branch.dirX / branch.count;
         let avgY = branch.dirY / branch.count;
         let d = p.dist(0, 0, avgX, avgY);
+        if (d === 0) continue; // 가지가 서로 상쇄되어 방향이 없으면 건너뛴다 (0으로 나누기 방지)
 
         let nextBranch = {
           x: branch.x + (avgX / d) * brLen,

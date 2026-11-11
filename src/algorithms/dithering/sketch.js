@@ -86,7 +86,7 @@ export default function ditheringSketch(p, size, params = {}) {
       for (let i = 0; i < cols; i++) {
         const src = brightness[j * cols + i];
         const thr = (BAYER8[j % S][i % S] + 0.5) / 64.0;
-        const on = src > (thr * 0.9 + bias * 0.1);
+        const on = src > thr + (bias - 0.5);
         
         const r = on ? accentR : 8;
         const g = on ? accentG : 8;

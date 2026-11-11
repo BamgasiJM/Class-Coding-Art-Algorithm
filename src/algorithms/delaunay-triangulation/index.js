@@ -16,15 +16,6 @@ export default {
       restart: true
     },
     {
-      key: 'baseAlpha',
-      label: '삼각형 기본 투명도',
-      min: 10,
-      max: 150,
-      step: 5,
-      default: 40,
-      restart: false
-    },
-    {
       key: 'jitterSpeed',
       label: '정점 애니메이션 속도',
       min: 0,

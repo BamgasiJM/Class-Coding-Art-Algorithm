@@ -7,6 +7,36 @@ export default function diffusionLimitedAggregationSketch(
   let stuckBuffer; // 고정 입자를 누적해서 그리는 버퍼
   let accentColor;
   let maxRadius = 1; // 현재 군집의 최대 반경
+  let grid = new Map(); // 공간 격자: 칸 번호 → 그 칸에 있는 고정 입자 목록
+
+  // 공간 격자 (Spatial Grid)
+  // 칸 크기를 응집 반경의 최대값(12)과 같게 잡으면, 닿을 수 있는 입자는 주변 3×3 칸 안에만 있습니다.
+  // 그래서 모든 입자를 확인하지 않고 주변 칸만 확인해서 계산을 크게 줄입니다.
+  const GRID_CELL = 12;
+  function cellKey(cx, cy) {
+    return (cx + 5000) * 10000 + (cy + 5000);
+  }
+  function addToGrid(pt) {
+    const key = cellKey(Math.floor(pt.x / GRID_CELL), Math.floor(pt.y / GRID_CELL));
+    if (!grid.has(key)) grid.set(key, []);
+    grid.get(key).push(pt);
+  }
+  function hasStuckNear(x, y, r) {
+    const cx = Math.floor(x / GRID_CELL);
+    const cy = Math.floor(y / GRID_CELL);
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        const bucket = grid.get(cellKey(cx + i, cy + j));
+        if (!bucket) continue;
+        for (const s of bucket) {
+          const dx = x - s.x;
+          const dy = y - s.y;
+          if (dx * dx + dy * dy < r * r) return true;
+        }
+      }
+    }
+    return false;
+  }
 
   // Playground에서 조절 가능한 파라미터
   const P = {
@@ -26,6 +56,10 @@ export default function diffusionLimitedAggregationSketch(
       .getPropertyValue("--accent")
       .trim();
 
+    // 고정 입자를 그리는 버퍼는 한 번만 만든다 (클릭할 때마다 새로 만들면 메모리가 쌓인다)
+    stuckBuffer = p.createGraphics(size, size);
+    stuckBuffer.pixelDensity(1);
+
     // 최초 시뮬레이션 생성
     initSimulation();
   };
@@ -38,10 +72,9 @@ export default function diffusionLimitedAggregationSketch(
     stuck = [];
     maxRadius = 1;
 
-    // 오프스크린 버퍼 새로 생성
-    stuckBuffer = p.createGraphics(size, size);
-    stuckBuffer.pixelDensity(1);
+    // 버퍼는 지우기만 한다
     stuckBuffer.clear();
+    grid = new Map();
 
     // 중앙에 최초 시드(seed) 생성
     const seed = {
@@ -50,6 +83,7 @@ export default function diffusionLimitedAggregationSketch(
     };
 
     stuck.push(seed);
+    addToGrid(seed);
     drawStuckPoint(seed);
 
     p.background(8, 8, 16);
@@ -138,34 +172,21 @@ export default function diffusionLimitedAggregationSketch(
 
         // 군집 외곽 근처에서만 충돌 검사
         if (distFromCenter < maxRadius + stickRadius * 2) {
-          for (let s of stuck) {
-            let dx = walker.x - s.x;
-            let dy = walker.y - s.y;
+          // 공간 격자에서 주변 칸에 있는 입자만 검사한다
+          if (hasStuckNear(walker.x, walker.y, stickRadius)) {
+            const newPoint = { x: walker.x, y: walker.y };
 
-            // Bounding Box 1차 검사
-            if (Math.abs(dx) < stickRadius && Math.abs(dy) < stickRadius) {
-              let dSq = dx * dx + dy * dy;
+            // 새로운 고정 입자 등록
+            stuck.push(newPoint);
+            addToGrid(newPoint);
+            drawStuckPoint(newPoint);
 
-              // 실제 거리 검사
-              if (dSq < stickRadius * stickRadius) {
-                const newPoint = {
-                  x: walker.x,
-                  y: walker.y,
-                };
-
-                // 새로운 고정 입자 등록
-                stuck.push(newPoint);
-                drawStuckPoint(newPoint);
-
-                // 군집 최대 반경 갱신
-                if (distFromCenter > maxRadius) {
-                  maxRadius = distFromCenter;
-                }
-
-                walking = false;
-                break;
-              }
+            // 군집 최대 반경 갱신
+            if (distFromCenter > maxRadius) {
+              maxRadius = distFromCenter;
             }
+
+            walking = false;
           }
         }
 

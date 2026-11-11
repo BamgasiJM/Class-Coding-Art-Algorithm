@@ -30,14 +30,6 @@ export default {
       step: 1,
       default: 3,
     },
-    {
-      key: "trailAlpha",
-      label: "잔상 강도",
-      min: 10,
-      max: 150,
-      step: 5,
-      default: 50,
-    },
   ],
   related: ["Cellular Automata", "Space Colonization", "Differential Growth"],
 };

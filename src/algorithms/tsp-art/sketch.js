@@ -86,9 +86,12 @@ export default function tspArtSketch(p, size, params = {}) {
       for (let i = 1; i < n - 1; i++) {
         for (let j = i + 1; j < n; j++) {
           const a = pts[path[i - 1]], b = pts[path[i]]
-          const c = pts[path[j]], d = pts[path[(j + 1) % n]]
-          const before = p.dist(a.x, a.y, b.x, b.y) + p.dist(c.x, c.y, d.x, d.y)
-          const after = p.dist(a.x, a.y, c.x, c.y) + p.dist(b.x, b.y, d.x, d.y)
+          const c = pts[path[j]]
+          // 경로는 열린 선(처음과 끝이 이어지지 않음)이므로, 뒤에 이어지는 간선이 있을 때만 비용에 넣는다
+          const hasNext = j + 1 < n
+          const d = hasNext ? pts[path[j + 1]] : null
+          const before = p.dist(a.x, a.y, b.x, b.y) + (hasNext ? p.dist(c.x, c.y, d.x, d.y) : 0)
+          const after = p.dist(a.x, a.y, c.x, c.y) + (hasNext ? p.dist(b.x, b.y, d.x, d.y) : 0)
           if (after < before - 0.01) {
             let lo = i, hi = j
             while (lo < hi) {

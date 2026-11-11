@@ -84,6 +84,7 @@ export default function springConstraintSketch(p, size, params = {}) {
     const damp = P.damping();
     const mouseR = P.mouseInfluenceRadius();
     const mouseStr = P.mouseInfluenceStrength();
+    const stiff = P.stiffness();
 
     // 중력
     for (let node of nodes) {
@@ -100,9 +101,10 @@ export default function springConstraintSketch(p, size, params = {}) {
       const dx = n2.x - n1.x;
       const dy = n2.y - n1.y;
       const dist = p.sqrt(dx * dx + dy * dy);
+      if (dist === 0) continue; // 두 점이 정확히 겹치면 방향을 알 수 없으므로 건너뜀
       const delta = (dist - spring.restLength) / dist;
-      const fx = dx * delta * spring.stiffness;
-      const fy = dy * delta * spring.stiffness;
+      const fx = dx * delta * stiff;
+      const fy = dy * delta * stiff;
 
       if (!n1.pinned) {
         n1.vx += fx;
@@ -114,7 +116,7 @@ export default function springConstraintSketch(p, size, params = {}) {
       }
     }
 
-    // 위치 업데이트 (Verlet 통합)
+    // 위치 업데이트 (속도를 위치에 더하고, 감쇠를 곱한다)
     for (let node of nodes) {
       if (!node.pinned) {
         const ax = node.vx;
@@ -137,7 +139,7 @@ export default function springConstraintSketch(p, size, params = {}) {
         const dx = node.x - p.mouseX;
         const dy = node.y - p.mouseY;
         const dist = p.sqrt(dx * dx + dy * dy);
-        if (dist < mouseR) {
+        if (dist < mouseR && dist > 0) {
           node.vx += (dx / dist) * mouseStr;
           node.vy += (dy / dist) * mouseStr;
         }

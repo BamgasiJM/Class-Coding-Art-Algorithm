@@ -164,8 +164,8 @@ export const ALGORITHMS = [
   },
   {
     no: '29', name: 'Attractor System',
-    desc: 'Lorenz·Thomas attractor 방정식을 실시간으로 적분해 카오스적인 궤도를 시각화합니다.',
-    tags: ['chaos', 'ODE', 'trail', 'lorenz'],
+    desc: '보이지 않는 끌개 하나가 리사주 곡선을 따라 움직이고, 입자들이 그 끌개의 인력에 이끌려 모였다가 흩어지며 궤도를 그립니다. 가까울수록 강하게 끌립니다.',
+    tags: ['attractor', 'gravity', 'lissajous', 'orbit'],
   },
 
   // ── 추가 알고리즘 ──────────────────────────────────────────

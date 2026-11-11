@@ -108,10 +108,27 @@ export default function wangTilesSketch(p, size, params = {}) {
     const complexity = P.tileComplexity();
 
     const maxPossible = Math.pow(numColors, 4);
-    const target = Math.min(complexity, maxPossible);
+    // 타일 종류는 최소한 "위 변 × 왼쪽 변" 조합 수(numColors²)만큼 있어야
+    // 어떤 칸에서도 맞는 타일이 있다. 그보다 적으면 그만큼 늘린다.
+    const target = Math.min(Math.max(complexity, numColors * numColors), maxPossible);
 
     const used = new Set();
 
+    // 1) 위 변과 왼쪽 변의 모든 조합마다 타일을 하나씩 먼저 넣는다
+    for (let top = 0; top < numColors; top++) {
+      for (let left = 0; left < numColors; left++) {
+        const edges = [
+          top,
+          p.floor(p.random(numColors)),
+          p.floor(p.random(numColors)),
+          left,
+        ];
+        used.add(edges.join(","));
+        tileTypes.push({ edges });
+      }
+    }
+
+    // 2) 나머지는 무작위로 채운다
     while (tileTypes.length < target) {
       const edges = [
         p.floor(p.random(numColors)),
@@ -225,17 +242,21 @@ export default function wangTilesSketch(p, size, params = {}) {
 
     g.noStroke();
 
-    g.fill(edgeColors[tile.edges[0]]);
-    g.rect(x, y, half, half);
+    // 네 변의 색을 각각 삼각형으로 칠한다. 인접한 타일은 맞닿는 변의 색이 같아야 이어진다.
+    const cx = x + half;
+    const cy = y + half;
 
-    g.fill(edgeColors[tile.edges[1]]);
-    g.rect(x + half, y, half, half);
+    g.fill(edgeColors[tile.edges[0]]); // 위 변
+    g.triangle(x, y, x + scl, y, cx, cy);
 
-    g.fill(edgeColors[tile.edges[2]]);
-    g.rect(x + half, y + half, half, half);
+    g.fill(edgeColors[tile.edges[1]]); // 오른쪽 변
+    g.triangle(x + scl, y, x + scl, y + scl, cx, cy);
 
-    g.fill(edgeColors[tile.edges[3]]);
-    g.rect(x, y + half, half, half);
+    g.fill(edgeColors[tile.edges[2]]); // 아래 변
+    g.triangle(x + scl, y + scl, x, y + scl, cx, cy);
+
+    g.fill(edgeColors[tile.edges[3]]); // 왼쪽 변
+    g.triangle(x, y + scl, x, y, cx, cy);
 
     let gridColor = p.color(8, 8, 16);
     gridColor.setAlpha(P.gridLineAlpha());
@@ -243,8 +264,9 @@ export default function wangTilesSketch(p, size, params = {}) {
     g.stroke(gridColor);
     g.strokeWeight(P.gridLineWeight());
 
-    g.line(x + half, y, x + half, y + scl);
-    g.line(x, y + half, x + scl, y + half);
+    // 삼각형이 만나는 대각선만 얇게 그려서 이음새를 보이게 한다
+    g.line(x, y, x + scl, y + scl);
+    g.line(x + scl, y, x, y + scl);
   }
 
   // ------------------------------------------------------

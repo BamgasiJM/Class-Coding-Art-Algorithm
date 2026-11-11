@@ -1,43 +1,56 @@
-**Attractor System**은 중력과 유사한 인력을 가진 하나 이상의 **어트랙터**가 주변의 파티클들을 끌어당기며, 그 궤적이 시간에 따라 복잡한 패턴을 형성하는 물리 기반 동역학 알고리즘입니다. 천체 역학에서 출발하여 뉴턴의 만유인력 법칙을 이산 파티클 시스템으로 모델링하며, **정적 어트랙터**(Fixed Attractor) 또는 **동적 어트랙터**(Moving Attractor, 예: Lissajous 곡선)의 상호작용으로부터 수학적 우아함을 드러내는 시각 작품을 생성합니다.
+**Attractor System**(끌개 시스템)은 **보이지 않는 끌개 하나가 입자들을 끌어당기는** 방법입니다. 끌개는 리사주 곡선을 따라 화면 안을 천천히 움직이고, 입자들은 그 끌개를 향해 모였다가 다시 튕겨 나갑니다. 끌개 주변에 입자가 모여 소용돌이처럼 보입니다.
 
-### 1. 핵심 수학적 원리
-각 파티클 $p_i$의 운동은 뉴턴의 제2법칙과 역제곱 법칙을 기반으로 합니다.
+### 1. 핵심 원리
 
-1. **역제곱 법칙(Inverse-Square Law):** 어트랙터 $A$가 파티클 $p_i$에 작용하는 인력은 거리 $d$의 제곱에 반비례합니다.
-   - 힘의 크기: $F = \frac{G \cdot M}{d^2}$ (여기서 $G$는 인력 상수, $M$은 어트랙터 질량)
-   - 방향 벡터: $\hat{\mathbf{d}} = \frac{\mathbf{p}_{attractor} - \mathbf{p}_i}{d}$
-   - 합력 벡터: $\mathbf{F}_i = F \cdot \hat{\mathbf{d}}$
+**(1) 끌개의 움직임**: 끌개는 사인 함수 두 개로 위치가 정해집니다. 가로와 세로가 서로 다른 속도로 흔들리기 때문에, 전체적으로 곡선을 그립니다. 이런 곡선을 **리사주 곡선**이라고 합니다.
 
-2. **거리 기반 필터링:** 실제 구현에서는 계산 효율성과 시각적 효과를 위해 최소 거리 $d_{min}$과 최대 거리 $d_{max}$를 정의합니다.
-   - $d < d_{min}$인 파티클: 최소 거리로 클램프하여 극도의 가속을 방지
-   - $d > d_{max}$인 파티클: 어트랙터의 영향 범위 밖으로 분류하여 계산에서 제외
+**(2) 인력**: 입자는 끌개와의 거리가 가까울수록 강하게 끌려갑니다. 거리의 제곱에 반비례하는 힘입니다.
 
-3. **동적 어트랙터(Lissajous 곡선):** 어트랙터가 고정되지 않고 매개변수 곡선을 따라 이동합니다.
-   - $\mathbf{A}(t) = (R_x \sin(\omega_x t), R_y \sin(\omega_y t))$
-   - 여기서 $R_x, R_y$는 진폭, $\omega_x, \omega_y$는 각 속도
+$$\mathbf{F} = \frac{k}{d^2}\,\hat{\mathbf{d}}$$
 
-4. **속도 감쇠(Damping):** 에너지가 시간에 따라 줄어듦을 모델링하여 파티클이 무한히 가속되는 현상을 방지합니다.
-   - $\mathbf{v}_{new} = \mathbf{v}_{old} \cdot \alpha + \mathbf{a} \cdot \Delta t$ (여기서 $\alpha$는 감쇠 계수, $0 < \alpha < 1$)
+- $k$는 **어트랙터 강도**입니다.
+- $d$는 입자와 끌개 사이의 거리입니다.
+- $\hat{\mathbf{d}}$는 끌개 쪽을 가리키는 방향입니다.
 
-### 2. 주요 특징 및 장점
-- **궤도 역학:** 파티클들이 어트랙터 주변에서 타원형, 포물선형, 쌍곡선형 궤도를 그리며, 마치 태양 주위를 도는 행성의 궤도와 같은 아름다움을 표현합니다.
-- **다양한 시각 패턴:** 여러 어트랙터의 경합으로 인해 예측할 수 없는 궤적이 발생하며, 파라미터 미세 조정으로 매우 다양한 패턴을 도출할 수 있습니다.
-- **현실감 있는 물리 표현:** 역제곱 법칙을 정확히 구현하므로 실제 중력계에서 일어날 법한 자연스러운 움직임을 보여줍니다.
-- **풍부한 상호 작용:** 동적 어트랙터, 정적 장애물, 파티클 간 상호작용 등을 추가할 수 있어 확장성이 높습니다.
+이 예제는 거리가 너무 가까우면 힘이 무한히 커지지 않도록 거리에 최소값을 둡니다. 또 너무 멀리 있는 입자에는 힘이 너무 약해지지 않도록 최대 거리도 둡니다.
 
-### 3. 구현 시 고려 사항
-- **거리 계산 최적화:** $d$를 매번 제곱근으로 계산하는 대신, 거리의 제곱 $d^2$를 직접 비교하고 필요한 순간에만 제곱근을 구합니다 ($O(n)$ 최적화).
-- **감쇠 계수의 선택:** 감쇠가 작으면 파티클이 튕겨나가듯 계속 궤도를 회전하고, 크면 빠르게 수렴하여 어트랙터 중심으로 모입니다. 표현하고자 하는 아트워크에 따라 세밀한 조절이 필요합니다.
-- **다중 어트랙터 관리:** 여러 어트랙터가 있을 때 각각의 힘을 벡터 합으로 통합하며, 각 어트랙터의 강도를 독립적으로 제어할 수 있도록 구현합니다.
-- **렌더링 성능 고려:** 파티클 수가 늘어날수록 거리 계산 횟수가 급증하므로, GPU 가속 또는 공간 분할 구조 (Grid) 도입을 고려합니다.
+**(3) 감쇠**: 입자의 속도는 매 프레임 조금씩 줄어듭니다. 그래서 입자가 끌개 주변에서 계속 튕기지 않고 점점 안정됩니다.
 
-### 4. 활용 분야
-- **Generative Art & 미디어 아트:** 대규모 파티클 아트, 인터랙티브 설치미술에서 마우스나 센서로 어트랙터를 제어하는 작품.
-- **데이터 시각화:** 수치 데이터 포인트를 어트랙터 역할 하게 하여, 데이터 간 거리와 유사도를 시각적으로 표현 (예: t-SNE, Force-Directed Graph).
-- **우주 시뮬레이션 & 교육:** 태양계의 행성 운동, 은하계 병합 등 천문학적 현상을 정확하게 모델링하고 시각화.
-- **영상 & 영화 특수효과:** 별빛, 우주 먼지, 반짝이는 파티클 효과의 물리 기반 애니메이션.
-- **게임 개발:** 중력 기반 퍼즐, 우주 게임의 행성 궤도 시스템, 동적 몬순 환경 생성.
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 입자를 화면 곳곳에 무작위로 놓습니다. 처음 속도는 0입니다.
+2. 매 프레임 끌개의 위치를 리사주 곡선에 따라 옮깁니다.
+3. 각 입자는 끌개와의 거리를 구하고, 인력을 속도에 더합니다.
+4. 속도에 감쇠를 곱한 뒤, 속도만큼 위치를 옮깁니다.
+5. 입자를 점으로 그립니다. 끌개 자체도 원으로 표시합니다.
+
+### 3. 이 알고리즘의 장점
+
+- **끌개 하나의 위치만 바꿔도** 입자들의 움직임이 크게 달라집니다.
+- 입자가 끌개 주변에 모이는 모습은 **중력**이나 **자석**의 원리를 떠올리게 합니다.
+- 계산이 간단해서 입자가 많아도 실시간으로 움직일 수 있습니다.
+
+### 4. 구현할 때 주의할 점
+
+- 끌개에 너무 가까워지면 힘이 매우 커지므로, 거리의 최소값으로 막아 둡니다.
+- 감쇠가 너무 약하면 입자들이 계속 흔들려서 화면이 어지러워집니다.
+
+### 5. 활용 분야
+
+- **물리 시뮬레이션**: 중력과 자기장 흉내 내기.
+- **게임 효과**: 마법진이나 블랙홀처럼 입자를 빨아들이는 효과.
+- **제너레이티브 아트**: 끌개의 움직임을 따라 흐르는 입자 작품.
+
+### 직접 실험해 보기
+
+- **어트랙터 강도**를 20과 300으로 바꿔 보세요. 입자가 끌개에 얼마나 빨리 모이는지 비교해 보세요.
+- **속도 감쇠**를 0.85와 0.99로 바꿔 보세요. 입자가 금방 멈추는지, 오래 흔들리는지 확인해 보세요.
+- **파티클 개수**를 100과 1500으로 바꿔 보세요. 입자가 많을 때 어떤 모양이 만들어지는지 살펴보세요. 이 값은 바꾸면 다시 시작합니다.
 
 <!-- en -->
 
-Attractor System is an algorithm where fixed or moving attractors pull surrounding particles like gravity. Using inverse-square-law distance calculation implements realistic attraction, and interaction of multiple attractors forms complex orbital patterns.
+**Attractor System** is a moving point that pulls particles toward itself. The attractor follows a Lissajous curve across the screen, and particles gather around it, swing past, and slowly settle. The pull grows stronger as particles get closer, like gravity. Damping slowly removes speed so the particles do not swing forever.
+
+**How it works.** Each frame, the attractor moves along the curve. Every particle computes its distance to the attractor and gets a pull that is stronger when it is closer. A minimum and a maximum distance keep the force within a reasonable range.
+
+**Try it.** Change the attractor strength and the damping to see how quickly particles settle around the attractor.

@@ -1,51 +1,50 @@
-**TSP Art**는 이미지의 밝기를 **스티플 점(Stipple Points)** 의 분포로 정의한 뒤, **외판원 문제(Traveling Salesman Problem, TSP)** 의 근사 해결을 통해 **단 하나의 연속선**이 모든 점을 **효율적으로 순회하는 기법**입니다. **최근접 이웃 휴리스틱**(Nearest-Neighbor Heuristic)으로 초기 경로를 빠르게 구성한 뒤, **2-opt 지역 탐색**(Local Search)으로 교차하는 구간을 제거하여 경로를 점진적으로 단축합니다.
+**TSP Art**(외판원 문제 아트)는 **흩어진 점들을 한 번도 빠짐없이 지나는 가장 짧은 선**을 찾는 문제를 그림으로 만든 것입니다. 외판원 문제(TSP)는 물건을 팔러 다니는 사람이 모든 도시를 한 번씩 들르고 돌아오는 가장 짧은 길을 찾는 문제입니다. 점이 많아지면 가능한 경로가 천문학적으로 많아져서, 정확한 답을 찾기 어렵습니다.
 
-### 1. 핵심 수학적 원리
-1. **점 분포 생성(Stipple Placement):**
-   - 이미지 밝기 $L(x, y) \in [0, 1]$에 따라 확률 기반 샘플링
-   - 어두운 곳은 높은 확률로 점 배치, 밝은 곳은 희박하게 배치
-   - 결과: $N$개의 점 집합 $P = \{p_1, p_2, ..., p_N\}$
+### 1. 핵심 원리
 
-2. **거리 행렬:**
-   - 점 $p_i$와 $p_j$ 사이의 유클리드 거리: $d_{ij} = \|p_i - p_j\|$
-   - 완전 그래프 $G = (P, E)$ 구성 (모든 점 쌍이 연결)
+**(1) 점 찍기**: 화면에 점을 무작위로 찍습니다. 이때 밀도가 높은 곳과 낮은 곳이 생기도록 노이즈 값으로 확률을 조절합니다. 그래서 점들이 한 줄로 이어질 때 그림의 명암처럼 보입니다.
 
-3. **최근접 이웃 휴리스틱(Nearest-Neighbor):**
-   - 시작점 $p_1$ 선택
-   - 반복: 현재 점에서 방문하지 않은 가장 가까운 점으로 이동
-   - 경로 길이: $\text{tour\_length} = \sum_{i=1}^{N-1} d_{\pi(i), \pi(i+1)} + d_{\pi(N), \pi(1)}$
-   - 시간 복잡도: $O(N^2)$
+**(2) 이웃 따라가기 (가장 가까운 점 찾기)**: 처음 점에서 출발해서, 아직 방문하지 않은 점 중 가장 가까운 점으로 계속 이동합니다. 빠르게 경로를 만들 수 있지만, 마지막에는 멀리 돌아가는 구간이 생깁니다.
 
-4. **2-Opt 개선(Local Search):**
-   - 현재 경로에서 두 엣지를 선택: $(p_i, p_{i+1})$과 $(p_j, p_{j+1})$ (단, $i < j$)
-   - 교차 확인: 두 엣지가 평면상에서 교차하는지 판정
-   - 교차하면 순서 역전: $p_i \to p_j$ 방향으로 변경 ($p_{i+1}...p_j$ 구간 역순)
-   - 개선 확인: $d_{ij} + d_{i+1,j+1} < d_{i,i+1} + d_{j,j+1}$ 이면 경로 단축
-   - 반복: 더 이상 개선 없을 때까지 반복
+**(3) 두 간선 바꾸기 (2-opt)**: 경로에서 간선 두 개를 골라서, 그 사이 구간을 뒤집어 보는 방법입니다. 뒤집었을 때 두 간선의 길이 합이 줄어들면 그대로 바꿉니다. 이 과정을 여러 번 반복하면 경로가 점점 짧아지고, 선이 서로 교차하지 않게 됩니다.
 
-5. **경로 길이 최소화:**
-   - 최근접 이웃: 빠르지만 최적이 아님 (보통 최적의 120~130%)
-   - 2-opt: 지역 최솟값(Local Minimum)에 수렴; 충분히 반복하면 꽤 좋은 해 도출
+**(4) 그리기**: 최적화된 순서대로 점을 이어서 선으로 그립니다. 선은 천천히 그려져서, 한 줄이 그림을 완성해 가는 모습을 볼 수 있습니다.
 
-### 2. 주요 특징 및 장점
-- **극도의 우아함:** 한 줄의 선이 이미지 전체를 정의하며, 선 자체가 예술이 됨.
-- **계산 최적화와 미학의 교차:** NP-완전 문제의 실제 해를 예술로 표현하는 드문 사례.
-- **점의 분포가 이미지 정보:** 밝기 분포만으로도 사진의 주요 특징 포착.
-- **선의 연속성:** 단 하나의 끊기지 않는 선이 모든 점을 잇는 특별함.
+### 2. 이 시뮬레이션의 작동 순서
 
-### 3. 구현 시 고려 사항
-- **초기 경로 선택:** 최근접 이웃의 시작점을 여러 개 시도하여 가장 좋은 경로 선택.
-- **2-Opt 패스 수:** 너무 적으면 개선 미흡, 너무 많으면 계산 오버헤드. 보통 3~5회.
-- **교차 판정:** 선분 교차를 빠르게 계산하기 위해 CCW(Counter-Clockwise) 방법 또는 벡터 외적 활용.
-- **렌더링 순서:** 경로를 단계적으로 그려가는 애니메이션 효과로 시각적 흥미 증대.
+1. 노이즈 밀도에 따라 점을 찍습니다.
+2. 가장 가까운 점 따라가기로 처음 경로를 만듭니다.
+3. 2-opt로 경로를 다듬습니다. 설정한 횟수만큼 전체를 훑습니다.
+4. 최적화된 경로를 따라 선을 그립니다. 그리기 속도로 한 프레임에 그릴 선의 개수를 정합니다.
 
-### 4. 활용 분야
-- **Generative Art:** 최적화 문제를 예술적으로 해석하는 혁신적 표현.
-- **초상화 & 이미지 변환:** 사진을 한 줄 드로잉으로 변환하는 독특한 스타일.
-- **전시 & 인스톨레이션:** 수학적 미학을 현대 미술로 승화.
-- **교육:** TSP, 그리디 알고리즘, 지역 탐색의 개념을 시각적으로 이해.
-- **인터랙티브 도구:** 매개변수 조정으로 다양한 TSP Art 변형 생성.
+### 3. 이 알고리즘의 장점
+
+- **간단한 규칙으로 긴 선 그림**을 만들 수 있습니다.
+- 가장 짧은 경로를 찾는 문제가 그림과 자연스럽게 연결됩니다.
+- 점의 밀도 분포를 바꾸면 같은 방법으로 전혀 다른 명암의 그림이 나옵니다.
+
+### 4. 구현할 때 주의할 점
+
+- 2-opt는 점이 많아질수록 계산이 빠르게 늘어납니다.
+- 2-opt는 가장 좋은 답을 보장하지 않습니다. 대부분 좋은 답에 가깝지만, 더 나은 경로가 남아 있을 수 있습니다.
+- 이 예제는 열린 경로입니다. 시작점과 끝점이 이어지지 않으므로, 계산할 때 마지막 간선을 빼고 생각해야 합니다.
+
+### 5. 활용 분야
+
+- **물류와 배송**: 여러 장소를 한 번씩 방문하는 최단 경로 계획.
+- **회로와 제조**: 드릴이나 로봇 팔이 점을 찍는 순서 정하기.
+- **제너레이티브 아트**: 한 줄로 그린 점묘화 작품.
+
+### 직접 실험해 보기
+
+- **스티플 점 개수**를 50과 500으로 바꿔 보세요. 점이 많을수록 그림이 얼마나 선명해지는지 비교해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **경로 최적화 횟수**를 1과 5로 바꿔 보세요. 최적화 횟수가 많을수록 선이 교차하는 곳이 얼마나 줄어드는지 확인해 보세요. 이 값도 바꾸면 다시 시작합니다.
+- **그리기 속도**를 30과 300으로 바꿔 보세요. 선이 그려지는 과정을 천천히, 또는 빠르게 관찰해 보세요.
 
 <!-- en -->
 
-TSP Art distributes stipple points based on image brightness, then solves an approximation of the Traveling Salesman Problem to connect them all with a single continuous line. A nearest-neighbor heuristic quickly builds an initial tour, then 2-opt local search iteratively eliminates crossing segments to shorten the path. The result is a profound synthesis of algorithmic optimization and visual art: a single line that captures the entire image, each stroke carrying both mathematical precision and aesthetic grace.
+**TSP Art** draws points as one continuous line, using the traveling salesman problem. The goal is the shortest path that visits every point once. The sketch starts with a path that always goes to the nearest unvisited point, then improves it with 2-opt, which swaps two edges when that makes the path shorter. The result is a single line that fills the picture like a drawing.
+
+**How it works.** Points are placed with more density in some areas, using noise. The 2-opt steps are repeated a set number of times, and the final path is drawn slowly. The path is open, so its start and end are not connected.
+
+**Try it.** Change the number of points and the number of optimization passes to see how the line becomes cleaner.

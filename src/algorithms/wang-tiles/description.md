@@ -1,47 +1,48 @@
-**Wang Tiles**(왕 타일)은 각 **정사각형 타일의 네 변에 색(또는 패턴)** 이 할당된 **제약 충족 타일링(Constraint-Satisfaction Tiling)** 알고리즘입니다. 인접한 두 타일의 공유 변(Shared Edge)의 색이 반드시 일치해야 한다는 규칙이 있습니다. 이 국소 제약만으로도, **유한한 타일 집합**(일반적으로 16개 이하)으로부터 **반복되지 않는 비주기적 패턴**을 생성할 수 있습니다. 이는 **Penrose Tiling**보다 계산이 훨씬 간단하면서도 수학적 깊이가 있으며, **게임 맵, 텍스처, 바닥 패턴** 등에서 강력한 절차적 생성 도구입니다.
+**Wang Tiles**(왕 타일)는 **가장자리의 색이 맞는 타일만 이웃해서 놓는** 방법입니다. 각 타일의 네 변에는 색이 하나씩 있고, 두 타일이 맞닿는 변의 색이 같아야 합니다. 이 규칙만 지키면 같은 타일 몇 종류로도 넓은 바닥 무늬를 이어 붙일 수 있습니다. 1961년 수학자 왕 하오가 이 아이디어를 제안했습니다.
 
-### 1. 핵심 수학적 원리
-1. **타일 정의:**
-   - 각 타일: 네 변의 색 $(c_{\text{top}}, c_{\text{right}}, c_{\text{bottom}}, c_{\text{left}})$
-   - 색 집합: $C = \{1, 2, 3, ..., k\}$ (k가지 색)
-   - 타일 집합: $T = \{t_1, t_2, ..., t_n\}$ (일반적으로 $n = 4k^2$ 이하)
+### 1. 핵심 원리
 
-2. **배치 규칙(Tiling Rule):**
-   - 타일 $(t_i, t_j)$가 좌우로 인접: $c_{\text{right}}(t_i) = c_{\text{left}}(t_j)$
-   - 타일 $(t_i, t_j)$가 상하로 인접: $c_{\text{bottom}}(t_i) = c_{\text{top}}(t_j)$
+**(1) 타일의 변**: 각 타일은 위, 오른쪽, 아래, 왼쪽 네 변에 색 번호를 하나씩 가집니다. 그림에서는 각 변을 삼각형으로 칠해서 보여 줍니다.
 
-3. **배치 알고리즘:**
-   - 격자: $m \times n$ 크기 타일 배치
-   - 각 셀 $(i, j)$에 가능한 타일들의 집합 $P_{ij}$ 유지
-   - 반복:
-     1. 엔트로피가 가장 낮은 셀 선택
-     2. 가능한 타일 중 하나 무작위 선택
-     3. 이웃 셀의 가능 타일 집합에서 색 불일치 타일 제거
-   - 일종의 **Wave Function Collapse**
+**(2) 이웃 규칙**: 타일을 한 줄씩 왼쪽에서 오른쪽, 위에서 아래로 놓습니다. 새 타일은 다음 두 조건을 만족해야 합니다.
+- 왼쪽 이웃 타일의 **오른쪽 변**과, 새 타일의 **왼쪽 변**의 색이 같아야 합니다.
+- 위쪽 이웃 타일의 **아래 변**과, 새 타일의 **위 변**의 색이 같아야 합니다.
 
-4. **비주기성 증명:**
-   - de Bruijn의 위상수학적 증명: 특정 색 조합으로 무한 배치의 가능성 보장
-   - 하지만 실제로는 대부분의 유한 배치가 비주기적
+**(3) 타일 종류 만들기**: 모든 색 조합을 다 쓰면 타일이 너무 많아집니다. 이 예제는 필요한 조합이 빠지지 않도록, 위 변과 왼쪽 변의 색 조합마다 타일을 하나씩 먼저 만들고, 나머지는 무작위로 채웁니다. 그래서 어떤 칸에서도 맞는 타일이 항상 있습니다.
 
-### 2. 주요 특징 및 장점
-- **극도의 단순성:** 색상 매칭만으로 복잡한 제약 충족.
-- **계산 효율성:** Backtracking이나 SAT solver 불필요; 탐욕적 배치 가능.
-- **무한 다양성:** 유한 타일로 무한히 많은 배치 가능.
-- **수학적 깊이:** 타일링 이론, 위상수학, 부호 이론 연계.
+### 2. 이 시뮬레이션의 작동 순서
 
-### 3. 구현 시 고려 사항
-- **타일 세트 설계:** 색 조합이 모든 인접 상황을 커버하는지 확인.
-- **Backtracking:** 배치 실패 시 이전 상태로 복원 필요.
-- **색상 시각화:** 색상 대신 패턴(기울기선, 기하학)으로 더 풍부한 시각.
-- **성능 최적화:** 타일 집합이 크면 가능 타일 탐색 오버헤드; 해시 테이블 활용.
+1. 색의 종류(경계 색상 수)를 정하고, 그 색들로 타일 종류를 만듭니다.
+2. 화면의 칸을 왼쪽 위에서부터 한 칸씩 채웁니다. 이웃의 색과 맞는 타일 중 하나를 무작위로 고릅니다.
+3. 타일마다 네 변의 색을 삼각형으로 칠합니다. 대각선을 얇게 그어 이음새를 보이게 합니다.
 
-### 4. 활용 분야
-- **게임 개발:** 절차적 맵 생성, 던전 구조, 환경 타일 배치.
-- **텍스처 합성:** 패턴 확장, 원본 이미지 구조 보존.
-- **벽지 & 바닥재:** 비주기적 타일 배치, 시각적 단조로움 회피.
-- **타일링 수학 교육:** 제약 충족, 비주기성, 위상수학 개념.
-- **Generative Art:** 규칙 기반 추상 패턴, 음악 시각화.
+### 3. 이 알고리즘의 장점
+
+- **적은 타일로 넓은 무늬**를 만들 수 있습니다.
+- **규칙만 지키면 어디든 이어 붙일 수 있어서**, 게임의 맵 타일이나 바닥 무늬에 씁니다.
+- 타일 종류가 많을수록 같은 모양이 반복되는 것이 덜 눈에 띕니다.
+
+### 4. 구현할 때 주의할 점
+
+- 색을 맞추는 방법을 잘못 짜면 타일이 이어지지 않고 끊어져 보입니다. 이 예제는 **그림과 검사가 같은 변**을 기준으로 하도록 맞췄습니다.
+- 타일 종류가 적으면 맞는 타일을 찾지 못하고 패턴 생성이 실패할 수 있습니다. 그래서 필요한 조합을 먼저 넣습니다.
+
+### 5. 활용 분야
+
+- **게임 맵**: 짧은 타일 세트로 넓은 지도를 만들기.
+- **바닥과 벽 무늬**: 디자인 타일 패턴.
+- **제너레이티브 아트**: 색이 이어지는 타일 그림.
+
+### 직접 실험해 보기
+
+- **경계 색상 수**를 2와 5로 바꿔 보세요. 색이 많을수록 타일 조합이 얼마나 다양해지는지 확인해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **타일 종류 수**를 24와 48로 바꿔 보세요. 같은 타일이 얼마나 자주 반복되는지 비교해 보세요. 이 값도 바꾸면 다시 시작합니다.
+- **타일 크기**를 바꿔 보세요. 칸이 커질수록 이음새가 어떻게 보이는지 살펴보세요. 이 값도 바꾸면 다시 시작합니다.
 
 <!-- en -->
 
-Wang Tiles assigns a color to each edge of square tiles and arranges them so that adjacent tiles have matching edge colors. This local constraint alone enables generation of aperiodic (non-repeating) patterns from a finite tile set. Compared to explicit aperiodic tilings like Penrose, Wang Tiles are computationally simpler yet mathematically profound. They are ideal for procedural generation: game maps, textures, floor patterns—anywhere you need infinite non-repeating variety from simple rules.
+**Wang Tiles** are square tiles with a color on each edge. Two neighboring tiles must have the same color on their shared edge. Following this one rule lets a small set of tiles cover a large area without visible seams. The sketch picks a tile for each cell, from top-left to bottom-right, so that it matches its left and top neighbors.
+
+**How it works.** The sketch first creates a tile for every combination of top and left colors, so there is always a matching tile. Then it fills the rest of the tile set with random tiles. Each tile's four edges are drawn as colored triangles that meet in the center.
+
+**Try it.** Change the number of edge colors and the number of tile types to see how the pattern changes.

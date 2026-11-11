@@ -1,48 +1,55 @@
-**Space Colonization**(공간 개척)은 **나뭇가지의 분기 구조, 잎맥의 망상 조직, 혈관 계통, 신경 네트워크, 뿌리 시스템** 등 생물학적 수지상 구조(Dendritic Structure)의 생장 패턴을 모사하는 **탐욕 알고리즘(Greedy Algorithm)** 입니다. 성장 공간에 자원을 상징하는 유인점(Attraction Point)들을 무작위로 분포시키고, 시작 노드에서 시작하여 반복적으로 가장 가까운 미획득 유인점을 향해 가지 선분을 뻗어냅니다. 가지가 유인점에 도달하면 그 유인점은 소비되어 제거되며, 이 과정을 반복하면 **한정된 공간 내에서 스스로 최적화되는 완전한 연결 네트워크**가 형성됩니다. 수학적으로 **최소 신장 트리(Minimum Spanning Tree)의 최적성**과 **생물학적 성장의 유기적 미학**을 동시에 달성합니다.
+**Space Colonization**(공간 점령)은 **나무가 먹이를 향해 가지를 뻗는 과정**을 흉내 낸 방법입니다. 잎맥이나 나뭇가지가 자라는 방식을 설명할 때 자주 쓰입니다. 먹이는 가지를 자기 쪽으로 끌어당기고, 가지가 먹이에 충분히 가까워지면 먹이는 사라집니다. 먹이가 다 떨어지면 나무는 더 자라지 않습니다.
 
-### 1. 핵심 수학적 원리
-1. **알고리즘 단계:**
-   - 초기화: 루트 노드 $r$, 유인점 집합 $A = \{a_1, a_2, ..., a_n\}$
-   - 반복:
-     1. 모든 유인점에 대해 가장 가까운 가지 노드 $v$를 찾기 (공간 색인 활용)
-     2. 각 가지 노드 $v$에 대해, 자신으로 향하는 모든 유인점의 **방향 벡터 평균** 계산
-     3. 이 평균 방향으로 단위 길이 $\Delta l$만큼 뻗기: $v_{\text{new}} = v + \Delta l \cdot \frac{\text{avg\_direction}}{|\text{avg\_direction}|}$
-     4. 새 노드를 가지에 추가
-     5. 반경 $r_{\text{kill}}$ 이내의 모든 유인점 제거
-   - 종료: 모든 유인점이 제거될 때까지 반복
+### 1. 핵심 원리
 
-2. **방향 벡터 집계:**
-   - 노드 $v$ 근처의 유인점들: $A_v = \{a : \|a - v\| < r_{\text{sense}}\}$
-   - 방향 평균: $\mathbf{d}_v = \sum_{a \in A_v} \frac{a - v}{\|a - v\|}$ (정규화 필수)
+세 가지 규칙으로 움직입니다.
 
-3. **거리 탐색 최적화:**
-   - **K-D 트리** 또는 **공간 해시(Spatial Hash)**: $O(\log n)$ 이웃 탐색
-   - 나이브: $O(n \times m)$ (n = 가지 노드, m = 유인점)
+**(1) 먹이 인식**: 각 먹이(잎)는 **인식 반경** 안에서 가장 가까운 가지 하나를 끌어당깁니다.
 
-4. **제약 조건:**
-   - 감지 반경: $r_{\text{sense}}$ (유인점 탐지 거리)
-   - 소비 반경: $r_{\text{kill}}$ (유인점 제거 거리, 보통 $r_{\text{sense}}$보다 작음)
-   - 성장 속도: $\Delta l$ (매 스텝 증가 길이)
+**(2) 가지 자라기**: 한 가지가 여러 먹이에게 끌리면, 먹이들이 가리키는 방향을 모두 더해서 평균 방향을 구합니다. 그 방향으로 **마디 길이**만큼 새 가지를 뻗습니다.
 
-### 2. 주요 특징 및 장점
-- **극도의 자연성:** 식물 성장의 단순한 규칙만으로 복잡한 분기 구조 형성.
-- **자원 기반 최적화:** 유인점 분포에 따라 가지가 자동으로 최적 경로 선택.
-- **다양한 형태:** 유인점 분포, 반경, 성장 속도를 조절하여 다양한 식물 모양 생성.
-- **비용 효율:** 거리 탐색 최적화로 수백만 유인점도 처리 가능.
+$$\mathbf{d} = \frac{1}{n} \sum_{k=1}^{n} \frac{\mathbf{l}_k - \mathbf{b}}{|\mathbf{l}_k - \mathbf{b}|}$$
 
-### 3. 구현 시 고려 사항
-- **감지 반경 vs 소비 반경:** 두 값의 비율이 분기 형태 결정 (차이 크면 촘촘, 작으면 성근).
-- **유인점 분포:** 균일하면 균형 잡힌 나무, 편중되면 비대칭 구조.
-- **루트 위치:** 루트가 편향되면 한쪽으로만 뻗음.
-- **애니메이션:** 반복 과정을 프레임 단위로 시각화하여 성장 과정 표시.
+- $\mathbf{b}$는 가지의 위치, $\mathbf{l}_k$는 $k$번째 먹이의 위치입니다.
+- 각 먹이 방향의 길이를 1로 맞춘 뒤 평균을 냅니다.
 
-### 4. 활용 분야
-- **게임 개발:** 나무 모델 자동 생성, 식물 월드 생성, 미로 게임.
-- **영화 & VFX:** 식물 애니메이션, 자연 조경 씬.
-- **건축 시각화:** 자연-영감적(Bio-inspired) 건축 설계, 구조 최적화.
-- **Generative Art:** 식물 미술, 음악 시각화, 신경망 시각화.
-- **과학 교육:** 식물 생장 모델, 자원 경쟁 시뮬레이션.
+**(3) 먹이 섭취**: 가지 끝이 먹이의 **섭취 반경** 안에 들어오면, 그 먹이는 사라집니다. 먹이가 줄어들면 그 근처에서는 가지가 더 자라지 않습니다.
+
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 화면 아래 가운데에 뿌리(줄기)를 놓고, 먹이에 닿을 때까지 위로 자랍니다.
+2. 매 프레임 각 먹이가 가장 가까운 가지를 찾습니다. 섭취 반경에 들어온 먹이는 지웁니다.
+3. 먹이에 끌린 가지마다 새 가지가 하나씩 돋아납니다.
+4. 먹이가 없어지거나 더 자랄 곳이 없으면 멈춥니다.
+
+### 3. 이 알고리즘의 장점
+
+- 가지가 **빈 공간을 고르게** 채우면서 자랍니다.
+- 나무, 잎맥, 혈관처럼 **가지가 갈라지는 구조**를 잘 흉내 냅니다.
+- 먹이의 위치만 바꿔도 전혀 다른 나무가 됩니다.
+
+### 4. 구현할 때 주의할 점
+
+- **먹이가 많을수록** 계산이 크게 늘어납니다. 모든 먹이와 모든 가지를 비교하기 때문입니다.
+- **인식 반경이 너무 작으면** 먹이를 찾지 못해 나무가 자라지 않을 수 있습니다. 너무 크면 가지가 한꺼번에 몰립니다.
+- 가지 방향이 서로 **정확히 상쇄되면** 방향이 없어집니다. 이 예제는 그런 가지를 건너뛰어서 오류를 막습니다.
+
+### 5. 활용 분야
+
+- **식물 모델링**: 나무와 잎맥 구조 만들기.
+- **생물 구조**: 혈관이나 뿌리가 자라는 과정 흉내 내기.
+- **제너레이티브 아트**: 나뭇가지 패턴과 건축 디자인의 영감.
+
+### 직접 실험해 보기
+
+- **먹이 인식 반경**을 40과 150으로 바꿔 보세요. 가지가 얼마나 넓게 뻗는지 비교해 보세요.
+- **잎 개수**를 100과 1000으로 바꿔 보세요. 먹이 수에 따라 나무가 얼마나 빽빽해지는지 확인해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **나뭇가지 마디 길이**를 1과 8로 바꿔 보세요. 가지가 짧고 촘촘한지, 길고 성긴지 살펴보세요.
 
 <!-- en -->
 
-Space Colonization simulates the growth patterns of branching networks—tree limbs, leaf veins, blood vessels, neurons, root systems. The algorithm distributes attraction points throughout space representing resources or leaves. Starting from a root node, iteratively grow branch segments toward the nearest unclaimed attraction point. Once a segment reaches an attractor, that attractor is "consumed" and removed. The result: a naturally optimized dendritic network that branches to reach all attractors, limited only by physical constraints. This matches both the mathematical optimality of minimal spanning trees and the organic aesthetics of biological growth.
+**Space Colonization** grows a branching tree toward food points. Food points pull the nearest branch toward them, and a branch that reaches a food point consumes it. When the food runs out, growth stops. This method is often used to model leaf veins and tree branches.
+
+**How it works.** Each food point finds its nearest branch within the perception radius. Each branch that has food points grows one new segment in the average direction of those points. Food inside the consumption radius disappears.
+
+**Try it.** Change the perception radius and the number of leaves to see how open or dense the tree becomes.

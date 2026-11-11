@@ -1,42 +1,48 @@
-**Delaunay Triangulation**(들로네 삼각분할)은 2D 평면에 흩어져 있는 점들을 삼각형 망으로 연결하여 빈틈없이 공간을 채우는 **기하학적 분해(Geometric Decomposition)** 알고리즘입니다. 이 방식은 **삼각형의 외접원 안에 다른 점이 들어오지 않아야 한다**는 특별한 규칙을 따르는데, 덕분에 삼각형들이 길쭉하게 찌그러지지 않고 최대한 **정삼각형에 가까운 예쁜 모양을 유지**하게 됩니다. 러시아 수학자 Boris Delaunay가 1934년 발표한 이 알고리즘은 컴퓨터 기하학, 지형 모델링, 메쉬 생성 등 광범위한 응용 분야에서 사용되며, **보로노이 다이어그램**(Voronoi Diagram)과 서로 거울을 보듯 완벽하게 연결된 구조를 가집니다.
+**Delaunay Triangulation**(들로네 삼각분할)은 흩어진 점들을 **삼각형으로 이어 붙이는** 방법입니다. 이때 삼각형이 가늘고 길어지지 않도록 고릅니다. 지도 제작, 3D 모델의 면 만들기, 게임의 길 찾기 등에서 많이 씁니다.
 
-### 1. 핵심 수학적 원리
-점의 집합 $P = \{p_1, p_2, \ldots, p_n\}$에 대한 Delaunay 삼각분할은 다음을 만족합니다:
+### 1. 핵심 원리
 
-1. **외접원 제약**(Circumcircle Criterion):
-   - 삼각형 $T = \{p_i, p_j, p_k\}$의 외접원 $\text{CC}(T)$ 내부에 다른 정점이 없어야 함
-   - 수학적으로: $\forall p_\ell \notin \{p_i, p_j, p_k\}$에 대해 $p_\ell \notin \text{interior}(\text{CC}(T))$
+**(1) 들로네 조건**: 어떤 삼각형이든, 그 삼각형의 세 꼭짓점을 지나는 원(외접원)의 안쪽에 다른 점이 들어가지 않아야 합니다. 이 조건을 지키면 삼각형들이 대체로 **둥글고 고른 모양**이 됩니다.
 
-2. **극대 최소 각 성질:** 이 제약은 삼각분할 내 모든 삼각형의 최소 내각들의 최솟값을 전역적으로 최대화합니다. 즉, 가능한 모든 삼각분할 중에서 가장 "균등하고 정규"인 형태를 보장
+**(2) 보와이어-왓슨(Bowyer-Watson) 방법**: 점을 한 개씩 추가하면서 삼각형을 고칩니다.
+1. 새 점을 넣었을 때 외접원 안에 그 점이 들어가는 삼각형을 모두 찾습니다. 이 삼각형들은 조건을 깨뜨리므로 지웁니다.
+2. 지운 자리는 구멍이 됩니다. 구멍의 가장자리 변마다 새 점과 이으면 새 삼각형이 생기고, 조건이 다시 지켜집니다.
 
-3. **보로노이 쌍대:** Delaunay 삼각분할의 각 삼각형의 외심(Circumcenter)을 연결하면 보로노이 다이어그램이 됩니다.
-   - Delaunay 간선 $\leftrightarrow$ 보로노이 꼭짓점
-   - Delaunay 삼각형 $\leftrightarrow$ 보로노이 정점 (Voronoi cell)
+**(3) 쌍대 관계**: 들로네 삼각분할은 보로노이 다이어그램과 짝을 이룹니다. 보로노이에서 이웃한 두 씨앗을 선으로 이으면, 그것이 들로네 삼각형의 변이 됩니다.
 
-4. **삼각분할 구성 알고리즘(Bowyer-Watson):**
-   - 점들을 하나씩 추가하면서 점을 포함하는 삼각형을 찾음
-   - 외접원 제약을 위반하는 이웃 삼각형들을 제거(Flip)
-   - 빈 공간을 새 삼각형으로 채움
+### 2. 이 시뮬레이션의 작동 순서
 
-### 2. 주요 특징 및 장점
-- **수치적 안정성:** 가늘고 길게 찢어진(Sliver) 삼각형을 피하므로, 유한요소 분석(FEA), 수치 시뮬레이션에서 계산 오차를 최소화합니다.
-- **최적성 보장:** 이론적으로 모든 가능한 삼각분할 중 최고의 형태를 보장하며, 이는 다른 삼각분할 방식이 따라올 수 없는 강점입니다.
-- **효율적 계산:** Bowyer-Watson 알고리즘은 $O(n \log n)$ 평균 시간복잡도를 가지며, 병렬화도 가능합니다.
-- **보로노이와의 통합:** 한 번의 계산으로 두 가지 쌍대 구조를 동시에 얻을 수 있어, 공간 분석 문제에 강력합니다.
+1. 화면 안에 점을 무작위로 놓습니다.
+2. 각 점을 조금씩 흔듭니다. 흔드는 방향은 노이즈로 정합니다. 흔들림은 화면 안에 머물도록 가장자리에서 제한합니다.
+3. 매 프레임 점 전체에 대해 보와이어-왓슨 방법으로 삼각형을 다시 계산합니다.
+4. 삼각형을 칠합니다. 화면 가운데에 가까운 삼각형은 진하게, 가장자리에 있는 삼각형은 옅게 보입니다.
 
-### 3. 구현 시 고려 사항
-- **초기 슈퍼 삼각형:** 모든 입력 점을 포함하는 충분히 큰 삼각형에서 시작하여, 점 추가 후 제거하는 방식이 로직을 단순화합니다.
-- **외접원 계산:** 부동소수점 연산의 수치 오차를 고려하여, 외접원 제약 검사 시 작은 오차 범위($\epsilon$)를 설정합니다.
-- **플립(Flip) 연쇄:** 한 점 추가로 여러 삼각형이 제거되고 새로 추가될 수 있으므로, 반복적 플립 로직을 정확하게 구현해야 합니다.
-- **경계 처리:** 경계 간선을 특수 처리하여, Delaunay 성질 적용을 제한할 수도 있습니다 (Constrained Delaunay).
+### 3. 이 알고리즘의 장점
 
-### 4. 활용 분야
-- **지형 모델링:** 표고점(Elevation Points)을 Delaunay로 삼각분할하여 3D Digital Elevation Model 생성.
-- **메쉬 생성:** 유한요소 분석(FEA), 유한차분법(FDM)의 입력 메쉬로 자동 생성.
-- **공간 분석:** 지리정보, 생태 데이터 분석에서 인접 관계 파악.
-- **절차적 생성:** 게임의 지형, 건물, 도로 네트워크의 자동 설계.
-- **Generative Art:** 점들의 배치를 기반으로 기하학적인 추상 미술 생성, 데이터 비주얼라이제이션.
+- **고른 삼각형**: 가늘고 긴 삼각형이 적어서, 계산이나 그래픽에 쓰기 좋습니다.
+- **구현 원리가 명확함**: "외접원에 든 삼각형을 지우고 구멍을 다시 메운다"는 한 문장으로 설명할 수 있습니다.
+
+### 4. 구현할 때 주의할 점
+
+- 이 예제는 매 프레임 전체를 다시 계산합니다. 점이 많을수록 계산이 무거워집니다.
+- 점이 거의 한 줄에 있거나 네 점이 한 원 위에 있으면 계산이 불안정해질 수 있습니다. 그래서 점을 무작위로 놓고 조금씩 흔드는 방식을 씁니다.
+
+### 5. 활용 분야
+
+- **지형과 지도**: 측정한 높이 점들로 지형 면을 만듭니다.
+- **3D 그래픽**: 점 구름을 삼각형 면으로 바꿉니다.
+- **제너레이티브 아트**: 삼각형 그물 패턴 작품.
+
+### 직접 실험해 보기
+
+- **포인트 개수**를 50과 300으로 바꿔 보세요. 삼각형이 얼마나 잘게 나뉘는지 비교해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **정점 애니메이션 속도**를 0으로 맞춰 보세요. 점들이 멈추면 삼각형 그물이 어떻게 보이는지 확인해 보세요.
+- **정점 애니메이션 속도**를 0.05로 올려 보세요. 흔들림이 커질 때 삼각형이 어떻게 변하는지 관찰해 보세요.
 
 <!-- en -->
 
-Delaunay Triangulation is a geometric algorithm that connects a set of discrete points into a network of non-overlapping triangles, ensuring that no point falls inside the circumcircle of any triangle. This constraint maximizes the minimum angles of the triangles, avoiding thin or elongated geometries. It forms the exact dual mathematical structure of the Voronoi Diagram and is widely utilized in terrain modeling, mesh generation, and procedural network synthesis.
+**Delaunay Triangulation** connects scattered points into triangles, choosing them so that no triangle is long and thin. It is used for maps, 3D surfaces, and paths in games.
+
+**How it works.** The key rule is that no point may lie inside the circle that passes through the three corners of any triangle. The sketch adds points one by one. Triangles that break the rule are removed, and the hole they leave is filled with new triangles that connect to the new point. The points also move slightly each frame, and the whole triangulation is recalculated.
+
+**Try it.** Change the number of points, or set the animation speed to zero to see the still mesh.

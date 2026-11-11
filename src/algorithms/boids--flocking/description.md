@@ -1,44 +1,61 @@
-**Boids / Flocking**은 컴퓨터 과학자 Craig Reynolds가 1986년 발표한 획기적인 알고리즘으로, **세 가지 국소 규칙(분리, 정렬, 응집)** 만을 조합하여 새나 물고기의 무리와 같은 자연 속 집단 행동을 수학적으로 모델링합니다. 이 알고리즘은 **분산 제어**(Distributed Control)와 **창발 시스템**(Emergent Systems)의 가장 영향력 높은 사례로, 게임, 애니메이션, 로봇 공학, 사회과학 시뮬레이션 분야에서 광범위하게 활용되고 있습니다.
+**Boids / Flocking**(보이드 군집)은 **새 한 마리가 세 가지 간단한 규칙만 따르는데**, 여러 마리가 모이면 새떼처럼 움직이는 현상을 흉내 낸 방법입니다. 1986년 크레이그 레이놀즈가 이 규칙을 제안했습니다. 중앙에서 누가 지휘하지 않아도 무리 전체가 자연스럽게 움직인다는 점이 핵심입니다.
 
-### 1. 핵심 수학적 원리
-각 보이드(Boid) $b_i$는 **위치 $\mathbf{p}_i$**, **속도 $\mathbf{v}_i$**, **가속도 $\mathbf{a}_i$** 를 가지며, 다음 세 가지 힘을 조합합니다:
+### 1. 핵심 원리
 
-1. **분리(Separation):** 근처 보이드와의 충돌 회피
-   - 인식 반경 $r_{sep}$ 내의 각 이웃 보이드 $b_j$에 대해 벡터 $\mathbf{d}_{ij} = \mathbf{p}_i - \mathbf{p}_j$를 계산
-   - 이들을 누적한 후 가중치 $w_{sep}$를 곱함: $\mathbf{F}_{sep} = w_{sep} \sum_{j} \mathbf{d}_{ij}$
+각 보이드(새 한 마리)는 주변의 이웃만 보고 다음 세 가지 힘을 받습니다.
 
-2. **정렬(Alignment):** 근처 보이드들의 평균 속도로 자신의 속도 방향 조정
-   - 인식 범위 내 이웃의 평균 속도 $\overline{\mathbf{v}}_{neighbors}$를 계산
-   - $\mathbf{F}_{align} = w_{align} (\overline{\mathbf{v}}_{neighbors} - \mathbf{v}_i)$
+**(1) 분리**: 너무 가까운 이웃에게서 멀어집니다. 부딪히지 않게 하는 힘입니다.
 
-3. **응집(Cohesion):** 근처 보이드들의 무게중심을 향해 이동
-   - 인식 범위 내 이웃들의 평균 위치 $\overline{\mathbf{p}}_{neighbors}$를 구함
-   - $\mathbf{F}_{cohesion} = w_{cohesion} (\overline{\mathbf{p}}_{neighbors} - \mathbf{p}_i)$
+**(2) 정렬**: 이웃들의 평균 속도와 맞추려고 합니다. 같은 방향으로 날아가게 하는 힘입니다.
 
-4. **속도 및 위치 갱신:**
-   - 총 가속도: $\mathbf{a}_i = \mathbf{F}_{sep} + \mathbf{F}_{align} + \mathbf{F}_{cohesion}$
-   - 속도 갱신: $\mathbf{v}_i(t+\Delta t) = \text{clamp}(\mathbf{v}_i(t) + \mathbf{a}_i \cdot \Delta t, v_{max})$
-   - 위치 갱신: $\mathbf{p}_i(t+\Delta t) = \mathbf{p}_i(t) + \mathbf{v}_i(t+\Delta t) \cdot \Delta t$
+**(3) 응집**: 이웃들의 평균 위치 쪽으로 다가갑니다. 무리를 한곳에 모이게 하는 힘입니다.
 
-### 2. 주요 특징 및 장점
-- **단순성과 창발성:** 단 세 가지의 직관적인 행동 규칙만으로도 자연에서 볼 수 있는 복잡하고 유기적인 군집 형태를 예술적으로 구현합니다. 통제된 지휘관 없이도 개별 요소들의 자율적인 상호작용이 모여 경이로운 전체를 만들어냅니다.
-- **유기적 & 독립적 움직임:** 각각의 요소는 자신의 시야각 안에 있는 주변 이웃들과만 반응하여 움직입니다. 전체를 아우르는 중앙 통제가 필요하지 않기 때문에 자연스러운 시각 연출이 가능합니다.
-- **계산 효율성:** 적절한 공간 분할 자료구조(Grid, KD-Tree)를 사용하면 $O(n \log n)$ 또는 $O(n)$ 복잡도로 실시간 렌더링이 가능합니다.
-- **시각적 신뢰도:** 실제 생물의 무리 행동과 매우 유사하여, 영화와 게임에서 자연스러운 NPC 행동이나 동물 무리 애니메이션을 생성합니다.
+세 힘을 더하면 보이드의 움직임이 정해집니다.
 
-### 3. 구현 시 고려 사항
-- **공간 분할 최적화:** 모든 보이드 쌍을 비교하면 $O(n^2)$이 되므로, 2D 그리드 또는 사분트리를 사용하여 인식 반경 내의 이웃만 빠르게 탐색합니다.
-- **가중치 튜닝:** 세 가중치 $(w_{sep}, w_{align}, w_{cohesion})$의 비율이 결과에 결정적 영향을 미칩니다. 너무 강한 분리는 무리가 흩어지고, 약한 분리는 충돌을 초래합니다.
-- **경계 처리:** 보이드가 화면 경계를 벗어날 때 **토로이드 래핑**(Toroidal Wrapping), **탄성 반사**(Elastic Reflection), **중력 복귀**(Magnetic Pull Back)등의 방식을 선택해서 구현합니다.
-- **레이턴시와 감쇠:** 속도에 작은 감쇠 계수를 적용하면 에너지 진동을 줄이고 안정적인 무리 구조를 유지하는 데 도움이 됩니다.
+$$\mathbf{a} = w_{s}\,\mathbf{s} + w_{a}\,(\bar{\mathbf{v}} - \mathbf{v}) + w_{c}\,(\bar{\mathbf{p}} - \mathbf{p})$$
 
-### 4. 활용 분야
-- **게임 및 영화:** NPC 무리 행동, 적 그룹의 전술적 움직임, 영화 특수효과의 새떼 또는 물고기 떼 애니메이션.
-- **로봇 공학 & 멀티에이전트 시스템:** 자율주행 로봇 군집, 드론 스웜, 분산 네트워크 알고리즘의 시각화.
-- **생태계 시뮬레이션:** 야생동물 개체군의 이동 경로 모델링, 포식자-피식자 동역학, 생물 무리 패턴 분석.
-- **Generative Art & 인터랙티브 설치:** 뮤직비디오, 무용 공연과 결합한 시각 아트, 마우스나 센서로 조종하는 대규모 파티클 설치.
-- **도시 계획 & 재난 대피:** 보행자 흐름 시뮬레이션, 경기장 내 군중 거동 분석, 대피 경로 최적화.
+- $w_s$, $w_a$, $w_c$는 각각 **분리 강도**, **정렬 강도**, **응집 강도**입니다.
+- $\bar{\mathbf{v}}$는 이웃들의 평균 속도, $\bar{\mathbf{p}}$는 이웃들의 평균 위치입니다.
+- $\mathbf{s}$는 가까운 이웃에게서 멀어지는 방향입니다.
+
+이 예제에서 각 보이드가 볼 수 있는 이웃의 거리(분리 15px, 정렬과 응집 30px)는 정해진 값입니다.
+
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 보이드를 무작위 위치와 방향으로 놓습니다.
+2. 매 프레임 각 보이드는 이웃을 찾아서 세 힘을 계산합니다.
+3. 힘을 속도에 더하고, 최대 속도를 넘지 않게 제한합니다.
+4. 위치를 옮깁니다. 화면 끝으로 나가면 반대쪽에서 다시 나타납니다.
+5. 진행 방향을 향한 삼각형으로 보이드를 그립니다. 흔적이 조금씩 남습니다.
+
+### 3. 이 알고리즘의 장점
+
+- **중심 지휘자 없이** 무리 전체가 움직이는 모습을 만들 수 있습니다.
+- 규칙이 세 가지뿐이라서, 각 규칙의 강도를 바꾸며 결과를 비교하기 쉽습니다.
+- 새떼, 물고기떼, 군중의 움직임을 흉내 낼 때 기본으로 쓰입니다.
+
+### 4. 구현할 때 주의할 점
+
+- 모든 보이드 쌍을 확인하므로, 보이드가 많아지면 계산이 빠르게 늘어납니다.
+- 분리 강도가 너무 약하면 보이드끼리 겹치고, 응집 강도가 너무 강하면 한 점에 뭉칩니다. 세 강도의 균형이 중요합니다.
+
+### 5. 활용 분야
+
+- **영화와 게임**: 새떼, 물고기떼, 군중 장면 만들기.
+- **로봇 공학**: 여러 로봇이 함께 움직이는 방법 연구.
+- **제너레이티브 아트**: 무리가 흘러가는 모습을 그린 작품.
+
+### 직접 실험해 보기
+
+- **응집 강도**를 0.001과 0.02로 바꿔 보세요. 무리가 흩어지는지, 한 점으로 뭉치는지 비교해 보세요.
+- **정렬 강도**를 0.01과 0.2로 바꿔 보세요. 보이드들이 같은 방향으로 얼마나 빨리 맞춰지는지 관찰해 보세요.
+- **분리 강도**를 0.1과 2.0으로 바꿔 보세요. 보이드끼리 얼마나 떨어져서 날아가는지 확인해 보세요.
+- **보이드 개수**를 20과 500으로 바꿔 보세요. 개체 수에 따라 무리의 모양이 어떻게 달라지는지 살펴보세요. 이 값은 바꾸면 다시 시작합니다.
 
 <!-- en -->
 
-Boids / Flocking is Craig Reynolds' flocking algorithm that simulates realistic collective behavior with just three rules: cohesion, alignment, and separation. Since each individual only perceives local neighbors, it demonstrates distributed system characteristics.
+**Boids / Flocking** imitates flocks of birds or schools of fish. Each boid follows three simple rules that use only its nearby neighbors: separation keeps it from crowding others, alignment matches the average direction, and cohesion moves it toward the group's center. No leader is needed, yet the whole flock moves together. Craig Reynolds proposed these rules in 1986.
+
+**How it works.** Each frame, every boid adds the three forces to its velocity, limits its speed, and moves. Boids that leave one edge of the screen reappear on the other side.
+
+**Try it.** Change the strength of each rule to see how the flock spreads out, aligns, or clumps together.

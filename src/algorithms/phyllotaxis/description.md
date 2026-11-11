@@ -1,44 +1,63 @@
-**Phyllotaxis**(잎 배열)는 **식물의 잎, 꽃잎, 씨앗이 효율적으로 배치되는 자연의 패턴**을 **황금비(Golden Ratio)** 기반 수학적으로 표현하는 알고리즘입니다. 각 점은 **중심에서부터 일정한 간격으로 멀어지면서** **약 137.5도의 황금각(Golden Angle)** $\theta = \frac{2\pi}{\phi^2}$ (여기서 $\phi = \frac{1+\sqrt{5}}{2}$)만큼 **반복 회전**하여 배치됩니다. 이 극도로 단순한 규칙만으로도 해바라기 씨앗, 솔방울, 선인장 비늘, 파인애플 표면 등에서 보이는 완벽한 나선 구조가 자연스럽게 형성됩니다. 자연의 성장 원리를 간결한 수식으로 구현할 수 있기 때문에 제너레이티브 아트에서 가장 널리 사용되는 알고리즘 중 하나입니다.
+**Phyllotaxis**(잎차례)는 식물의 **잎, 씨앗, 꽃잎이 자리 잡는 규칙**을 흉내 낸 알고리즘입니다. 해바라기 씨앗이나 솔방울을 보면 나선 모양이 보이는데, 이 모양을 아주 단순한 규칙 두 개로 만들 수 있습니다.
 
-### 1. 핵심 수학적 원리
-1. **극좌표 표현:**
-   - 점 $i$의 위치 (0부터 시작):
-     - 반지름: $r_i = c \sqrt{i}$ (여기서 $c$는 간격 상수)
-     - 각도: $\theta_i = i \times \phi_{\text{golden}} = i \times 137.508°$ (황금각)
+### 1. 핵심 원리
 
-2. **황금각 정의:**
-   - 황금비: $\phi = \frac{1+\sqrt{5}}{2} \approx 1.618$
-   - 황금각: $\theta_{\text{golden}} = \frac{2\pi}{\phi^2} = 2\pi(1 - \frac{1}{\phi}) \approx 137.508°$
-   - 이 각도는 $360° / \phi^2 \approx 137.508°$로도 표현됨
+점을 하나씩 찍을 때마다 두 가지를 정합니다.
 
-3. **직교좌표 변환:**
-   - $x_i = r_i \cos(\theta_i) = c\sqrt{i} \cos(i \times 137.508°)$
-   - $y_i = r_i \sin(\theta_i) = c\sqrt{i} \sin(i \times 137.508°)$
-   - 중심 이동: $(x_i, y_i) \leftarrow (x_i + \text{centerX}, y_i + \text{centerY})$
+**(1) 거리: 중심에서 얼마나 멀리 있을지**
 
-4. **자기유사성(Self-Similarity):**
-   - 모든 규모에서 동일한 나선 구조 반복
-   - 부분 구조가 전체와 유사 → 프랙탈 특성
+$$r_i = c \cdot \sqrt{i}$$
 
-### 2. 주요 특징 및 장점
-- **극도의 우아함:** 황금각 하나만으로 무한히 정교한 나선 패턴 생성.
-- **자연 친화성:** 생물학적으로 검증된 식물 성장 패턴과 정확히 일치.
-- **수학적 아름다움:** 황금비의 신비한 성질을 시각화.
-- **계산 효율성:** $O(n)$의 단순 계산으로 수백만 점 배치 가능.
+- $i$는 점의 번호입니다. 0번 점은 가운데에 있고, 번호가 커질수록 바깥으로 나갑니다.
+- $c$는 **나선 간격**입니다. 이 값이 클수록 점 사이가 넓어집니다.
+- 거리를 $i$가 아니라 $\sqrt{i}$로 정하는 이유가 있습니다. 바깥쪽은 원의 둘레가 길어서 점을 같은 간격으로 흩으면 밀도가 낮아집니다. 제곱근을 쓰면 점이 많아질수록 **면적당 점의 개수가 거의 일정하게** 유지됩니다.
 
-### 3. 구현 시 고려 사항
-- **간격 상수 $c$:** 작으면 조밀한 나선, 크면 성근 나선; 일반적으로 1~10 범위.
-- **점 개수:** 많을수록 정밀한 나선; 보통 500~2000개.
-- **시각화:** 점의 크기, 색상을 거리나 인덱스에 따라 변화시켜 3D 효과.
-- **회전 & 스케일:** 전체 패턴을 회전하거나 스케일 변경으로 다양한 표현.
+**(2) 각도: 몇 도 돌아서 찍을지**
 
-### 4. 활용 분야
-- **Generative Art:** 황금비 기반 추상 미술, 음악 시각화, 설치 미술.
-- **자연 시뮬레이션:** 게임, 영화에서 식물 자동 생성.
-- **데이터 시각화:** 분류 라벨 배치, 네트워크 노드 배치.
-- **교육:** 황금비, 나선, 자기유사성, 프랙탈의 실제 사례.
-- **3D 그래픽:** 구 표면의 균일한 점 샘플링 (반구 나선).
+$$\theta_i = i \times 137.5^\circ$$
+
+- 137.5도는 **황금각**이라고 부릅니다. 360도를 황금비의 제곱($\phi^2 \approx 2.618$)으로 나눈 값입니다.
+- 매번 137.5도씩 돌면, 점들이 어느 한 방향으로 줄지어 서지 않고 가장 고르게 흩어집니다. 이 각도를 바꾸면 모양이 바로 달라집니다.
+
+두 값을 극좌표에서 화면의 $x$, $y$ 좌표로 바꾸면 점의 위치가 됩니다.
+
+$$x_i = r_i \cos\theta_i, \quad y_i = r_i \sin\theta_i$$
+
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 점을 900개 찍습니다. 각 점의 거리와 각도를 위 식으로 계산합니다.
+2. 점의 **크기**는 가운데에서 크고 바깥에서 작아집니다.
+3. 점의 **밝기와 투명도**도 가운데에서 진하고 바깥에서 옅어집니다. 그래서 공간에 깊이감이 생깁니다.
+4. 이 과정을 매 프레임 다시 그립니다. 값을 바꾸면 바로 반영됩니다.
+
+### 3. 이 알고리즘의 장점
+
+- **규칙이 단순함**: 식 두 개면 충분합니다.
+- **자연스러운 모양**: 실제 식물의 나선과 많이 닮았습니다.
+- **다양한 응용**: 점의 크기와 색을 바꾸면 꽃, 별, 그래픽 패턴으로 바뀝니다.
+
+### 4. 구현할 때 주의할 점
+
+- **각도를 아주 조금만 틀려도** 모양이 크게 바뀝니다. 예를 들어 137도와 137.5도는 바깥쪽에서 전혀 다른 나선을 만듭니다.
+- **점이 너무 많으면** 점끼리 겹쳐서 흐려 보입니다. 점 크기를 점 개수에 맞춰 조절하세요.
+- **각도 단위**에 주의하세요. 많은 언어의 삼각함수는 라디안을 쓰므로 도 단위를 라디안으로 바꿔야 합니다.
+
+### 5. 활용 분야
+
+- **제너레이티브 아트**: 꽃과 나선을 닮은 추상 그림.
+- **자연 시뮬레이션**: 게임이나 영화에 나오는 식물 모양을 자동으로 만듭니다.
+- **3D 그래픽**: 공 표면에 점을 고르게 뿌릴 때 같은 원리를 씁니다.
+
+### 직접 실험해 보기
+
+- **회전 각도**를 137.5에서 120으로 바꿔 보세요. 점들이 세 줄기로 나뉘는 것을 볼 수 있습니다.
+- **나선 간격**을 2로 줄이고 20으로 늘려 보세요. 점들이 촘촘해지거나 성기게 되는 모습을 확인해 보세요.
+- **중심 점 크기**와 **외곽 점 크기**를 같은 값으로 맞춰 보세요. 크기 차이가 깊이감을 만든다는 것을 알 수 있습니다.
 
 <!-- en -->
 
-Phyllotaxis models the natural arrangement of leaves, petals, and seeds using the golden angle—approximately 137.5 degrees, derived from the golden ratio φ ≈ 1.618. Each point moves radially outward (radius proportional to √i) while rotating by the golden angle, creating the spirals seen in sunflowers, pinecones, and cacti. Despite simplicity, this rule produces mathematically optimal packing: no point crowds another, and resources are equidistributed across all scales. It is a quintessential example of how minimal mathematical constraints generate infinite organic beauty.
+**Phyllotaxis** copies the way leaves, seeds, and petals are arranged on real plants. Sunflower seeds and pinecones show spiral patterns, and a few simple rules can create them. Each point is placed at a distance from the center that grows with the square root of its number, and it is rotated by the golden angle, about 137.5 degrees.
+
+**Why these two rules?** The square-root distance keeps the points evenly spread, so they do not crowd together in the center or thin out at the edge. The golden angle keeps each new point away from the directions of earlier points, so no clear rows form. Changing the angle changes the whole pattern: for example, 120 degrees creates three separate arms.
+
+**Try it.** Change the spacing, the angle, and the point sizes to see how the spiral changes.

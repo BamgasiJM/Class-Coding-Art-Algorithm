@@ -6,50 +6,32 @@ export default {
   longDescription: parseDescription(descriptionMd),
   sketch,
   params: [
-    { 
-      key: 'agentCount', 
-      label: '에이전트 수', 
-      min: 1000, 
-      max: 10000, 
-      step: 100, 
-      default: 4000, 
-      restart: true 
+    {
+      key: 'agentCount',
+      label: '에이전트 수',
+      min: 1000,
+      max: 10000,
+      step: 100,
+      default: 4000,
+      restart: true
     },
-    { 
-      key: 'sensorAngle', 
-      label: '센서 각도 (도)', 
-      min: 10, 
-      max: 90, 
-      step: 1, 
-      default: 35, 
-      restart: false 
+    {
+      key: 'sensorAngle',
+      label: '센서 각도 (도)',
+      min: 10,
+      max: 90,
+      step: 1,
+      default: 35,
+      restart: false
     },
-    { 
-      key: 'sensorDist', 
-      label: '센서 거리', 
-      min: 2, 
-      max: 30, 
-      step: 1, 
-      default: 10, 
-      restart: false 
-    },
-    { 
-      key: 'turnAngle', 
-      label: '회전 각도 (도)', 
-      min: 5, 
-      max: 90, 
-      step: 1, 
-      default: 45, 
-      restart: false 
-    },
-    { 
-      key: 'evaporationRate', 
-      label: '트레일 감쇠율 (Alpha)', 
-      min: 1, 
-      max: 50, 
-      step: 1, 
-      default: 8, 
-      restart: false 
+    {
+      key: 'evaporationRate',
+      label: '트레일 감쇠율 (Alpha)',
+      min: 1,
+      max: 50,
+      step: 1,
+      default: 8,
+      restart: false
     },
   ],
   related: ['Flow Field', 'Boids / Flocking', 'Reaction-Diffusion'],

@@ -1,44 +1,52 @@
-**Circle Packing**(원 채우기)은 정해진 공간 내에 서로 겹치지 않으면서 가능한 많은 원들을 배치하는 **기하학적 최적화 문제**로, 각 원이 제약을 지키며 커지는 과정을 통해 자연계의 **공간 점유**(Space Occupancy) 현상을 모델링합니다. 세포, 거품 구조, 자갈밭, 꽃 씨앗 배치 등 자연에서 볼 수 있는 최적화된 배치 패턴을 수학적으로 재현하는 방법입니다. 이런 조건 기반의 성장을 통해 복잡하지만 질서 있는 아트워크가 자동으로 생성 됩니다.
+**Circle Packing**(원 채우기)은 **겹치지 않는 원을 빈 공간에 가득 채우는** 방법입니다. 원은 아주 작게 시작해서 조금씩 커지고, 다른 원이나 벽에 닿으면 멈춥니다. 그래서 큰 원과 작은 원이 섞여 있는 모양이 나옵니다. 벌집이나 돌멩이가 쌓인 모양을 떠올리면 됩니다.
 
-### 1. 핵심 수학적 원리
-각 원의 위치와 크기는 다음의 제약 조건을 만족해야 합니다:
+### 1. 핵심 원리
 
-1. **원의 표현:** 원 $C_i = (\mathbf{p}_i, r_i)$ (중심 $\mathbf{p}_i$, 반지름 $r_i$)
+**(1) 자리 찾기**: 매 프레임 화면의 무작위 위치를 몇 번 골라 봅니다. 그 자리에 놓은 원이 기존 원들과 **겹치지 않으면** 새 원을 만듭니다. 이때 원의 반지름은 아주 작게 시작합니다.
 
-2. **비겹침 제약**(Non-Overlapping Constraint):
-   - 임의의 두 원 $C_i, C_j$에 대해: $\|\mathbf{p}_i - \mathbf{p}_j\| \geq r_i + r_j + \epsilon$ (여기서 $\epsilon$는 최소 갭)
+**(2) 겹침 검사**: 두 원 사이 거리가 두 반지름의 합과 최소 간격을 더한 값보다 작으면 겹친 것입니다.
 
-3. **경계 제약**(Boundary Constraint):
-   - 모든 원이 캔버스 내부에 포함: $\|\mathbf{p}_i\| + r_i \leq R_{canvas}$
+$$d < r_1 + r_2 + \text{최소 간격}$$
 
-4. **성장 과정:** 새 원이 추가될 때:
-   - 초기 반지름: $r_{min}$
-   - 각 프레임에서 반지름 증가: $r_i \leftarrow r_i + \Delta r$ (growth rate)
-   - 성장 중단 조건: 다른 원이나 경계와 충돌
+- $d$는 두 원의 중심 사이 거리입니다.
+- $r_1$, $r_2$는 두 원의 반지름입니다.
 
-5. **충돌 검사:** 각 원에 대해, 주변의 모든 기존 원과의 거리를 확인:
-   - $d_{ij} = \|\mathbf{p}_i - \mathbf{p}_j\|$
-   - $d_{ij} < r_i + r_j + \epsilon$이면 성장 중단
+**(3) 성장**: 각 원은 매 프레임 반지름이 **성장 속도**만큼 커집니다. 벽에 닿거나 다른 원과 겹치면 더 이상 커지지 않습니다.
 
-### 2. 주요 특징 및 장점
-- **자연 모방(Biomimicry):** 세포 분열, 유기체 조직화, 거품 형성 등 자연의 공간 점유 패턴을 정확히 재현합니다.
-- **생성의 아름다움:** 단순한 성장 규칙만으로도 복잡하고 조화로운 배치가 자동으로 형성되며, 각 원의 크기 분포는 특별한 시각적 패턴을 만듭니다.
-- **공간 활용도:** 탐욕적(Greedy) 접근으로도 상당한 수준의 공간 채우기를 달성하며, 이는 NP-완전 문제인 원 패킹 문제의 실용적 근사 해법입니다.
-- **실시간 변화:** 실시간으로 성장이 진행되어, 마치 살아있는 유기체가 자라는 듯한 변화를 관찰할 수 있습니다.
+### 2. 이 시뮬레이션의 작동 순서
 
-### 3. 구현 시 고려 사항
-- **공간 분할 최적화:** 모든 원과의 거리를 매번 확인하면 $O(n^2)$이 되므로, 공간 분할 구조(Grid, Quadtree)를 사용하여 인접한 원만 검사합니다.
-- **프레임당 시도 횟수:** 각 프레임에서 여러 위치에 새 원 생성을 시도하되, 설정한 최대 개수를 초과하지 않도록 관리합니다.
-- **초기 반지름과 성장 속도의 균형:** 초기 반지름이 크면 원이 많이 들어가지 않고, 성장 속도가 느리면 렌더링이 오래 걸립니다.
-- **시각적 표현:** 원의 크기, 위치를 바탕으로 선 굵기를 동적으로 조정하여 시각적 계층감을 강화합니다.
+1. 매 프레임 새 원을 놓을 자리를 몇 번 (5번) 무작위로 고릅니다. 빈자리를 찾으면 원을 하나 만듭니다.
+2. 아직 자라고 있는 원마다 벽이나 다른 원과 닿았는지 검사합니다.
+3. 닿지 않은 원은 반지름을 조금 키웁니다.
+4. 원을 그립니다. 반지름이 클수록 선이 굵어집니다.
 
-### 4. 활용 분야
-- **Generative Art & 데이터 시각화:** 통계 데이터를 원의 크기로 인코딩하는 bubble chart, 추상 예술 작품 생성.
-- **레이아웃 설계:** UI 요소 배치, 포스터/전시회 디자인에서 자동 배치 알고리즘으로 활용.
-- **생물학 시뮬레이션:** 세포 조직, 미생물 군집, 조직 성장 모델링.
-- **게임 월드 생성:** 식물 배치, 보물 숨김, NPC 스폰 위치의 자연스러운 배치.
-- **재료 과학:** 다공성 재료, 거품 구조, 입자 패킹의 구조적 특성 분석.
+### 3. 이 알고리즘의 장점
+
+- **빈틈없이 채워짐**: 규칙만 지키면 빈 공간이 자연스럽게 채워집니다.
+- **크기가 자연스럽게 섞임**: 먼저 생긴 큰 원 사이에 작은 원이 끼어듭니다.
+- **돌멩이, 세포, 거품 같은 모양**을 흉내 내기 좋습니다.
+
+### 4. 구현할 때 주의할 점
+
+- 원이 많아지면 겹침 검사가 많아집니다. 이 예제는 원이 최대 개수에 이르면 새 원을 만들지 않습니다.
+- 성장 속도가 너무 빠르면 원이 서로 밀고 들어가지 못하고 한꺼번에 멈춥니다. 천천히 자라야 빈틈이 잘 채워집니다.
+
+### 5. 활용 분야
+
+- **디자인**: 동그라미 패턴 포스터, 버블 차트.
+- **자연 모델링**: 세포, 거품, 돌멩이의 배치.
+- **제너레이티브 아트**: 원으로 채운 추상 작품.
+
+### 직접 실험해 보기
+
+- **성장 속도**를 0.1과 1.5로 바꿔 보세요. 빈틈이 얼마나 잘 채워지는지 비교해 보세요.
+- **최소 간격**을 1과 8로 바꿔 보세요. 원 사이 여백이 어떻게 달라지는지 확인해 보세요.
+- **최대 원 개수**를 30과 300으로 바꿔 보세요. 원이 많아질 때 화면이 어떻게 채워지는지 살펴보세요. 이 값은 바꾸면 다시 시작합니다.
 
 <!-- en -->
 
-Circle Packing is a geometric packing algorithm that populates a defined space with non-overlapping circles. New circles are randomly spawned at minimal sizes and organically grow until they contact the boundary of an adjacent circle or the edge of the canvas. This constrained scaling models natural saturation and growth phenomena, resulting in intricate visual hierarchies and structures reminiscent of biological cells and stone arrangements.
+**Circle Packing** fills a space with circles that never overlap. Each circle starts very small and grows until it touches a wall or another circle. The result has big and small circles mixed together, like bubbles or pebbles.
+
+**How it works.** Every frame, the sketch tries a few random spots. A new circle is placed only if it does not overlap any existing circle. Each circle then grows a little each frame, and it stops when it touches the wall or another circle.
+
+**Try it.** Change the growth speed and the minimum gap to see how the empty space is filled.

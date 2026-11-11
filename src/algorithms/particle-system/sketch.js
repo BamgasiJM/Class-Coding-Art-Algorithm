@@ -58,6 +58,7 @@ export default function particleSystemSketch(p, size, params = {}) {
     // 파티클 업데이트 및 그리기
     const gravity = P.gravity();
     const lifeDecay = P.lifeDecay();
+    const maxLife = P.particleLife();
 
     for (let i = particles.length - 1; i >= 0; i--) {
       let pt = particles[i];
@@ -71,7 +72,8 @@ export default function particleSystemSketch(p, size, params = {}) {
         particles.splice(i, 1);
       } else {
         let c = p.color(accentColor);
-        c.setAlpha(pt.life);
+        // 수명이 많이 남을수록 진하게, 줄어들수록 옅게 (수명 전체를 0~255에 대응)
+        c.setAlpha((pt.life / maxLife) * 255);
         p.fill(c);
         p.noStroke();
         p.ellipse(pt.x, pt.y, pt.size, pt.size);

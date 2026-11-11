@@ -166,8 +166,6 @@ export default function physarumSlimeMoldSketch(p, size, params = {}) {
     // 픽셀 주입용 단일 채널 성분 객체로 재생성
     accentRGB = { r: p.red(ac), g: p.green(ac), b: p.blue(ac) };
 
-    // 디버그용 로그 출력
-    console.log("Setup complete. Accent color:", accentRGB);
 
     // 파라미터 구조체에 정의된 에이전트 수만큼 인스턴스 배열 루프 할당 생성
     const count = P.agentCount();

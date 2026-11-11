@@ -1,54 +1,55 @@
-**Dithering**(디더링)은 **제한된 색상 팔레트**를 사용하여 연속적인 톤(Continuous Tone)을 재현하는 **신호 처리 및 그래픽 양자화 기법**입니다. 컴퓨터의 초기 시대 모니터와 프린터의 색상 해상도가 제한되었을 때, 청색 소음(Blue Noise)이나 오차 확산(Error Diffusion)을 통해 제한된 색깔 수로도 풍부한 톤을 인지하도록 시각을 속이는 기법입니다. 현대에는 레트로 스타일의 구현, 이미지 압축에서 의도적으로 사용되며 확률적 패턴의 수학적 아름다움과 실용성을 동시에 보여줍니다.
+**Dithering**(디더링)은 **색이 많은 그림을 흰색과 검은색(또는 두 가지 색)만으로 표현하면서도, 중간 밝기가 느껴지도록 점의 배치를 조절하는** 방법입니다. 옛날 신문 사진이나 흑백 프린터, 초기 게임 화면에서 많이 쓰였습니다. 점이 촘촘하면 어둡게, 듬성듬성하면 밝게 보입니다.
 
-### 1. 핵심 수학적 원리
-디더링의 기본 과정은 다음과 같습니다:
+### 1. 핵심 원리
 
-1. **선순 이진화(Naive Thresholding):**
-   - 입력 밝기값 $L(x, y) \in [0, 1]$에 대해 임계값 $\theta$와 비교:
-   - $O(x, y) = \begin{cases} 1 & \text{if } L(x, y) > \theta \\ 0 & \text{otherwise} \end{cases}$
-   - 문제: 연속 톤이 급격한 흑백으로 변하여 밴딩(Banding) 현상 발생
+이 예제는 두 가지 방법을 보여 줍니다.
 
-2. **Bayer 행렬(Ordered Dithering):**
-   - 주기적인 패턴 행렬 $B$ (예: 2×2, 4×4, 8×8)를 사용
-   - Bayer 8×8 행렬: 각 셀에 0~63 사이의 고유값 배치
-   - 수정된 임계값: $\theta' = B[x \bmod n, y \bmod n] / 64$ (정규화)
-   - 출력: $O(x, y) = L(x, y) > \theta'$?
-   - 장점: 빠른 계산, 타일링 가능
-   - 단점: 규칙적 패턴이 눈에 띔
+**(1) 베이어 행렬 방식 (순서 디더링)**: 8×8 크기의 기준 표를 씁니다. 표의 각 칸에는 0부터 63까지의 값이 한 번씩 들어 있습니다. 그림의 각 픽셀 밝기를 표의 값과 비교해서, 밝으면 켜고 어두우면 끕니다. 표의 값이 골고루 섞여 있어서, 같은 밝기의 영역은 같은 점 무늬를 가집니다.
 
-3. **Floyd-Steinberg(오차 확산, Error Diffusion):**
-   - 현재 픽셀의 이진화 오차를 주변 픽셀로 분산
-   - 오차: $e(x, y) = L(x, y) - O(x, y)$
-   - 주변 픽셀에 오차 전파:
-     - 우측: $L(x+1, y) += e(x, y) \cdot 7/16$
-     - 좌하: $L(x-1, y+1) += e(x, y) \cdot 3/16$
-     - 중앙하: $L(x, y+1) += e(x, y) \cdot 5/16$
-     - 우하: $L(x+1, y+1) += e(x, y) \cdot 1/16$
-   - 장점: 더 자연스러운 톤 표현, 인지적 품질 높음
-   - 단점: 순차적 처리로 인한 느린 계산
+$$\text{켜짐} \iff \text{밝기} > \text{기준값} + (\text{임계점} - 0.5)$$
 
-4. **색상 팔레트 확장:** 이진(2색) 대신 다중 색상(N색) 팔레트를 사용:
-   - 각 색상까지의 최소 거리 픽셀 선택 후 오차 확산
+- 기준값은 표에서 찾은 값입니다. 0과 1 사이로 바꿔서 씁니다.
+- **임계점**을 올리면 더 밝은 곳만 켜지고, 내리면 더 많은 점이 켜집니다.
 
-### 2. 주요 특징 및 장점
-- **시각적 착각(Optical Illusion):** 제한된 색깔로 인쇄/표시하면서도 인간의 눈이 평균 효과로 더 많은 톤을 지각하도록 함.
-- **역사적 중요성:** 초기 컴퓨터 모니터(1비트 흑백), 노키아 휴대폰 디스플레이, 점자 프린팅 등에서 필수 기술.
-- **예술적 가치:** 현대에는 의도적으로 레트로 미학, 픽셀 아트, 고전적 인쇄 느낌을 재현하는 도구로 활용.
-- **수학적 우아함:** 단순한 규칙으로부터 청색 소음(Blue Noise) 스펙트럼의 최적화를 달성.
+**(2) 오차 확산 방식 (플로이드-슈타인베르크)**: 픽셀을 하나씩 순서대로 처리합니다. 한 픽셀을 켜거나 끌 때 생긴 **오차**(원래 밝기와 실제 밝기의 차이)를 오른쪽과 아래쪽 이웃에 나눠 줍니다. 그러면 이웃이 그 오차를 보정하면서, 전체 평균 밝기가 원본에 가깝게 유지됩니다.
 
-### 3. 구현 시 고려 사항
-- **Bayer 패턴 생성:** 2의 거듭제곱(2, 4, 8, 16)의 행렬을 미리 계산하여 룩업 테이블로 사용하면 효율적.
-- **색 공간 선택:** RGB, 그레이스케일, HSL 등에서 디더링 적용 대상(예: 명도)을 명확히 정의.
-- **임계값 조정:** 이미지의 평균 밝기에 따라 전체 임계값을 오프셋하여, 너무 어둡거나 밝은 결과를 보정.
-- **에지 처리:** Floyd-Steinberg 적용 시 이미지 경계에서 오차 전파가 유효한 범위를 유지.
+$$\text{오차 } e \text{ 분배: } \frac{7}{16} \text{(오른쪽)},\ \frac{3}{16},\ \frac{5}{16},\ \frac{1}{16} \text{(아래 이웃들)}$$
 
-### 4. 활용 분야
-- **구식 미디어 재현:** 팩스, 초기 컴퓨터 그래픽, 신문 인쇄 느낌의 감정적 표현.
-- **레트로 스타일:** 8비트/16비트 게임 스타일의 이미지 변환, 픽셀 아트 생성.
-- **이미지 압축:** 색 깊이를 줄이면서도 시각적 품질을 유지 (예: GIF, 제한된 팔레트 PNG).
-- **인쇄 기술:** 색상 프린터에서 여러 색 판(CMYK)으로의 분해, 점 크기 조정을 통한 톤 표현.
-- **데이터 시각화:** 제한된 색상으로 그래디언트나 히트맵을 표현하되, 정보 손실을 최소화.
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 사진을 격자 크기로 줄이고, 픽셀마다 밝기를 구합니다. 밝기 보정으로 전체를 밝게 또는 어둡게 조절할 수 있습니다.
+2. 디더링 방식에 따라 점을 찍습니다.
+   - 베이어 방식은 화면 전체를 한 번에 찍습니다.
+   - 오차 확산 방식은 몇 줄씩 나눠서 아래로 내려가며 찍습니다.
+3. 켜진 점은 강조색, 꺼진 점은 어두운 배경색으로 칠합니다.
+
+### 3. 이 알고리즘의 장점
+
+- 색을 쓰지 않고도 **중간 밝기를 표현**할 수 있습니다.
+- 계산이 가볍고 결과가 독특한 질감을 가집니다.
+- 두 방식을 비교하면 같은 목적을 가진 방법이 얼마나 다른 질감을 내는지 알 수 있습니다.
+
+### 4. 구현할 때 주의할 점
+
+- 오차 확산은 앞 픽셀의 결과가 뒤 픽셀에 영향을 주므로, 순서를 바꾸면 결과가 달라집니다.
+- 베이어 방식은 기준 표의 크기에 따라 패턴이 달라집니다. 이 예제는 8×8 표 하나만 씁니다.
+
+### 5. 활용 분야
+
+- **인쇄**: 흑백 프린터와 신문 사진의 중간 톤 표현.
+- **디지털 그래픽**: 색이 적은 화면에서 사진 표현하기.
+- **제너레이티브 아트**: 점 무늬와 질감을 활용한 작품.
+
+### 직접 실험해 보기
+
+- **디더링 방식**을 0과 1로 바꿔 보세요. 같은 사진이 두 방식에서 어떻게 다르게 보이는지 비교해 보세요.
+- **임계점**을 0.1과 0.9로 바꿔 보세요. 점이 많이 켜지는지, 적게 켜지는지 관찰해 보세요.
+- **밝기 보정**을 -0.5와 0.5로 바꿔 보세요. 사진이 전체적으로 어두워지거나 밝아지는 것을 확인해 보세요. 이 값은 바꾸면 다시 시작합니다.
 
 <!-- en -->
 
-Dithering is a quantization technique that reproduces continuous tones using a restricted color palette. This sketch binarizes a smoothly generated brightness field with both methods, letting you tune the scale, threshold, and image brightness correction in real time via parameters.
+**Dithering** shows a picture with only two colors while keeping the feeling of in-between tones. Dense dots look dark, and sparse dots look light. This sketch shows two methods. Ordered dithering compares each pixel with a fixed 8 by 8 threshold table. Error diffusion, the Floyd-Steinberg method, turns each pixel on or off and passes the leftover error to its neighbors, so the average brightness stays close to the original.
+
+**How it works.** The image is shrunk to the grid size, and each cell's brightness is read. The threshold bias moves the cutoff brighter or darker. In error diffusion, the error is spread to the right and to the cells below with weights of seven sixteenths, three sixteenths, five sixteenths, and one sixteenth.
+
+**Try it.** Switch between the two methods and change the threshold bias to see how the dots change.

@@ -1,44 +1,56 @@
-**Reaction-Diffusion**(반응 확산)은 **공간상에서 확산되며 상호작용하는 두 종류의 화학 물질** (또는 **형태형성 인자, Morphogen**)의 역학(Dynamics)을 모델링하는 알고리즘입니다. **Gray-Scott 모델**은 공급율(Feed), 소비율(Kill), 확산 계수(Diffusion Rate)를 통해 **자기 조직화된 패턴(Self-Organized Pattern)** 을 생성합니다. 이는 **Turing 불안정성(Turing Instability)**이라는 현상에서 비롯되는데, **확산이 없을 때 안정한 평형**이 **확산 존재 하에서 불안정화**되어 공간적 구조가 형성됩니다. 얼룩말의 줄무늬, 표범의 반점, 산호의 골격, 박테리아 집단 배치 등을 정확히 재현하여, **전역 설계 없이 국소 규칙만으로 복잡한 형태형성이 일어나는 생물학적 현상**을 증명합니다.
+**Reaction-Diffusion**(반응-확산)은 **두 물질이 퍼지면서 서로 반응하는 과정**을 흉내 낸 방법입니다. 표범의 점무늬, 얼룩말의 줄무늬, 산호의 주름이 이런 과정으로 생긴다고 알려져 있습니다. 1952년 앨런 튜링이 이 아이디어를 제안했습니다. 이 예제는 가장 많이 쓰는 **Gray-Scott** 모델입니다.
 
-### 1. 핵심 수학적 원리
-1. **두 화학 물질:**
-   - $U(x, y, t)$: 활성제(Activator) - 자기 촉진, 상대방 억제
-   - $V(x, y, t)$: 억제제(Inhibitor) - 활성제 억제, 확산 느림
+### 1. 핵심 원리
 
-2. **Gray-Scott 미분 방정식:**
-   - $\frac{\partial U}{\partial t} = D_U \nabla^2 U - UV^2 + F(1 - U)$
-   - $\frac{\partial V}{\partial t} = D_V \nabla^2 V + UV^2 - (F+k)V$
-   - $D_U, D_V$: 확산 계수
-   - $F$: 공급율(Feed rate) - $U$ 공급, $V$ 제거
-   - $k$: 소비율(Kill rate) - $V$ 소비 속도
+화면의 칸마다 물질 A와 B가 있습니다. 각 칸의 값은 0부터 1 사이입니다. 시간이 지나면 두 물질은 세 가지 일을 합니다.
 
-3. **Laplacian (라플라시안) 계산:**
-   - 이산화: 2D 격자에서 각 셀의 이웃과의 차이 이용
-   - $\nabla^2 U[i,j] \approx U[i+1,j] + U[i-1,j] + U[i,j+1] + U[i,j-1] - 4U[i,j]$
+1. **퍼짐**: 각 칸은 이웃과 값을 나눕니다. A는 B보다 두 배 빨리 퍼집니다.
+2. **반응**: A와 B가 만나면 B가 A를 먹고 B가 늘어납니다.
+3. **공급과 소비**: A는 계속 공급되고, B는 일정한 비율로 사라집니다.
 
-4. **수치 적분:**
-   - **전진 오일러(Forward Euler) 방법**: $U_{\text{new}} = U + \Delta t \cdot \frac{\partial U}{\partial t}$
-   - $\Delta t$는 작아야 안정성 보장 (보통 0.1~1.0)
+수식으로 쓰면 다음과 같습니다.
 
-### 2. 주요 특징 및 장점
-- **자기 조직화:** 외부 패턴 입력 없이 자발적 구조 형성.
-- **생물학적 정확성:** 실제 동물 무늬의 형성 메커니즘 재현.
-- **매개변수 민감성:** $F, k$ 값 변화로 다양한 패턴 (줄무늬 ↔ 점무늬).
-- **무한 복잡도:** 공간 해상도가 높을수록 세밀한 구조 드러남.
+$$\frac{\partial A}{\partial t} = D_A \nabla^2 A - AB^2 + f(1-A)$$
 
-### 3. 구현 시 고려 사항
-- **격자 크기:** 보통 256×256 또는 512×512; 해상도에 따라 연산량 급증.
-- **초기 조건:** 일반적으로 $U = 1, V = 0$ + 중앙에 작은 교란.
-- **시간 스텝:** 너무 크면 불안정, 너무 작으면 느림; 동적 조정 가능.
-- **주기적 경계(Toroidal):** 경계 효과 제거, 자연스러운 패턴.
+$$\frac{\partial B}{\partial t} = D_B \nabla^2 B + AB^2 - (k+f)B$$
 
-### 4. 활용 분야
-- **생물학 교육:** 형태형성, Turing 패턴, 자기 조직화의 수학적 기초.
-- **Generative Art:** 유기적 무늬, 추상 패턴, 음악 시각화.
-- **텍스처 생성:** 표피 무늬, 암석 표면, 식물 패턴 합성.
-- **데이터 시각화:** 복잡한 동역학계 패턴의 시각화.
-- **게임 개발:** 절차적 생물학적 맵, 생물 체표 텍스처.
+- $\nabla^2$는 **퍼짐**입니다. 주변 칸의 평균에서 내 값을 뺀 것이라고 생각하면 됩니다.
+- $AB^2$는 **반응**입니다. A와 B가 만나는 양입니다.
+- $f$는 **공급율**(Feed), $k$는 **소비율**(Kill)입니다.
+- $D_A$와 $D_B$는 퍼지는 빠르기입니다. 이 예제에서는 A가 B보다 두 배 빠릅니다.
+
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 처음에는 A가 칸 전체에 가득 차 있고, 가운데 작은 사각형에만 B를 넣습니다.
+2. 매 프레임마다 계산을 여러 번 합니다(시뮬레이션 속도). 계산은 80×80 격자에서 하고, 화면 크기로 키워서 보여 줍니다.
+3. 칸마다 A와 B의 차이에 따라 색을 입힙니다. 강조색이 진한 곳은 A가 많고 B가 적은 곳입니다.
+
+### 3. 이 알고리즘의 장점
+
+- 간단한 규칙 두 개로 **생물 무늬와 닮은 모양**이 나옵니다.
+- 공급율과 소비율의 두 값만 바꿔도 점, 줄무늬, 미로 같은 전혀 다른 패턴이 나옵니다.
+
+### 4. 구현할 때 주의할 점
+
+- 한 프레임에 계산을 여러 번 하면 패턴이 빨리 자라지만, 값이 너무 급하게 바뀌면 화면이 깨질 수 있습니다.
+- 같은 공급율과 소비율이라도 처음 모양에 따라 결과가 달라질 수 있습니다.
+
+### 5. 활용 분야
+
+- **생물학**: 동물 무늬와 조직 모양이 생기는 원리 연구.
+- **그래픽**: 자연스러운 텍스처 만들기.
+- **제너레이티브 아트**: 유기적인 무늬 작품.
+
+### 직접 실험해 보기
+
+- **공급율**을 0.03과 0.06으로 바꿔 보세요. 패턴이 얼마나 빨리 자라는지 비교해 보세요.
+- **소비율**을 0.05와 0.065로 바꿔 보세요. 점과 줄무늬가 어떻게 달라지는지 확인해 보세요.
+- **시뮬레이션 속도**를 1로 낮춰서 천천히 자라는 과정을 관찰해 보세요.
 
 <!-- en -->
 
-Reaction-Diffusion models the mathematical interaction of two chemical substances (or morphogens) diffusing through space and reacting with one another. The Gray-Scott model describes feed, kill, and diffusion rates that generate self-organized patterns: stripes, spots, spirals, and labyrinths. These patterns emerge from Turing instability, where a stable equilibrium becomes unstable under diffusion, causing spatial organization. The algorithm precisely reproduces zebra stripes, leopard spots, coral skeletons, and bacterial colonies—demonstrating how morphogenesis emerges from local biochemical rules, with no global design.
+**Reaction-Diffusion** describes two chemicals that spread out and react with each other. Patterns such as leopard spots, zebra stripes, and coral ridges are often explained this way. Alan Turing proposed the idea in 1952. This sketch uses the Gray-Scott model.
+
+**How it works.** Chemical A is supplied all the time, and chemical B is removed at a steady rate. A spreads about twice as fast as B. Where A and B meet, B turns A into more B. These three actions (spreading, reacting, and supplying or removing) make the pattern.
+
+**Try it.** Change the feed and kill values. Small changes can turn the pattern into spots, stripes, or worm-like shapes.

@@ -1,45 +1,54 @@
-**Spring & Constraint**(탄성과 제약)는 **노드(Node)와 스프링(Spring)** 또는 **거리 제약(Distance Constraint)**으로 이루어진 **물리 기반 시뮬레이션(Physics-Based Simulation)**입니다. 각 스프링은 **훅의 법칙(Hooke's Law)** $\mathbf{F} = -k(|\mathbf{r}| - L_0)\frac{\mathbf{r}}{|\mathbf{r}|}$에 따라 정해진 휴지 길이(Rest Length) $L_0$를 유지하려 하고, **Verlet 적분(Verlet Integration)**을 이용하여 **중력**, **공기 저항(Damping)**, **제약 조건**을 함께 효율적으로 계산합니다. 결과적으로 **천이 흔들리고**, **그물이 변형되고**, **로프가 축 처지는** 등 **부드럽고 자연스러운 탄성 구조(Elastic Structure)**가 표현됩니다. 이는 게임, 영화, 시뮬레이션에서 **천, 로프, 머리카락, 깃발** 등을 효과적으로 표현하는 핵심 기법입니다.
+**Spring & Constraint**(스프링과 제약)은 **점들을 용수철로 이어서 천, 그물, 로프 같은 부드러운 물체를 흉내 내는** 방법입니다. 용수철은 늘어나면 원래 길이로 돌아가려고 당기고, 줄어들면 밀어냅니다. 이 힘의 규칙만으로 천이 늘어지고 흔들리는 모습이 나옵니다.
 
-### 1. 핵심 수학적 원리
-1. **Verlet 적분:**
-   - 위치: $\mathbf{x}(t + \Delta t) = 2\mathbf{x}(t) - \mathbf{x}(t - \Delta t) + \mathbf{a}(t)(\Delta t)^2$
-   - 속도 명시적으로 저장하지 않음 (위치 차이에서 유도)
-   - 장점: 속도 에러 누적 없음, 제약 만족 용이
+### 1. 핵심 원리
 
-2. **힘 계산:**
-   - 중력: $\mathbf{F}_g = m\mathbf{g} = (0, -9.8m)$
-   - 스프링 힘: $\mathbf{F}_s = -k(\ell - L_0)\frac{\mathbf{d}}{|\mathbf{d}|}$ (여기서 $\mathbf{d} = p_j - p_i$, $\ell = |\mathbf{d}|$)
-   - 감속(공기 저항): $\mathbf{F}_d = -c(\mathbf{v})$ (여기서 $c$는 감속 계수)
+**(1) 용수철 힘 (후크의 법칙)**: 두 점이 원래 길이보다 늘어나면 서로를 당기고, 줄어들면 서로를 밉니다. 힘의 크기는 늘어난 만큼에 비례합니다.
 
-3. **거리 제약(Distance Constraint):**
-   - 두 노드 $p_i, p_j$ 사이의 거리를 $L_0$로 강제:
-   - 제약 위반: $\Delta \ell = (|\mathbf{d}| - L_0) / 2$
-   - 수정: $p_i \leftarrow p_i - \Delta \ell \cdot \mathbf{d}/|\mathbf{d}|$, $p_j \leftarrow p_j + \Delta \ell \cdot \mathbf{d}/|\mathbf{d}|$
-   - 여러 반복으로 모든 제약 만족
+$$\mathbf{F} = k \,(|\mathbf{d}| - L)\,\frac{\mathbf{d}}{|\mathbf{d}|}$$
 
-4. **감속(Damping):**
-   - 속도 감소: $\mathbf{v} \leftarrow \mathbf{v} \times (1 - c)$ (여기서 $c \in [0.01, 0.1]$)
-   - 진동 억제, 안정성 향상
+- $\mathbf{d}$는 두 점 사이를 잇는 벡터입니다.
+- $L$은 용수철의 원래 길이입니다. 이 예제에서는 **격자 간격**과 같습니다.
+- $k$는 **스프링 강도**입니다. 값이 클수록 용수철이 단단해집니다.
 
-### 2. 주요 특징 및 장점
-- **효율성:** Verlet 적분으로 속도 계산 불필요; 제약 전파로 명시적 힘 계산 회피.
-- **안정성:** 거리 제약이 보증하는 불변(Invariant); 시간 스텝 크기 허용 범위 넓음.
-- **자연성:** 물리 기반이면서도 계산 비용 낮아 실시간 성능 달성.
-- **유연성:** 고정점(Pin), 외부 힘(Wind), 충돌 처리 추가 용이.
+**(2) 중력**: 맨 윗줄 점들은 고정되어 있고, 나머지 점들은 **중력**으로 아래로 당겨집니다.
 
-### 3. 구현 시 고려 사항
-- **시간 스텝:** 작을수록 정확하지만 느림; 보통 $\Delta t = 0.016$ (60 FPS).
-- **제약 반복 횟수:** 1~3회로 충분; 많을수록 정확하지만 느림.
-- **수렴 기준:** 제약 위반 오차가 임계값 이하일 때 종료.
-- **경계 조건:** 천 모서리 고정, 충돌 처리, 선택적 고정점.
+**(3) 움직임 계산**: 매 프레임 점마다 힘을 더해서 속도를 바꾸고, 속도만큼 위치를 옮깁니다. 속도에는 **감쇠**(약간씩 줄이는 값)를 곱해서, 흔들림이 점점 가라앉게 합니다.
 
-### 4. 활용 분야
-- **게임 개발:** 천, 머리카락, 깃발, 로프 시뮬레이션.
-- **영화 & VFX:** 의류 애니메이션, 매크로 물리 정확도.
-- **건축 시각화:** 포장(Fabric) 구조, 케이블 배치.
-- **Generative Art:** 음악 시각화, 상호작용적 설치 미술.
-- **교육:** 물리 시뮬레이션, 제약 충족 문제 학습.
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 점들을 격자로 놓고, 가로와 세로로 이웃한 점끼리 용수철로 잇습니다.
+2. 맨 위 줄 점은 고정합니다.
+3. 매 프레임 모든 용수철이 두 점에 힘을 줍니다. 중력도 더합니다.
+4. 힘에 따라 속도와 위치를 바꿉니다.
+5. 선과 점을 그립니다. 마우스를 누르면 그 근처 점들이 밀려납니다.
+
+### 3. 이 알고리즘의 장점
+
+- **천, 그물, 로프** 같은 물체를 간단한 규칙으로 만들 수 있습니다.
+- 용수철 강도나 중력만 바꿔도 **딱딱한 모양에서 흐물거리는 모양까지** 다양하게 나옵니다.
+- 게임의 머리카락, 깃발, 옷자락 같은 움직임을 흉내 낼 때 씁니다.
+
+### 4. 구현할 때 주의할 점
+
+- 용수철 강도가 너무 크면 점들이 과하게 떨립니다. 이때는 감쇠를 줄이거나 강도를 낮추세요.
+- 격자 간격이 작을수록 점과 용수철이 많아져서 계산이 무거워집니다.
+
+### 5. 활용 분야
+
+- **게임**: 천, 깃발, 머리카락, 로프 움직임.
+- **로봇과 시뮬레이션**: 부드러운 물체의 움직임 계산.
+- **제너레이티브 아트**: 흔들리는 그물과 천 작품.
+
+### 직접 실험해 보기
+
+- **스프링 강도**를 0.01과 0.15로 바꿔 보세요. 천이 얼마나 부드럽게 늘어지는지 비교해 보세요. 이 값은 재시작 없이 바로 반영됩니다.
+- **중력**을 0과 0.3으로 바꿔 보세요. 중력이 없을 때 천이 어떻게 되는지 확인해 보세요.
+- **격자 간격**을 20과 100으로 바꿔 보세요. 점과 용수철이 촘촘한지 성긴지 비교해 보세요. 이 값은 바꾸면 다시 시작합니다.
 
 <!-- en -->
 
-Spring & Constraint is a physics-based simulation of nodes connected by springs or distance constraints. Using Verlet integration, it efficiently computes gravity, air resistance, and constraint forces. Each spring maintains a fixed rest length via Hooke's Law; distance constraints are iteratively satisfied. The result: cloth that sways naturally, meshes that deform elastically, ropes that sag under gravity. This is a foundational technique in games and film for simulating fabric, hair, and flexible structures with minimal computational cost.
+**Spring & Constraint** connects points with springs to imitate soft objects such as cloth, nets, and ropes. A spring pulls its two ends together when stretched and pushes them apart when compressed. This simple rule produces sagging and swinging motion.
+
+**How it works.** The force grows with how far the spring is stretched from its rest length. The top row of points is fixed, and gravity pulls the rest down. Each frame, the forces change each point's velocity, and the velocity is slightly reduced so that the motion settles.
+
+**Try it.** Change the spring strength and the gravity to see how stiff or loose the cloth becomes. Press the mouse to push the nodes.

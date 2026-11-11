@@ -1,50 +1,51 @@
-**Marching Squares**는 2D **스칼라 필드(Scalar Field)** $f(x, y)$에서 특정 **임계값(Iso-level)** $\tau$와 일치하는 **등고선(Contour Lines)** 을 효율적으로 추출하는 알고리즘입니다. 격자를 정사각형 셀로 분할하고, 각 셀의 4개 코너에서의 함수값을 임계값과 비교하여 **16가지 토폴로지 경우** 중 하나로 분류한 후, 미리 계산된 **룩업 테이블(Lookup Table)** 에서 해당하는 선분 패턴을 찾아 등고선을 구성합니다. 이 방식으로 온도 분포, 지형 고도, 밀도, 압력 등 연속 스칼라 필드를 효율적으로 시각화할 수 있습니다.
+**Marching Squares**(마칭 스퀘어즈)는 **숫자가 적힌 격자에서 같은 높이의 선(등고선)을 찾아 그리는** 방법입니다. 지도에서 높이가 같은 곳을 이은 선을 떠올리면 됩니다. 격자의 네 꼭짓점이 기준보다 높은지 낮은지를 보면, 선이 그 칸을 어떻게 지나가는지 16가지 경우로 나눌 수 있습니다.
 
-### 1. 핵심 수학적 원리
-1. **스칼라 필드:**
-   - 각 점 $(x, y)$에서 값 $f(x, y) \in \mathbb{R}$을 가지는 함수
+### 1. 핵심 원리
 
-2. **셀 분류(Cell Classification):**
-   - 셀의 4개 코너: 좌하 $(0)$, 우하 $(1)$, 우상 $(2)$, 좌상 $(3)$
-   - 각 코너에서의 함수값: $f_0, f_1, f_2, f_3$
-   - 임계값 $\tau$와 비교: $f_i > \tau$이면 1, 아니면 0
-   - 4비트 코드: $\text{case} = 8b_3 + 4b_2 + 2b_1 + b_0$ (0~15)
+**(1) 노이즈 높이 만들기**: 격자의 각 꼭짓점에는 노이즈로 만든 높이 값이 있습니다. 노이즈는 가까운 곳끼리 비슷한 값을 가지므로, 산과 골짜기 같은 지형이 생깁니다.
 
-3. **엣지 교차점(Edge Intersection):**
-   - 셀의 4개 엣지(가장자리) 중에서, 함수값이 임계값을 "넘는" 엣지 식별
-   - 각 엣지에서 선형 보간으로 정확한 교차점 계산:
-     - 엣지 $(p_i, p_j)$에서: $t = \frac{\tau - f_i}{f_j - f_i}$
-     - 교차점: $p = p_i + t(p_j - p_i)$
+**(2) 네 꼭짓점 비교**: 칸 하나의 네 꼭짓점을 기준 높이(등고선 높이)와 비교합니다. 기준보다 높으면 1, 낮으면 0으로 적습니다. 네 자리를 이으면 0과 1로 이루어진 4자리 숫자가 나옵니다. 이 숫자는 0부터 15까지 16가지입니다.
 
-4. **룩업 테이블 (16가지 경우):**
-   - case 0: 모든 코너가 임계값 아래 → 선 없음
-   - case 1: 좌하만 위 → 좌 엣지와 하 엣지의 교차점을 연결
-   - case 2: 우하만 위 → 우 엣지와 하 엣지의 교차점을 연결
-   - ... (총 16가지, 회전 및 반사 대칭 고려)
+**(3) 선 그리기**: 16가지 경우마다 선이 칸의 어느 두 변을 지나는지가 정해져 있습니다. 표에서 찾아 그리면 됩니다.
 
-5. **선분 생성 및 연결:**
-   - 각 셀마다 0~2개의 선분 생성
-   - 인접 셀의 끝점이 연결되어 연속적인 등고선 형성
+**(4) 선의 위치**: 선이 변과 만나는 위치는 두 꼭짓점의 높이 차이로 계산합니다. 한쪽이 기준에 훨씬 가까우면 선이 그쪽에 가깝게 그려집니다.
 
-### 2. 주요 특징 및 장점
-- **극도의 효율성:** 각 셀을 독립적으로 처리하므로 $O(n \times m)$ (격자 크기에 선형).
-- **견고한 토폴로지:** 16가지 경우를 명확히 정의하므로, 대부분의 경우에 정확한 등고선 생성.
-- **선형 보간의 정확성:** 엣지 교차점을 선형 보간으로 계산하여, 부드러운 등고선.
-- **GPU 친화적:** 각 셀이 독립적이므로 병렬 처리 가능.
+**(5) 애매한 경우**: 대각선 방향으로 높고 낮은 꼭짓점이 엇갈린 칸(두 가지 경우)은 가운데 높이를 보고 선을 어떻게 이을지 정합니다.
 
-### 3. 구현 시 고려 사항
-- **룩업 테이블 설계:** 16가지 경우를 정확히 정의해야 하며, 특히 애매한 경우(여러 등고선이 존재할 수 있는 경우)의 선택이 중요합니다.
-- **여러 임계값:** 여러 등고선을 동시에 추출하려면, 각 임계값마다 별도의 패스를 실행합니다.
-- **색상 매핑:** 임계값 크기에 따라 등고선에 다른 색상을 할당하여, 필드의 분포를 시각적으로 표현합니다.
-- **경계 처리:** 격자 경계에서의 특수한 처리 (부분 셀, 경계 밖 점 처리).
+### 2. 이 시뮬레이션의 작동 순서
 
-### 4. 활용 분야
-- **기상 시뮬레이션:** 기압 지도, 온도 분포, 습도 등고선 시각화.
-- **지리정보시스템(GIS):** 지형 고도 등고선, 토양 유형 분포, 인구 밀도 등.
-- **과학 시각화:** 물리 시뮬레이션 (유체 속도, 온도 필드), 의료 영상 처리.
-- **게임 개발:** 지형 높이 등고선 추출, 물리 시뮬레이션 경계 생성.
-- **Generative Art:** 필드를 기반으로 추상적이고 유기적인 라인 아트 생성.
+1. 격자의 꼭짓점마다 노이즈 높이를 계산합니다. 시간이 흐르면 노이즈 값이 조금씩 바뀝니다.
+2. 기준 높이를 중심으로 몇 개의 등고선을 그립니다. 가운데 것이 가장 진하고, 위아래로 갈수록 옅어집니다.
+3. 칸마다 네 꼭짓점을 비교하고, 위 규칙으로 선을 그립니다.
+4. 배경에는 노이즈 높이에 따라 옅은 색을 깔아서, 지형처럼 보이게 합니다.
+
+### 3. 이 알고리즘의 장점
+
+- 지도, 기온 분포, 의료 영상처럼 **숫자 격자를 선으로 바꾸는** 방법으로 널리 쓰입니다.
+- 16가지 경우만 알면 되므로 구현이 간단합니다.
+- 격자가 촘촘할수록 선이 부드러워지고, 성기면 빠르지만 거칠어집니다.
+
+### 4. 구현할 때 주의할 점
+
+- 격자 칸마다 노이즈를 여러 번 계산하므로, 등고선을 많이 그리면 계산이 무거워집니다.
+- 대각선 엇갈림 칸은 두 가지 선 중 하나를 골라야 합니다. 이 규칙을 빼먹으면 선이 끊기거나 엉킵니다.
+
+### 5. 활용 분야
+
+- **지도와 지리**: 높이가 같은 곳을 잇는 등고선 지도.
+- **기상과 의료**: 기온이나 밀도 분포를 선으로 나타내는 그림.
+- **제너레이티브 아트**: 지형처럼 흐르는 등고선 작품.
+
+### 직접 실험해 보기
+
+- **등고선 높이**를 0.1과 0.9로 바꿔 보세요. 기준 높이가 바뀌면 선이 지형의 어느 부분을 따라가는지 확인해 보세요.
+- **격자 크기**를 8과 40으로 바꿔 보세요. 격자가 촘촘할 때와 성길 때 선이 얼마나 부드러운지 비교해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **노이즈 밀도**를 0.05와 0.5로 바꿔 보세요. 지형의 굴곡이 넓어지는지, 잘게 나뉘는지 살펴보세요.
 
 <!-- en -->
 
-Marching Squares extracts contour lines from a 2D scalar field based on an iso-level threshold. For each grid cell, it compares the four corner values and classifies one of 16 cases, then looks up the corresponding line segment pattern in a lookup table to construct the contour. This enables efficient visualization of scalar fields such as temperature, elevation, or density.
+**Marching Squares** draws contour lines through a grid of height values. For each cell, the sketch compares the four corners with a threshold height. The pattern of above and below corners gives one of sixteen cases, and each case tells where the contour line crosses the cell. Noise creates the height values, so the result looks like a landscape.
+
+**How it works.** Each corner gets a noise value. Several contour lines are drawn around the threshold, with the main line the darkest. A soft background shows the height, and the threshold can be moved to see different contours.
+
+**Try it.** Change the threshold height and the noise density to see how the contour lines move.

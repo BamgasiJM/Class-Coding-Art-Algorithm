@@ -1,51 +1,51 @@
-**Wave Function Collapse**(파동 함수 붕괴, WFC)는 **양자 역학의 파동 함수 붕괴** 개념을 절차적 생성에 영감을 받아, **제약 충족 문제(Constraint Satisfaction Problem, CSP)** 로 변환한 혁신적인 알고리즘입니다. 초기에 모든 격자 셀이 **슈퍼포지션(중첩 상태)** 에 있다가, **엔트로피가 최소인 셀**부터 하나씩 **하나의 타일로 붕괴**시킵니다. 각 붕괴 후 **제약 전파(Constraint Propagation)** 를 통해 이웃 셀의 불가능한 옵션을 제거하며, 이 과정을 반복하면 **타일 간 인접 규칙**을 완벽히 만족하면서도 **다양성이 높은 절차적 패턴**이 생성됩니다. 게임 맵, 픽셀 아트, 건축 구조 생성 등에서 획기적인 도구입니다.
+**Wave Function Collapse**(파동 함수 붕괴, 줄여서 **WFC**)는 **각 칸이 여러 가능성을 동시에 가진 상태에서 시작해, 이웃과 맞도록 하나씩 정해 가며 전체 그림을 완성하는** 방법입니다. 이름은 양자역학의 용어를 빌려 왔지만, 실제로는 **제약 조건을 지키며 퍼즐을 맞추는 방법**입니다. 게임 맵이나 픽셀 아트를 자동으로 만들 때 쓰입니다.
 
-### 1. 핵심 수학적 원리
-1. **초기 상태(Superposition):**
-   - 각 셀 $(i, j)$의 **가능한 타일 집합**: $S_{ij} = \{T_1, T_2, ..., T_K\}$ (모든 $K$개 타일)
-   - 셀의 **엔트로피(Entropy)**: $H_{ij} = -\sum_{t \in S_{ij}} p_t \log p_t$ (또는 단순히 $|S_{ij}|$)
+### 1. 핵심 원리
 
-2. **붕괴(Collapse) 단계:**
-   - 엔트로피가 최소인 셀 $(i^*, j^*)$ 선택
-   - 셀의 확률 분포 $p_t$에 따라 하나의 타일 $t^*$ 샘플링
-   - $S_{i^*j^*} \leftarrow \{t^*\}$ (셀 결정 완료)
+**(1) 타일과 연결면**: 이 예제는 여덟 종류의 타일을 씁니다. 빈 칸, 직선, 모서리, 십자 모양입니다. 각 타일의 네 변에는 길이 연결되는지 여부가 있습니다. 두 타일이 맞닿는 변의 연결 상태가 같아야 이어집니다.
 
-3. **제약 전파(Constraint Propagation):**
-   - 결정된 셀 $(i^*, j^*)$의 이웃 셀들을 큐에 추가
-   - 각 이웃 셀 $(i', j')$에 대해:
-     - $(i^*, j^*)$의 타일 $t^*$과 인접 가능한 타일 집합 $A(t^*)$ 계산
-     - $S_{i'j'} \leftarrow S_{i'j'} \cap A(t^*)$ (불가능한 타일 제거)
-     - 만약 $S_{i'j'}$가 변했으면, $(i', j')$의 이웃들을 큐에 추가
-   - 큐가 빌 때까지 반복
+**(2) 가능성 목록**: 처음에는 모든 칸이 어떤 타일이든 될 수 있습니다. 칸마다 가능한 타일의 목록을 가지고 있습니다. 목록의 길이를 **엔트로피**(불확실한 정도)라고 부릅니다. 목록이 짧을수록 결정이 가까운 칸입니다.
 
-4. **수렴 및 실패 처리:**
-   - 모든 셀이 $|S_{ij}| = 1$이 되면 성공
-   - 만약 어떤 셀의 $S_{ij} = \emptyset$ (불가능)이면 **백트래킹** 또는 **재시작**
+**(3) 가장 확실한 칸부터 정하기**: 아직 정해지지 않은 칸 중에서 엔트로피가 가장 낮은 칸을 고릅니다. 그 칸에서 가능한 타일 중 하나를 무작위로 골라 확정합니다. 이때 타일마다 가중치가 있어서, 자주 나와야 하는 타일은 더 자주 뽑힙니다.
 
-5. **인접 규칙 정의:**
-   - 각 타일에 대해 "상단에 올 수 있는 타일", "우측에 올 수 있는 타일" 등을 미리 정의
-   - 이는 예시 이미지에서 학습하거나, 수동으로 정의
+**(4) 제약 전파**: 확정된 칸의 연결면을 보고, 이웃 칸의 가능성 목록에서 맞지 않는 타일을 지웁니다. 지운 결과로 또 다른 칸의 목록이 줄어들면, 그 칸의 이웃에도 같은 일을 반복합니다. 이를 **전파**라고 합니다.
 
-### 2. 주요 특징 및 장점
-- **극도의 창의성:** 국소 제약만으로 전역적으로 일관성 있는 패턴 생성.
-- **다양성:** 난수 샘플링이므로, 같은 규칙으로도 매번 다른 결과 생성.
-- **제약 만족 보장:** 생성된 패턴은 항상 타일 인접 규칙을 완벽히 준수.
-- **학습 가능성:** 예시 이미지에서 타일과 인접 규칙을 자동 추출하여 다양한 스타일 생성.
+**(5) 끝내기**: 모든 칸이 정해지면 그림이 완성됩니다.
 
-### 3. 구현 시 고려 사항
-- **인접 규칙 학습:** 예시 이미지를 스캔하여 모든 이웃 타일 쌍 수집 ($O(W \times H)$).
-- **엔트로피 선택:** 최소 엔트로피 세포 선택이 수렴 속도 영향; "noise" 추가로 다양성 향상.
-- **확률 모델:** 각 타일이 예시에서 출현한 빈도에 따라 샘플링 확률 설정.
-- **백트래킹:** 실패 시 이전 상태로 복원; 메모리 사용 늘어남.
-- **성능 최적화:** 큐 기반 제약 전파로 $O(N)$ 시간; 나이브 전체 탐색은 $O(N^2)$.
+### 2. 이 시뮬레이션의 작동 순서
 
-### 4. 활용 분야
-- **게임 개발:** 절차적 던전, 숲, 도시 맵 생성 (규칙 기반 일관성 보장).
-- **픽셀 아트 생성:** 텍스처, 배경, 캐릭터 스프라이트의 다양한 변형 생성.
-- **건축 시각화:** 건물 배치, 실내 설계, 도시 계획의 자동 생성.
-- **Generative Art:** 추상 패턴, 보조개 구조, 음악 시각화의 절차적 생성.
-- **교육:** 제약 만족 문제, 역 문제(Inverse Problem), 확률적 알고리즘의 실제 사례.
+1. 모든 칸에 여덟 종류의 타일 가능성을 넣습니다. 불확실한 칸은 작은 점으로 보이고, 가능성이 적을수록 점이 진해집니다.
+2. 매 프레임 가장 확실한 칸 하나를 골라 타일을 확정합니다.
+3. 확정된 칸의 영향을 이웃으로 퍼뜨려서, 맞지 않는 가능성을 지웁니다.
+4. 모든 칸이 정해지면 잠시 기다린 뒤 새로 시작합니다.
+
+### 3. 이 알고리즘의 장점
+
+- **규칙만 정하면** 복잡한 그림이 자동으로 만들어집니다.
+- 맵이나 패턴을 디자인할 때 사람이 모든 칸을 직접 그리지 않아도 됩니다.
+- 제약 조건을 전파하는 원리는 퍼즐 풀이와 인공지능 문제 해결에서도 씁니다.
+
+### 4. 구현할 때 주의할 점
+
+- **모순**이 생기는 경우가 있습니다. 어떤 칸이 가능한 타일을 하나도 갖지 못하면, 이미 정한 이웃과 맞는 그림을 만들 수 없습니다. 이때 완벽한 해결은 처음부터 다시 시작하는 것입니다.
+- 이 예제는 모순이 생기면 간단한 방법으로 칸을 다시 열어 둡니다. 그래서 가끔 이음새가 맞지 않는 곳이 보일 수 있습니다.
+- 타일 종류와 연결 규칙이 복잡할수록 모순이 자주 생깁니다.
+
+### 5. 활용 분야
+
+- **게임 맵**: 도시, 던전, 마을 배치를 자동으로 만들기.
+- **픽셀 아트와 텍스처**: 작은 견본 그림에서 큰 그림 만들기.
+- **제너레이티브 아트**: 규칙으로 만드는 타일 그림.
+
+### 직접 실험해 보기
+
+- **그리드 크기**를 5와 40으로 바꿔 보세요. 칸이 많아질수록 그림이 얼마나 복잡해지고, 완성까지 얼마나 걸리는지 확인해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **재시작 대기 시간**을 500ms와 5000ms로 바꿔 보세요. 완성된 그림을 얼마나 오래 보여 주는지 비교해 보세요.
 
 <!-- en -->
 
-Wave Function Collapse is a constraint satisfaction algorithm inspired by quantum mechanics. Initially, each grid cell exists in superposition — capable of holding any tile. The algorithm iteratively selects the cell with minimum entropy and collapses it to a single tile, then propagates constraints to eliminate incompatible options from neighbors. This process repeats until every cell is determined or a contradiction is reached. The result: procedurally generated patterns that perfectly respect local tile adjacency rules while exhibiting remarkable diversity, making it ideal for game maps, pixel art, and architectural design.
+**Wave Function Collapse** builds a picture from tiles. Every cell starts with all tile options possible. Each step, the sketch picks the cell with the fewest options, fixes it to one random tile, and removes the options that no longer match its neighbors. This spreading of constraints continues until every cell is fixed, so the whole picture fits together.
+
+**How it works.** Tiles have connection sockets on their four sides, and neighbors must match at the shared edge. The number of options in a cell is called its entropy. The lowest-entropy cell is collapsed first. Sometimes a cell runs out of options, which is a contradiction, and this simple sketch then reopens that cell, so a few seams may not match.
+
+**Try it.** Change the grid size to see how the picture grows more complex.

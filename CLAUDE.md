@@ -53,7 +53,8 @@ src/algorithms/
   catalog.js              # ALGORITHMS list (many items) + slugify + findAlgorithmBySlug
   details.js              # aggregates each <slug>/index.js → ALGORITHM_DETAILS + getAlgorithmDetail
   <slug>/                 # one folder per fleshed-out algorithm (folder name = slug)
-    index.js              # detail entry: { longDescription {ko,en}, sketch, params?, related }
+    description.md        # detail text: Korean, then a <!-- en --> line, then English (Markdown + LaTeX)
+    index.js              # detail entry: { longDescription (parsed from description.md), sketch, params?, related }
     sketch.js             # the p5 instance-mode sketch (p, size, paramsRef?) => void
 ```
 
@@ -61,7 +62,7 @@ src/algorithms/
   - `slugify(name)` — converts a name to a URL-safe slug (e.g. `'Flow Field'` → `'flow-field'`)
   - `findAlgorithmBySlug(slug)` — looks up an algorithm by slug
 - **src/algorithms/details.js** — Imports each fleshed-out algorithm's `<slug>/index.js` and assembles the `ALGORITHM_DETAILS` map keyed by slug. Each entry holds extended per-algorithm content (bilingual `longDescription`, `sketch`, optional `params`, `related`). Only algorithms with a folder appear here; others fall back to a "준비 중" (coming soon) state. `getAlgorithmDetail(slug)` returns the entry or `null`.
-- **src/algorithms/&lt;slug&gt;/** — Per-algorithm folder. `index.js` holds the detail text (`longDescription`, `related`), optional parameter definitions (`params`), and imports its `sketch.js` (the p5 code) to export the combined detail object.
+- **src/algorithms/&lt;slug&gt;/** — Per-algorithm folder. The detail text lives in `description.md` (see "Algorithm Descriptions" below). `index.js` loads it as `longDescription`, sets `related` and the optional parameter definitions (`params`), and imports its `sketch.js` (the p5 code) to export the combined detail object.
 
 ### Core Components
 
@@ -158,15 +159,14 @@ To flesh out a card's detail page:
 2. **Add the sketch**: `src/algorithms/<slug>/sketch.js`, default-exporting `function sketch(p, size)` OR `function sketch(p, size, paramsRef)` (p5 instance mode).
    - Use the `size` argument for canvas dimensions — never query the DOM.
    - If the algorithm has parameters, read them from `paramsRef.current.key` inside `draw()` (or anywhere you need them).
-3. **Add the detail**: `src/algorithms/<slug>/index.js`, importing `./sketch` and default-exporting the detail object:
+3. **Add the detail**: write `src/algorithms/<slug>/description.md` (see "Algorithm Descriptions" below), then `src/algorithms/<slug>/index.js`, importing `./sketch` and default-exporting the detail object:
    ```js
    import sketch from './sketch'
+   import descriptionMd from './description.md?raw'
+   import { parseDescription } from '../parseDescription'
 
    export default {
-     longDescription: {
-       ko: String.raw`...`,   // ko shown first/prominent, en second/muted
-       en: String.raw`...`,
-     },
+     longDescription: parseDescription(descriptionMd),  // { ko, en }: ko shown first/prominent, en second/muted
      sketch,
      params: [                 // optional; if present, Playground renders with View/Play toggle
        {
@@ -188,11 +188,16 @@ To flesh out a card's detail page:
 
 That's it — AlgorithmDetailPage picks it up by slug. If `params` is present, it renders `<Playground>` with sliders; otherwise just `<P5Canvas>`. No routing changes needed.
 
-### ⚠️ longDescription is Markdown + LaTeX — use `String.raw`
+### Algorithm Descriptions (`description.md`)
 
-`longDescription.ko` / `.en` are **Markdown strings**, rendered by `react-markdown` in `AlgorithmDetailPage.jsx` (with `remark-math` + `rehype-katex` for math, and `katex/dist/katex.min.css` imported there). Styling lives in `index.css` under `.markdown-body` (`--primary` = ko/`--fg`, `--muted` = en/`--muted`). So you can use headings (`##`), bold (`**`), lists (`-`), inline code, and LaTeX math (`$...$` inline, `$$...$$` block).
+Each algorithm's detail text is one file: `src/algorithms/<slug>/description.md`. The Korean text comes first, then a line containing only `<!-- en -->`, then the English text. `index.js` loads it with `import descriptionMd from './description.md?raw'` and `parseDescription` (`src/algorithms/parseDescription.js`), which splits on the marker and returns `{ ko, en }`. Both strings are rendered by `react-markdown` in `AlgorithmDetailPage.jsx` (with `remark-math` + `rehype-katex` for math, and `katex/dist/katex.min.css` imported there). Styling lives in `index.css` under `.markdown-body` (`--primary` = ko/`--fg`, `--muted` = en/`--muted`). Headings (`##`/`###`), bold, lists, inline code, and LaTeX math (`$...$` inline, `$$...$$` block) all work.
 
-**Always wrap these strings in `` String.raw`...` ``, not a plain backtick.** A plain template literal eats LaTeX backslashes as JS escape sequences — `\psi`→`psi`, `\frac`→(form-feed)`rac`, `\times`→(tab)`imes`, `\nabla`→(newline)`abla` — silently corrupting every formula before KaTeX sees it. `String.raw` preserves backslashes verbatim while keeping real line breaks. (Flow Field has no math so it happens to survive a plain backtick; don't rely on that — default to `String.raw` everywhere.) See `curl-noise/index.js` for a full math-heavy example.
+Writing rules for `description.md`:
+- Because the file is plain text, backslashes are kept exactly as written. No `String.raw` or escaping is needed.
+- **Tables and relative links do not render** (there is no `remark-gfm`, and relative paths are not resolved). Use lists and plain text instead.
+- Keep the Korean and English texts in sync, and keep exactly one `<!-- en -->` marker.
+- The readers are university students learning programming and coding art. Use short sentences and plain words, define a technical term the first time it appears, and explain every symbol in a formula in words. The 2D Ray Casting description is the reference style.
+- The "직접 실험해 보기" (try it yourself) section names the sliders by their Korean `label`, so the labels in `index.js` and the text must match.
 
 ### ⚠️ p5.js Canvas Lifecycle — DO NOT REGRESS
 
@@ -228,7 +233,7 @@ Global styles in `src/index.css`:
 ## Performance Notes
 
 - **THREE.Clock Deprecation Warning**: Browser console may show `THREE.Clock: This module has been deprecated` — this is from R3F internals and does not affect functionality; will resolve with R3F updates.
-- **Particle Rendering**: 5,000 particles are GPU-accelerated via Three.js instancing; no performance issues on modern hardware.
+- **Particle Rendering**: 7,000 particles are GPU-accelerated via Three.js instancing; no performance issues on modern hardware.
 - **ScrollTrigger & GSAP**: Animations are GPU-optimized (transform/opacity); minimal reflow/repaint.
 
 ---

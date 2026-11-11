@@ -1,36 +1,59 @@
-**Curl Noise**는 유체 역학의 물리적 특성을 시뮬레이션하기 위해 사용되는 알고리즘으로, 벡터장의 **비회전성**과 **용량 보존성**을 수학적으로 보장하는 기술입니다. 일반적인 Perlin Noise나 Simplex Noise가 단순히 스칼라 값(숫자)을 생성하는 것과 달리, Curl Noise는 벡터 필드(방향, 크기)를 생성하여 유체가 **소용돌이치며 흐르는 듯한 자연스러운 움직임**을 만들어냅니다.
+**Curl Noise**(컬 노이즈)는 노이즈로 **흐름의 방향**을 만들되, 입자가 한 곳에 몰리거나 흩어지지 않도록 만드는 방법입니다. 물이 흐를 때 물방울이 한 점으로 모이지 않고 **등고선**을 따라 흘러가는 것과 비슷합니다. 연기나 물결 같은 유체 흐름을 흉내 낼 때 자주 씁니다.
 
-### 1. 핵심 수학적 원리
+### 1. 핵심 원리
 
-Curl Noise의 핵심은 스칼라 함수(Potential function) $\psi$에 대해 그 **Curl(회전)** 연산을 수행하는 것입니다. 2D와 3D 환경에서의 원리는 다음과 같습니다.
+**(1) 높이 지도 만들기**
+먼저 노이즈로 화면 전체의 **높이 값** $F(x, y)$를 만듭니다. 이 값을 산의 높이라고 생각하면 이해하기 쉽습니다.
 
-1. **Potential Function 생성:** 먼저 입력 좌표 $(x, y, z)$를 기반으로 연속적인 스칼라 필드 $\psi(x, y, z)$를 생성합니다. 이때 주로 Perlin Noise나 Simplex Noise를 사용합니다.
-2. **Curl 연산 적용:** 생성된 스칼라 필드의 회전(Curl)을 계산하여 벡터 필드 $\mathbf{F}$를 얻습니다.
-   - **2D 환경:** $\mathbf{F} = \left( \frac{\partial \psi}{\partial y}, -\frac{\partial \psi}{\partial x} \right)$
-   - **3D 환경:** $\mathbf{F} = \nabla \times \psi = \left( \frac{\partial \psi}{\partial y} - \frac{\partial \psi}{\partial z}, \frac{\partial \psi}{\partial z} - \frac{\partial \psi}{\partial x}, \frac{\partial \psi}{\partial x} - \frac{\partial \psi}{\partial y} \right)$
+**(2) 기울기를 90도 돌리기**
+높이가 낮은 쪽으로 굴러 내려가면 입자는 한 점으로 모입니다. 대신 **경사에 수직인 방향**으로 움직이면, 입자는 같은 높이를 따라 돕니다. 이 방향을 만드는 것이 컬(curl)입니다.
 
-이렇게 계산된 벡터장 $\mathbf{F}$는 수학적으로 $\nabla \cdot \mathbf{F} = 0$을 만족하게 되어, 유체의 질량이 보존되는(Divergence-free) 특성을 가집니다.
+$$\mathbf{v} = (v_x, v_y) = \left(\frac{\partial F}{\partial y},\ -\frac{\partial F}{\partial x}\right)$$
 
-### 2. 주요 특징 및 장점
+$\frac{\partial F}{\partial x}$는 $x$ 방향으로 얼마나 기울었는지를 뜻합니다. 코드에서는 주변 두 점의 값 차이로 이 기울기를 근사합니다. 이 방법을 **중앙 차분법**이라고 합니다.
 
-- **비압축성 (Incompressibility):** 벡터장의 발산(Divergence)이 0이기 때문에, 입자들이 한곳에 뭉치거나 갑자기 사라지지 않고 일정한 흐름을 유지하며 부드럽게 순환합니다.
-- **와도: 소용돌이 (Vorticity):** 단순한 흐름이 아니라 국소적인 회전 성분을 포함하므로, 연기, 구름, 물의 흐름과 같은 복잡한 유체 패턴을 표현하기에 매우 적합합니다.
-- **효율성:** 실제 유체 시뮬레이션(Navier-Stokes 방정식 등)처럼 복잡한 물리 연산을 매 프레임 수행하지 않고도, Noise 함수와 미분(Gradient) 연산만으로 매우 유사한 시각적 효과를 실시간으로 얻을 수 있습니다.
+**(3) 속도 크기 맞추기**
+계산된 벡터의 길이를 **흐름 강도** 값으로 맞춥니다. 그래서 모든 입자가 같은 빠르기로 움직입니다.
 
-### 3. 구현 시 고려 사항 (GLSL/Shader 중심)
+**왜 모이지 않을까?**
+이 방식으로 만든 흐름은 **펼쳐지거나 모이지 않습니다**. 수학에서는 이것을 "발산이 0이다"라고 말합니다. 입자가 많아져도 한 점에 뭉치지 않는 이유입니다.
 
-Shader에서 Curl Noise를 구현할 때는 미분값을 어떻게 계산할지가 핵심입니다.
+### 2. 이 시뮬레이션의 작동 순서
 
-- **수치 미분(Finite Difference Method):** 실제 미분 공식을 직접 계산하는 대신, 현재 좌표에서 아주 작은 오프셋($\epsilon$)을 더한 지점의 Noise 값 차이를 이용하여 기울기(Gradient)를 근사합니다.
-  - $\frac{\partial \psi}{\partial x} \approx \frac{\psi(x+\epsilon, y, z) - \psi(x-\epsilon, y, z)}{2\epsilon}$
-- **성능 고려:** 미분을 위해 동일한 위치에서 여러 번의 Noise 샘플링이 필요하므로, 3D Curl Noise의 경우 샘플링 비용이 높을 수 있습니다. 따라서 적절한 Octave 구성과 최적화가 중요합니다.
+1. 입자 400개를 무작위 위치에 놓습니다.
+2. 각 입자 위치에서 컬 방향을 계산합니다.
+3. 입자를 그 방향으로 조금 옮깁니다.
+4. 화면 밖으로 나가거나 수명이 다하면, 다시 무작위 위치에서 시작합니다.
+5. 배경을 아주 조금만 덮어씌워서 입자가 지나간 자리에 긴 잔상이 남게 합니다.
 
-### 4. 활용 분야
+### 3. 장점
 
-- **Particle Systems:** 연기(Smoke), 불꽃(Fire), 안개(Fog)의 입자 흐름 제어.
-- **Fluid Simulation:** 실시간 렌더링에서의 가벼운 유체 움직임 표현.
-- **Procedural Textures:** 물결(Water ripples)이나 구름의 움직임을 결정하는 벡터장 생성.
+- **자연스러운 흐름**: 연기나 물결처럼 소용돌이치는 움직임을 만듭니다.
+- **고르게 채워짐**: 입자가 한곳에 뭉치지 않아서 화면이 고르게 채워집니다.
+- **구현이 간단함**: 노이즈 함수 하나와 기울기 계산만 있으면 됩니다.
+
+### 4. 주의할 점
+
+- **미분 스텝**이 너무 크면 기울기가 부정확해집니다. 너무 작으면 계산 오차가 커질 수 있습니다.
+- **노이즈 스케일**이 너무 크면 소용돌이가 잘게 쪼개져서 어지럽게 보입니다.
+- 이 예제는 속도 크기를 **항상 같게** 맞춥니다. 그래서 실제 유체처럼 빠른 곳과 느린 곳이 생기지 않습니다.
+
+### 5. 활용 분야
+
+- **유체 효과**: 연기, 불꽃, 물결의 움직임.
+- **자연 현상**: 바람에 흔들리는 풀잎이나 나뭇잎의 움직임.
+- **제너레이티브 아트**: 소용돌이 무늬와 흐르는 선 그림.
+
+### 직접 실험해 보기
+
+- **흐름 강도**를 0.3과 3으로 바꿔 보세요. 입자가 얼마나 빨리 움직이는지 비교해 보세요.
+- **파티클 개수**를 50과 1000 사이에서 바꿔 보세요. 입자가 많아질 때 흐름의 모양이 어떻게 드러나는지 확인해 보세요.
+- **잔상 길이**를 2와 30으로 비교해 보세요. 흐름의 선이 얼마나 길게 남는지 살펴보세요.
 
 <!-- en -->
 
-Curl Noise is an algorithmic technique that generates divergence-free, incompressible fluid-like velocity fields by taking the curl of a scalar potential field (typically Perlin or Simplex noise). Because the divergence is mathematically zero, particles flowing through this field naturally warp and navigate around virtual obstacles without clumping together. This implementation derives velocity vectors using numerical differentiation, resulting in elegant, turbulent, and non-intersecting pathways.
+**Curl Noise** uses noise to create a flow direction, but it is arranged so that particles never bunch up or spread apart. It is like water flowing along contour lines instead of collecting in one spot. It is often used to imitate smoke or ripples.
+
+**How it works.** Noise creates a height map. Moving straight downhill would gather particles into one point. Instead, the sketch moves particles at a right angle to the slope, so they travel along the same height. This direction is called the curl. The code estimates the slope by comparing nearby points, and it sets every particle to the same speed.
+
+**Try it.** Change the flow strength and the number of particles to see how the flow changes.

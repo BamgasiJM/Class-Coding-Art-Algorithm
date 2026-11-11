@@ -176,6 +176,8 @@ export default function stipplingSketch(p, size, params = {}) {
     const repulse = 0.6 * strength;
     const influenceR = P.influenceRadius();
     const influenceR2 = influenceR * influenceR;
+    // 반발 반경이 칸 크기보다 크면 그만큼 떨어진 칸까지 확인해야 빠뜨리는 점이 없다
+    const reach = p.ceil(influenceR / cellSize);
 
     for (let i = 0; i < points.length; i++) {
       const a = points[i];
@@ -184,8 +186,8 @@ export default function stipplingSketch(p, size, params = {}) {
       let fx = 0;
       let fy = 0;
 
-      for (let oy = -1; oy <= 1; oy++) {
-        for (let ox = -1; ox <= 1; ox++) {
+      for (let oy = -reach; oy <= reach; oy++) {
+        for (let ox = -reach; ox <= reach; ox++) {
           const nx = gx + ox;
           const ny = gy + oy;
           if (nx < 0 || ny < 0 || nx >= gridCols || ny >= gridRows) continue;

@@ -109,21 +109,22 @@ export default function differentialGrowthSketch(p, size, params = {}) {
     }
 
     if (nodes.length < mNodes) {
-      for (let i = nodes.length - 1; i >= 0; i--) {
-        let nextIdx = (i + 1) % nodes.length;
-        let d = p.dist(
-          nodes[i].x,
-          nodes[i].y,
-          nodes[nextIdx].x,
-          nodes[nextIdx].y,
-        );
-
-        if (d > rOut) {
-          let midX = (nodes[i].x + nodes[nextIdx].x) / 2;
-          let midY = (nodes[i].y + nodes[nextIdx].y) / 2;
-          nodes.splice(nextIdx, 0, { x: midX, y: midY, vx: 0, vy: 0 });
+      // 새 배열에 차례대로 담으면서, 간격이 벌어진 구간의 가운데에 새 노드를 넣는다.
+      // (배열에 끼워 넣으며 거꾸로 돌면 마지막 구간을 건너뛰는 문제가 있었다)
+      const n = nodes.length;
+      const grown = [];
+      let total = n;
+      for (let i = 0; i < n; i++) {
+        const a = nodes[i];
+        const b = nodes[(i + 1) % n];
+        grown.push(a);
+        const d = p.dist(a.x, a.y, b.x, b.y);
+        if (d > rOut && total < mNodes) {
+          grown.push({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, vx: 0, vy: 0 });
+          total++;
         }
       }
+      nodes = grown;
     } else if (nodes.length > mNodes) {
       nodes.length = mNodes;
     }

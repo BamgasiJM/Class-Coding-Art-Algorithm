@@ -1,45 +1,60 @@
-**Trigonometric Wave**(삼각함수 파형)은 **사인(Sine)과 코사인(Cosine) 함수의 주기성**을 이용하여 **다양한 파형과 리듬을 생성**하는 제너레이티브 아트의 기본적인 알고리즘 중 하나입니다. 서로 다른 진폭(Amplitude), 주파수(Frequency), 위상(Phase)을 가진 **여러 삼각함수를 조합**하면, **단순한 곡선이 복잡하고 유기적인 리듬**을 가진 형태로 변화합니다. 이 원리는 **오디오 신호 처리, 진동 시뮬레이션, 물결 표현, 데이터 시각화, 음악 합성** 등 **광범위한 분야**에서 활용됩니다.
-### 1. 핵심 수학적 원리
-1. **기본 삼각함수:**
-   - 사인파: $y = A \sin(2\pi f t + \phi)$ (진폭 $A$, 주파수 $f$, 위상 $\phi$, 시간 $t$)
-   - 코사인파: $y = A \cos(2\pi f t + \phi)$
-   - 기간: $T = 1/f$ (한 주기의 시간)
+**Trigonometric Wave**(삼각함수 파동)는 **사인**(sin)과 **코사인**(cos) 함수로 물결 모양의 선을 그리는 방법입니다. 사인과 코사인은 원을 한 바퀴 도는 값을 좌우로 펼친 것이라서, 같은 모양이 규칙적으로 반복됩니다. 이 반복되는 모양을 여러 개 겹치면 단순한 물결이 복잡한 리듬이 됩니다.
 
-2. **함수 합성(Superposition):**
-   - 여러 파형의 선형 결합:
-   - $y(t) = \sum_{i=1}^{n} A_i \sin(2\pi f_i t + \phi_i)$ 또는 코사인 조합
-   - 각 항이 독립적으로 기여하여 복합 패턴 형성
+### 1. 핵심 원리
 
-3. **Lissajous Curve (리사주 곡선):**
-   - X, Y 축에 다른 주파수의 사인파 적용:
-     - $x(t) = A_x \sin(2\pi f_x t + \phi_x)$
-     - $y(t) = A_y \sin(2\pi f_y t + \phi_y)$
-   - 주파수 비 $f_x : f_y$에 따라 다양한 폐곡선 생성
+**(1) 기본 파동**
+사인 함수 하나는 다음과 같이 쓸 수 있습니다.
 
-4. **푸리에 급수(Fourier Series):**
-   - 임의의 주기 함수는 삼각함수의 무한 합으로 표현:
-   - $f(t) = a_0 + \sum_{n=1}^{\infty} [a_n \cos(nwt) + b_n \sin(nwt)]$
-   - 기본 주파수의 정수 배인 고조파(Harmonics) 조합
+$$y = A \sin(2\pi f t + \phi)$$
 
-### 2. 주요 특징 및 장점
-- **극도의 단순성:** 기본 공식만으로 무한히 복잡한 패턴 생성.
-- **물리적 직관:** 실제 진동, 파동, 음파의 수학적 표현.
-- **매개변수 민감성:** 진폭, 주파수, 위상의 미세 변화가 극적인 시각 변화.
-- **음악적 연계:** 음악의 음정, 음색을 시각적으로 변환 가능 (음악 시각화).
+- $A$는 **진폭**입니다. 물결이 위아래로 얼마나 크게 움직이는지를 정합니다.
+- $f$는 **주파수**입니다. 1초에 물결이 몇 번 반복되는지를 정합니다.
+- $\phi$는 **위상**입니다. 물결을 좌우로 밀어서 시작 위치를 정합니다.
 
-### 3. 구현 시 고려 사항
-- **주파수 선택:** 정수 비 $f_1 : f_2$가 단순 곡선, 비정수 비가 복잡한 사이클.
-- **진폭 조정:** 각 항의 진폭을 조절하여 지배적 성분 제어.
-- **위상 오프셋:** 위상을 변화시키면 곡선이 회전하거나 변형.
-- **시간 해상도:** 많은 시간 샘플로 부드러운 곡선; 적은 샘플로 거친 폴리곤.
+**(2) 여러 파동 더하기**
+이 시뮬레이션에서는 사인 파동 하나에 코사인 파동과 작은 고조파(더 빠른 작은 물결)를 조금씩 섞습니다.
 
-### 4. 활용 분야
-- **음악 시각화:** 음악의 주파수 성분을 곡선으로 변환하여 실시간 시각화.
-- **Generative Art:** Lissajous 곡선, 조화 패턴의 추상 미술.
-- **데이터 시각화:** 주기적 현상 (계절, 일일 변화) 표현.
-- **게임 & 애니메이션:** 자연스러운 움직임, 진동 효과, 카메라 셰이크.
-- **신호 처리 교육:** 푸리에 급수, 고조파, 공명의 직관적 이해.
+$$y = \text{사인 성분} \times 0.72 + \text{코사인 성분} \times 0.28 + \text{고조파}$$
+
+이렇게 섞으면 물결이 한 가지 모양으로 반복되지 않고, 더 자연스럽고 복잡한 모양이 됩니다.
+
+**(3) 줄마다 다르게 만들기**
+화면에는 여러 줄의 파동이 겹쳐 그려집니다. 줄마다 주파수와 위상을 조금씩 다르게 줍니다. 그래서 줄들이 서로 어긋나며 흐르는 리듬이 생깁니다.
+
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 화면 위쪽에 있는 줄은 **멀리 있는 것**으로 보고 작고 옅게 그립니다. 아래쪽 줄은 가깝다고 보고 크고 진하게 그립니다.
+2. 화면 가운데 줄일수록 진폭이 커집니다. 그래서 가운데가 높게 솟아오릅니다.
+3. 시간이 흐르면 위상이 조금씩 바뀝니다. 그래서 물결이 계속 움직입니다.
+4. 매 프레임 배경을 살짝 덮어씌웁니다. 지나간 물결이 흐릿한 잔상으로 남습니다.
+
+### 3. 이 알고리즘의 장점
+
+- **간단한 공식**: 사인과 코사인만으로 복잡한 모양을 만들 수 있습니다.
+- **작은 변화가 큰 차이**: 주파수나 진폭을 조금만 바꿔도 전혀 다른 그림이 나옵니다.
+- **소리와 연결**: 소리도 파동이라서, 음악을 그림으로 옮길 때 자주 씁니다.
+
+### 4. 구현할 때 주의할 점
+
+- **주파수 비율**이 간단한 정수 비(예: 1:2)이면 모양이 깔끔하게 반복됩니다. 비율이 복잡하면 모양도 복잡해지고 반복이 잘 보이지 않습니다.
+- **샘플 수**가 적으면 선이 각진 다각형처럼 보입니다. 샘플을 늘리면 곡선이 매끄러워지지만 계산이 더 필요합니다.
+
+### 5. 활용 분야
+
+- **음악 시각화**: 소리의 주파수를 파동 모양으로 바꿔서 실시간으로 보여 줍니다.
+- **제너레이티브 아트**: 리사주 곡선처럼 파동이 겹쳐 만든 추상 그림.
+- **애니메이션**: 흔들림이나 진동 효과, 카메라 흔들림.
+
+### 직접 실험해 보기
+
+- **파동 개수**를 10으로 줄이고 100으로 늘려 보세요. 줄 사이의 간격과 겹침이 어떻게 달라지는지 확인해 보세요.
+- **파동별 주파수 차이**를 1로 낮춰 보세요. 줄들이 서로 비슷해져서 물결이 어떻게 보이는지 살펴보세요.
+- **중심부 진폭 부스트**를 10(가장 작은 값)으로 낮춰 보세요. 가운데가 덜 솟아오르면서 전체가 평평해지는 것을 확인할 수 있습니다.
 
 <!-- en -->
 
-Trigonometric Wave is one of the most fundamental generative art algorithms, using the periodic nature of sine and cosine functions to create dynamic waveforms. Combining multiple trigonometric functions with different amplitudes, frequencies, and phases, simple curves evolve into rich organic patterns—Lissajous curves, complex spirals, undulating waves. These principles underpin audio synthesis, vibration simulation, and music visualization. Because minute parameter changes produce dramatically different results, trigonometric waves exemplify the profound connection between mathematics and visual art.
+**Trigonometric Wave** draws wavy lines with the **sine** and **cosine** functions. These functions repeat the same shape over and over, like a point going around a circle and then flattening out. When several waves with different sizes and speeds are added together, a simple ripple becomes a complex rhythm.
+
+**How it works.** Each line is a sine wave with its own **frequency** (how fast it repeats), **phase** (where it starts), and **amplitude** (how tall it is). The code also mixes in a cosine wave and a faster, smaller wave to make the shape less regular. Lines near the center are taller, and far lines are smaller and fainter, which creates a sense of depth. Over time the phases shift, so the waves keep moving.
+
+**Try it.** Change the number of waves, or the difference in frequency between waves, to see how the rhythm changes. Simple number ratios make clean, repeating shapes, while complex ratios make the shapes harder to predict.

@@ -111,6 +111,9 @@ export default function delaunayTriangulationSketch(p, size, params = {}) {
       // 파라미터 적용: 속도(speed)를 Displacement(이동량)의 배율로 사용
       pt.x += p.map(p.noise(pt.noiseOffset, time), 0, 1, -1, 1) * speed * 20;
       pt.y += p.map(p.noise(pt.noiseOffset + 100, time), 0, 1, -1, 1) * speed * 20;
+      // 움직임이 누적되어 점이 화면 밖으로 빠져나가지 않도록 가장자리 안에 가둔다
+      pt.x = p.constrain(pt.x, 5, p.width - 5);
+      pt.y = p.constrain(pt.y, 5, p.height - 5);
     }
 
     triangles = bowyerWatson(points);

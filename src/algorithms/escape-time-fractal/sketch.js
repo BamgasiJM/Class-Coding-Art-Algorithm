@@ -45,8 +45,9 @@ export default function escapeTimeFractalSketch(p, size, params = {}) {
     const pX = P.panX();
     const pY = P.panY();
 
-    const mapW = 3.5 / z;
-    const mapH = 2.5 / z;
+    // 캔버스가 정사각형이므로 복소평면도 정사각형으로 본다 (가로·세로 비율이 맞아야 모양이 찌그러지지 않는다)
+    const mapW = 3.0 / z;
+    const mapH = 3.0 / z;
 
     for (let j = 0; j < currentGridSize; j++) {
       for (let i = 0; i < currentGridSize; i++) {

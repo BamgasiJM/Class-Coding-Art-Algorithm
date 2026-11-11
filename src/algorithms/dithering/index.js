@@ -5,23 +5,15 @@ import { parseDescription } from '../parseDescription';
 export default {
   longDescription: parseDescription(descriptionMd),
   sketch,
+  // 베이어 행렬 크기는 8×8로 고정한다 (더 작은 크기는 임계값이 고르지 않아 뺐다).
   params: [
     {
       key: 'ditherMode',
-      label: '디더링 모드 (0:Bayer, 1:FS)',
+      label: '디더링 방식 (0: 베이어, 1: 오차 확산)',
       min: 0,
       max: 1,
       step: 1,
       default: 0,
-      restart: false
-    },
-    {
-      key: 'bayerScale',
-      label: 'Bayer 스케일',
-      min: 2,
-      max: 8,
-      step: 1,
-      default: 8,
       restart: false
     },
     {
@@ -34,23 +26,14 @@ export default {
       restart: false
     },
     {
-      key: 'lumMultiplier',
-      label: '휘도 정규화 계수',
-      min: 100,
-      max: 510,
-      step: 10,
-      default: 255,
-      restart: true
-    },
-    {
       key: 'brightnessBias',
       label: '밝기 보정 (Offset)',
       min: -0.5,
       max: 0.5,
       step: 0.05,
       default: 0.0,
-      restart: false
-    }
+      restart: true
+    },
   ],
   related: ['Truchet Tiles', 'Cellular Automata', 'Perlin / Simplex Noise'],
 }

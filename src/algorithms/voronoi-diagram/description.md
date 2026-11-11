@@ -1,44 +1,52 @@
-**Voronoi Diagram**(보로노이 다이어그램)은 **평면 또는 고차원 공간**을 점들의 **근접성(Proximity)을 기반으로 분할**하는 기하학 알고리즘입니다. 각 보로노이 셀(Voronoi Cell)은 다른 어떤 핵점보다 자신의 핵점에 더 가까운 모든 좌표들의 집합입니다. 경계는 인접한 핵점 쌍의 수직이등분선으로 구성됩니다. 이 단순한 근접성 규칙으로부터 **기린의 반점, 잠자리 날개의 육각형 셀, 가뭄으로 갈라진 논, 비눗방울 거품, 초은하단의 구조** 등 자연 현상의 **공간 분할 패턴**이 형성됩니다. 이는 **국소 규칙이 전역 구조를 어떻게 지배하는지**를 보여주는 강력한 예제입니다.
+**Voronoi Diagram**(보로노이 다이어그램)은 **평면을 씨앗 점 기준으로 나눈 지도**입니다. 화면의 모든 점은 **가장 가까운 씨앗**에 속합니다. 그래서 씨앗마다 하나의 영역(셀)이 생기고, 영역 사이의 경계선은 두 씨앗에서 똑같이 가까운 곳들이 모인 선입니다. 세포, 거품, 갈라진 진흙 무늬에서 이런 모양을 볼 수 있습니다.
 
-### 1. 핵심 수학적 원리
-1. **보로노이 셀 정의:**
-   - 핵점 $p_i \in \mathbb{R}^2$에 대한 Voronoi 셀:
-   - $V_i = \{x : \|x - p_i\| < \|x - p_j\|, \forall j \neq i\}$
-   - 경계: $\|x - p_i\| = \|x - p_j\|$ (수직이등분선)
+### 1. 핵심 원리
 
-2. **쌍대성(Duality) - Delaunay 삼각분할:**
-   - Voronoi는 Delaunay 삼각분할의 쌍대 그래프
-   - Delaunay의 삼각형 꼭짓점 → Voronoi의 셀
-   - Delaunay의 모서리 ↔ Voronoi의 경계
+**(1) 영역 정하기**: 화면의 점 $\mathbf{x}$는 가장 가까운 씨앗 $\mathbf{p}_i$의 영역에 속합니다.
 
-3. **거리 함수 계산:**
-   - 유클리드 거리: $d(x, p) = \sqrt{(x-p_x)^2 + (y-p_y)^2}$
-   - 각 픽셀: 가장 가까운 핵점 찾기 $\arg\min_i d(x, p_i)$
-   - 그리드 기반: 모든 픽셀 순회, $O(n \times m \times k)$ (n×m = 해상도, k = 핵점 수)
+$$V_i = \{\, \mathbf{x} : |\mathbf{x} - \mathbf{p}_i| \le |\mathbf{x} - \mathbf{p}_j| \ \text{(모든 } j \ne i\text{)} \,\}$$
 
-4. **거리 장(Distance Field):**
-   - 각 픽셀의 가장 가까운 거리: $d_{\min}(x) = \min_i \|x - p_i\|$
-   - 경계 강조: $d_{\min}$ 값이 임계값 근처일 때 선 그리기
+**(2) 경계선 찾기**: 한 점에서 가장 가까운 씨앗까지의 거리 $d_1$과, 두 번째로 가까운 씨앗까지의 거리 $d_2$를 비교합니다.
 
-### 2. 주요 특징 및 장점
-- **자연성:** 점의 근접성만으로 자연스러운 공간 분할 달성.
-- **쌍대성:** Delaunay와의 수학적 관계로 다양한 응용 가능.
-- **계산 안정성:** 명시적 거리 계산으로 수치적으로 안정적.
-- **시각적 우아함:** 기하학적 순수함, 세포 구조의 자연스러움.
+- $d_2 - d_1$이 작으면, 그 점은 두 영역이 만나는 곳에 가깝습니다.
+- 이 차이가 **경계선 두께** 기준보다 작으면 경계선으로 칠합니다.
 
-### 3. 구현 시 고려 사항
-- **거리 계산 최적화:** Jump Flooding Algorithm (JFA)로 $O(m \log m)$ 달성 (m = 픽셀 수).
-- **경계 표현:** 경계선 두께, 색상, 투명도로 시각적 강조.
-- **핵점 애니메이션:** 핵점을 시간에 따라 이동시키면 동적 Voronoi 생성.
-- **다중 핵점 분포:** 균일 vs. 클러스터링 vs. Poisson 디스크; 각기 다른 시각 효과.
+**(3) 색 정하기**: 경계선이 아닌 칸은 씨앗마다 정해진 밝기로 칠합니다. 씨앗에 가까울수록 밝고, 멀어질수록 어두워집니다.
 
-### 4. 활용 분야
-- **게임 개발:** 영토 분할, 자원 채집점 배치, 지역 선점.
-- **지리정보(GIS):** 주민 할당, 서비스 지역 분석, 건물 배치 계획.
-- **과학 시뮬레이션:** 입자 경계 정의, 메시 생성, 거품 거품 구조.
-- **Generative Art:** 셀룰러 아트, 음악 시각화, 추상 지형.
-- **로보틱스:** 영역 분할 기반 경로 계획, 센서 배치 최적화.
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 씨앗 점을 무작위로 흩뿌립니다.
+2. 화면의 모든 점에 대해 가장 가까운 씨앗과 두 번째로 가까운 씨앗을 찾습니다.
+3. 두 거리 차이가 기준보다 작으면 어두운 선으로 칠합니다.
+4. 나머지 칸은 씨앗의 밝기와 거리에 따라 칠합니다.
+5. 화면을 클릭하면 씨앗을 새로 뿌려서 다시 그립니다.
+
+### 3. 이 알고리즘의 장점
+
+- "가장 가까운 것을 고른다"는 한 가지 규칙으로 **공간을 나누는** 방법을 배울 수 있습니다.
+- 게임 맵에서 가장 가까운 기지를 찾는 문제 등에 씁니다.
+
+### 4. 구현할 때 주의할 점
+
+- 씨앗이 많아질수록 계산이 늘어납니다. 모든 점마다 모든 씨앗을 확인하기 때문입니다.
+- 경계선 두께는 화면 픽셀 기준이라, 화면을 키우면 선도 함께 두꺼워 보입니다.
+
+### 5. 활용 분야
+
+- **게임과 지도**: 가장 가까운 영역 나누기, 세력권 표시.
+- **자연 무늬**: 세포, 거품, 진흙 균열의 모양 연구.
+- **제너레이티브 아트**: 분할 그림과 추상 패턴.
+
+### 직접 실험해 보기
+
+- **Seed 개수**를 10과 150으로 바꿔 보세요. 영역이 크고 적은 모양과 작고 많은 모양을 비교해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **경계선 두께**를 0.5와 3으로 바꿔 보세요. 경계선이 얇아지거나 굵어지는 것을 확인해 보세요. 이 값도 바꾸면 다시 시작합니다.
+- 화면을 클릭해서 씨앗을 새로 뿌려 보세요. 같은 설정에서도 무늬가 매번 달라지는 것을 확인할 수 있습니다.
 
 <!-- en -->
 
-Voronoi Diagram is a fundamental geometric partition of a plane into regions based on proximity to specific seed points. Each region (Voronoi cell) contains all locations closer to its seed than to any other seed. The boundaries are the perpendicular bisectors of seed pairs. Voronoi Diagrams model natural spatial distribution: giraffe spots, dragonfly wing cells, dried mud cracks, foam structures, and even galactic superclusters exhibit Voronoi-like patterns. This implementation animates moving seeds, creating a dynamic, flowing geometric cellular mesh that reveals how local proximity rules govern global structure.
+**Voronoi Diagram** divides a plane into regions around seed points. Every point belongs to the region of its nearest seed. The borders between regions are the places where two seeds are equally close. Cells, soap bubbles, and cracked mud often show this pattern.
+
+**How it works.** For each pixel, the sketch finds the nearest seed and the second-nearest seed. If their distances are almost the same, the pixel lies on a border and is drawn dark. Other pixels are colored by their seed, and they get brighter near the seed.
+
+**Try it.** Change the number of seeds and the border thickness, or click the canvas to make a new pattern.

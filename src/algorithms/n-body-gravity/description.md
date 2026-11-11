@@ -1,52 +1,54 @@
-**N-Body Gravity**(N체 중력)는 우주의 모든 입자가 서로 **뉴턴의 만유인력**으로 상호작용하는 역학계를 시뮬레이션하는 **고전 천체역학** 알고리즘입니다. 각 입자 쌍 사이에 작용하는 인력은 **역제곱 법칙(Inverse-Square Law)** $F = \frac{G m_1 m_2}{r^2}$을 따르며, 이를 **시간 적분(Time Integration)** 하여 입자들의 궤도 운동과 장기 동역학을 계산합니다. 중앙에 거대한 질량(항성)이 있고 그 주변을 작은 질량들(행성)이 공전하는 단순한 초기 조건에서도, 입자 간 상호작용으로 인해 안정적인 원형 궤도, 복잡한 타원 궤도, 또는 혼돈스러운 상호작용이 나타납니다.
+**N-Body Gravity**(다체 중력)는 **모든 천체가 서로를 끌어당기는 힘**으로 움직이는 방법입니다. 태양과 행성이 도는 모습이 대표적인 예입니다. 천체가 두 개뿐이면 궤도를 정확히 계산할 수 있지만, 여러 개가 되면 서로의 영향이 얽혀서 예측하기 어려워집니다. 그래서 시뮬레이션으로 확인하는 방법이 많이 쓰입니다.
 
-### 1. 핵심 수학적 원리
-1. **만유인력:**
-   - 두 질점 $i, j$ 사이의 인력 벡터: $\mathbf{F}_{ij} = G \frac{m_i m_j}{r_{ij}^3} (\mathbf{r}_j - \mathbf{r}_i)$
-   - 여기서:
-     - $G$: 중력 상수
-     - $m_i, m_j$: 질량
-     - $\mathbf{r}_i, \mathbf{r}_j$: 위치 벡터
-     - $r_{ij} = \|\mathbf{r}_j - \mathbf{r}_i\|$: 거리
+### 1. 핵심 원리
 
-2. **뉴턴의 제2법칙:**
-   - 입자 $i$의 가속도: $\mathbf{a}_i = \sum_{j \neq i} \frac{\mathbf{F}_{ij}}{m_i}$
-   - 벡터 합으로 모든 이웃 입자의 중력 누적
+**(1) 만유인력**: 두 천체는 서로를 질량의 곱에 비례하고 거리의 제곱에 반비례하는 힘으로 끌어당깁니다.
 
-3. **특이점 회피(Softening):**
-   - 두 입자가 매우 가까워지면 인력이 무한대로 발산하는 문제 해결:
-   - 수정된 거리: $r_{ij}' = \sqrt{r_{ij}^2 + \epsilon^2}$ (여기서 $\epsilon$은 작은 값)
-   - 이로써 수치 안정성 향상
+$$F = G\,\frac{m_1 m_2}{r^2}$$
 
-4. **시간 적분(Time Integration):**
-   - 속도 갱신: $\mathbf{v}_i(t+\Delta t) = \mathbf{v}_i(t) + \mathbf{a}_i(t) \Delta t$
-   - 위치 갱신: $\mathbf{r}_i(t+\Delta t) = \mathbf{r}_i(t) + \mathbf{v}_i(t+\Delta t) \Delta t$
-   - 보통 **심플렉틱 적분기(Symplectic Integrator)** 사용하여 에너지 보존 개선
+- $G$는 **중력 상수**입니다. 이 값이 클수록 모든 천체가 세게 끌어당깁니다.
+- $m_1$, $m_2$는 두 천체의 질량입니다.
+- $r$은 두 천체 사이의 거리입니다.
 
-5. **궤도의 특성:**
-   - 원형 궤도: 특정 반지름에서 원심력과 중력이 정확히 균형
-   - 타원 궤도: 장축과 단축을 가진 닫힌 궤도 (케플러 법칙)
-   - 쌍곡선 궤도: 열린 궤도 (에너지 > 0)
+**(2) 특이점 방지**: 두 천체가 아주 가까워지면 거리가 0에 가까워져서 힘이 무한히 커집니다. 그래서 거리 제곱에 작은 값을 더해서, 힘이 너무 커지지 않도록 막습니다. 이 값을 **특이점 방지 거리**라고 부릅니다.
 
-### 2. 주요 특징 및 장점
-- **물리적 정확성:** 뉴턴 역학을 정확히 시뮬레이션하므로, 실제 천문학적 시스템과 일치합니다.
-- **복잡계 동역학:** 3체 이상의 상호작용에서 혼돈적 행동이 나타나며, 장기 예측이 불가능합니다.
-- **우주적 스케일의 대칭성:** 입자 간 상호작용이 대칭적이므로, 운동량과 에너지가 보존됩니다.
-- **시각적 미감:** 입자들이 궤도를 그리는 모습이 극도로 아름답고, 우주의 질서를 시각화합니다.
+**(3) 시간에 따라 움직이기**: 힘을 질량으로 나누면 가속도가 됩니다. 가속도로 속도를 바꾸고, 속도로 위치를 바꿉니다. 이 과정을 매 프레임 반복합니다.
 
-### 3. 구현 시 고려 사항
-- **계산 복잡도:** 모든 입자 쌍의 상호작용 계산은 $O(n^2)$이므로, 입자 수 증가 시 빠르게 느려집니다. 병렬화 또는 Barnes-Hut 알고리즘 같은 근사 방법 고려.
-- **수치 안정성:** softening 거리와 시간 스텝을 신중히 선택하여 수치 오차 관리.
-- **초기 조건의 중요성:** 원형 궤도를 위한 정확한 초기 속도 계산이 필수.
-- **장기 시뮬레이션:** 에너지 보존 확인으로 계산의 정확성 검증.
+### 2. 이 시뮬레이션의 작동 순서
 
-### 4. 활용 분야
-- **천문학 교육:** 행성 궤도, 이진 항성계, 은하계 충돌 시뮬레이션.
-- **게임 개발:** 우주 게임의 중력 기반 게임플레이, 행성 시스템 자동 생성.
-- **물리 시뮬레이션:** 입자군의 상호작용, 먼지 구름 형성, 물질 응집 과정.
-- **Generative Art:** 궤도 자체를 예술로 표현하는 추상 작품, 우주적 패턴.
-- **과학 커뮤니케이션:** 일반인을 위한 우주 역학 시각화 도구.
+1. 가운데에 큰 **항성**을 놓습니다.
+2. 주변에 **행성**을 여러 개 무작위 거리에 놓습니다. 행성에는 궤도를 돌 수 있을 만큼의 속도를 줍니다.
+3. 매 프레임 모든 쌍의 천체 사이 힘을 계산합니다.
+4. 힘에 따라 속도와 위치를 바꿉니다.
+5. 천체를 그립니다. 흔적(궤적)이 조금씩 남습니다.
+
+### 3. 이 알고리즘의 장점
+
+- **천체의 움직임**을 간단한 힘의 법칙으로 흉내 낼 수 있습니다.
+- 중력 상수나 질량을 바꾸면 **궤도가 얼마나 빨리 도는지, 얼마나 흔들리는지**를 바로 볼 수 있습니다.
+- 물리 법칙을 코드로 옮기는 연습에 좋습니다.
+
+### 4. 구현할 때 주의할 점
+
+- 모든 쌍을 계산하므로 천체가 많아지면 계산이 크게 늘어납니다. 천체 수가 두 배가 되면 계산은 약 네 배가 됩니다.
+- 특이점 방지 거리가 너무 작으면 천체가 가까이 지날 때 튕겨 나가는 움직임이 과하게 보일 수 있습니다.
+
+### 5. 활용 분야
+
+- **천문학**: 행성계, 성단의 움직임 연구.
+- **게임과 영상**: 우주 배경과 궤도 효과.
+- **제너레이티브 아트**: 궤도를 그리는 추상 작품.
+
+### 직접 실험해 보기
+
+- **중력 상수**를 0.2와 2.0으로 바꿔 보세요. 행성이 얼마나 빨리 도는지 비교해 보세요. 이 값은 재시작 없이 바로 반영됩니다.
+- **항성 질량**을 500과 2000으로 바꿔 보세요. 질량이 클수록 행성의 궤도가 어떻게 달라지는지 확인해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **행성 개수**를 20과 150으로 바꿔 보세요. 행성이 많아질 때 궤도가 어떻게 얽히는지 살펴보세요. 이 값도 바꾸면 다시 시작합니다.
 
 <!-- en -->
 
-N-Body Gravity simulates the dynamics where every particle attracts every other particle through universal gravitation. An inverse-square force (F = G·m₁·m₂/r²) acts between each pair, and orbital motion is computed through time integration. Small masses (planets) orbit around a central large mass (star), producing stable circular orbits, elliptical paths, or chaotic interactions depending on initial conditions.
+**N-Body Gravity** simulates many bodies that all pull on each other. The Sun and planets are a familiar example. With only two bodies, the orbits can be calculated exactly. With many bodies, their pulls tangle together, which is why simulation is a useful way to explore them.
+
+**How it works.** Each pair of bodies attracts with a force that grows with their masses and shrinks with the square of their distance. A small softening value keeps the force from becoming infinite when two bodies get very close. Each frame, the force on every body changes its velocity, and the velocity moves the body.
+
+**Try it.** Change the gravitational constant and the star's mass to see how fast the planets orbit.

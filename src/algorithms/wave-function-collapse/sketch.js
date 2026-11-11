@@ -94,13 +94,8 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
           if (compatible(cell.value, opt, n.dir)) allowed.push(opt)
         }
 
-        if (allowed.length === 0) {
-          nCell.options = []
-          for (let t = 0; t < TILES.length; t++) {
-            for (let w = 0; w < TILES[t].weight; w++) nCell.options.push(t)
-          }
-          continue
-        }
+        // 모순: 이 칸에 맞는 타일이 하나도 없다. 이웃과 맞는 그림을 만들 수 없으므로 실패를 알린다.
+        if (allowed.length === 0) return false
 
         let oldLen = nCell.options.length
         nCell.constrain(allowed)
@@ -109,6 +104,7 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
         }
       }
     }
+    return true
   }
 
   function initGrid() {
@@ -184,7 +180,11 @@ export default function waveFunctionCollapseSketch(p, size, params = {}) {
         grid[idx].collapse()
         let i = idx % gridSize
         let j = p.floor(idx / gridSize)
-        propagate(i, j)
+        // 모순이 생기면 이번 시도는 실패. 잠시 보여 준 뒤 처음부터 다시 시작한다 (draw의 재시작 분기).
+        if (!propagate(i, j)) {
+          finished = true
+          restartTimer = p.millis()
+        }
       } else {
         finished = true
         restartTimer = p.millis()

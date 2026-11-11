@@ -1,46 +1,53 @@
-**Poisson Disk Sampling**(푸아송 원판 샘플링)은 **최소 간격 제약**을 만족하면서 **균일하게 공간을 채우는** 점 분포를 생성하는 알고리즘입니다. 완전 무작위 분포는 점들이 뭉쳐있는 클러스터링 현상을 보이고, 규칙적 격자(Grid)는 부자연스러운 주기성을 갖는 반면, Poisson Disk Sampling은 두 극단 사이의 **최적 균형**을 달성합니다. 이는 **청색 소음(Blue Noise)** 스펙트럼 특성을 가지며, 자연계의 나무 배치, 털 분포, 신경 세포 배열 등을 정확히 모델링합니다. **Bridson 알고리즘**은 활성 목록(Active List)과 공간 해시 그리드(Spatial Hash Grid)를 사용하여 선형 시간 복잡도로 효율적 구현을 제공합니다.
+**Poisson Disk Sampling**(푸아송 디스크 샘플링)은 **점들이 서로 최소 거리 이상 떨어지도록** 무작위로 흩뿌리는 방법입니다. 완전히 무작위로 찍으면 점이 한곳에 뭉치거나 빈 곳이 생기지만, 이 방법은 점들이 고르게 퍼진 모양을 만듭니다. 이런 분포를 **블루 노이즈**라고 부르며, 자연스러운 배치에 많이 씁니다.
 
-### 1. 핵심 수학적 원리
-1. **최소 거리 제약:**
-   - 모든 점 쌍 $(p_i, p_j)$ 사이: $\|p_i - p_j\| \geq d_{\min}$
-   - 결과: 점들이 서로 $d_{\min}$ 반경 내에 다른 점 불가
+### 1. 핵심 원리
 
-2. **Bridson 알고리즘:**
-   - 입력: 캔버스 크기, 최소 거리 $r$, 후보 시도 횟수 $k$
-   - 셀 크기: $s = r / \sqrt{2}$ (격자)
-   - 활성 목록: 최근 추가된 점들 관리
+이 예제는 브리드슨(Bridson)의 방법을 씁니다.
 
-3. **알고리즘 단계:**
-   1. 첫 점을 무작위로 선택하여 활성 목록에 추가
-   2. 활성 목록에서 무작위로 점 선택
-   3. 그 점으로부터 거리 $[r, 2r]$ 범위, 무작위 각도에서 후보점 생성 ($k$번 시도)
-   4. 후보점이 모든 기존 점과 $\geq r$ 거리를 유지하면 채택, 활성 목록에 추가
-   5. $k$번 실패하면 점을 활성 목록에서 제거
-   6. 활성 목록이 비울 때까지 반복
+**(1) 시작**: 가운데 근처에 점 하나를 놓고, 이 점을 "아직 이웃을 찾는 중인 점"의 목록에 넣습니다.
 
-4. **공간 해시 그리드:**
-   - 각 셀은 반경 $r$ 내 점들을 저장
-   - 후보점의 유효성 확인: 주변 8개 셀의 점들과만 거리 비교
+**(2) 후보 찾기**: 목록에서 점 하나를 골라서, 그 점 주변 **최소 거리와 그 두 배 사이의 고리 모양 영역**에 후보 위치를 여러 개(후보 생성 시도 횟수) 만듭니다.
 
-### 2. 주요 특징 및 장점
-- **청색 소음(Blue Noise):** 저주파 클러스터링 없고 고주파 깍둑거림도 없는 최적 분포.
-- **자연성:** 나무숲, 별빛, 식생 패턴 등 자연의 균형 잡힌 배치를 모델링.
-- **효율성:** $O(n)$ 시간 복잡도로 빠른 생성 가능.
-- **시각적 우아함:** 규칙적이면서도 유기적인 느낌의 분포.
+**(3) 검사**: 후보 위치에서 **최소 거리 안에 다른 점이 없으면** 새 점으로 받아들입니다. 받아들인 점은 목록에 추가합니다.
 
-### 3. 구현 시 고려 사항
-- **최소 거리 $r$:** 작으면 더 많은 점, 크면 희박; 보통 공간 크기의 5~10%.
-- **후보 시도 횟수 $k$:** 크면 더 조밀하지만 느림; 보통 30~50회.
-- **공간 해시 최적화:** 셀 크기 정확히 설정하면 이웃 탐색 효율 극대화.
-- **경계 처리:** 경계 근처 점들의 불균형; 순환 경계(Toroidal) 사용으로 완화.
+**(4) 퇴장**: 후보를 모두 시도했는데 하나도 받아들여지지 않으면, 그 점은 목록에서 뺍니다.
 
-### 4. 활용 분야
-- **절차적 생성:** 게임 맵에 자원, 건물, 몬스터 배치; 자연스러운 분포 보장.
-- **스티플링 & 이미지 처리:** 초상화 점 배치, 절반톤(Halftone) 인쇄.
-- **데이터 시각화:** 산점도에서 겹침 제거, 점 표본 다양화.
-- **물리 시뮬레이션:** 입자 초기 배치, 분자 동역학 초기화.
-- **Generative Art:** 식물 배치, 별 분포, 유기적 패턴 생성.
+목록이 빌 때까지 이 과정을 반복하면, 모든 빈 곳에 점이 채워지고 점 사이 거리는 항상 최소 거리 이상이 됩니다.
+
+### 2. 이 시뮬레이션의 작동 순서
+
+1. 가운데 근처에 첫 점을 놓습니다.
+2. 프레임마다 목록에서 점을 몇 개(프레임당 처리 점 수) 골라 후보를 만들고 검사합니다.
+3. 받아들인 점은 원으로 그립니다. 새로 생긴 점일수록 밝고 크게 보입니다.
+4. 모든 점이 완성되면, 각 점 주변에 최소 거리 원을 잠깐 보여 줍니다. 그다음 잠시 뒤에 새로 시작합니다.
+
+### 3. 이 알고리즘의 장점
+
+- **고르게 흩어진 점**을 만들 수 있습니다. 빈 곳과 뭉친 곳이 모두 줄어듭니다.
+- 나무 배치, 식물의 씨앗, 별의 분포처럼 **자연스러운 배치**를 흉내 내기 좋습니다.
+- 점을 하나씩 추가하므로 과정을 단계별로 관찰하기 좋습니다.
+
+### 4. 구현할 때 주의할 점
+
+- **격자**를 써서 검사 범위를 줄입니다. 격자 한 칸의 크기는 최소 거리를 √2로 나눈 값으로 잡으면, 한 칸에 점이 최대 하나만 들어갑니다.
+- **후보 생성 시도 횟수**가 적으면 빈 곳이 많이 남고, 많으면 계산이 늘어납니다.
+
+### 5. 활용 분야
+
+- **게임과 맵**: 나무, 바위, 몬스터의 자연스러운 배치.
+- **그래픽**: 샘플링 노이즈가 적은 점 배치.
+- **제너레이티브 아트**: 고른 점 분포의 추상 작품.
+
+### 직접 실험해 보기
+
+- **최소 점간 거리**를 10과 60으로 바꿔 보세요. 점이 얼마나 촘촘해지는지 비교해 보세요. 이 값은 바꾸면 다시 시작합니다.
+- **후보 생성 시도 횟수**를 10과 50으로 바꿔 보세요. 빈 곳이 얼마나 덜 남는지 관찰해 보세요. 이 값도 바꾸면 다시 시작합니다.
+- **프레임당 처리 점 수**를 1과 20으로 바꿔 보세요. 점이 찍히는 속도가 어떻게 달라지는지 확인해 보세요.
 
 <!-- en -->
 
-Poisson Disk Sampling generates point distributions that maintain minimum distance constraints while uniformly filling space. Unlike pure random (which clusters) or grids (which show artificial periodicity), it achieves optimal balance with blue noise characteristics—a distribution found in nature wherever points naturally repel each other: tree spacing, hair density, and neural distributions. The Bridson algorithm uses an active list and spatial hash grid for O(n) linear-time efficiency, making it practical for real-time generation.
+**Poisson Disk Sampling** scatters random points while keeping every pair of points at least a minimum distance apart. Purely random points clump together or leave gaps, but this method spreads them evenly, which looks natural. Such an even spread is called blue noise.
+
+**How it works.** The sketch starts with one point. It picks an active point and tries several candidate spots in the ring between one and two times the minimum distance. A candidate is accepted only if no point is closer than the minimum distance. When no candidate works, that point is retired. The process ends when no active points remain.
+
+**Try it.** Change the minimum distance and the number of candidate tries to see how dense the points become.
