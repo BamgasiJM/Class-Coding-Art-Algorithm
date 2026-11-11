@@ -1,5 +1,5 @@
 // src/components/HeroSection.jsx
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -31,6 +31,17 @@ export default function HeroSection() {
   const titleRef = useRef();
   const dividerRef = useRef();
   const scrollRef = useRef();
+
+  // 히어로가 화면 밖으로 완전히 나가면 R3F 렌더 루프를 멈춥니다 (파티클 갱신 + 드로우 중단)
+  const [heroVisible, setHeroVisible] = useState(true);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -129,9 +140,10 @@ export default function HeroSection() {
           <Canvas
             camera={{ position: [0, 0, 7], fov: 55 }}
             gl={{ antialias: false }}
+            frameloop={heroVisible ? "always" : "never"}
             style={{ background: "transparent" }}
           >
-            <ParticleBackground />
+            <ParticleBackground active={heroVisible} />
           </Canvas>
         </div>
 

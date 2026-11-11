@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 
 const COUNT = 7000
 
@@ -17,9 +17,18 @@ for (let i = 0; i < COUNT; i++) {
   velocities[i * 2 + 1] = (Math.random() - 0.5) * 0.01
 }
 
-export default function ParticleBackground() {
+// active: 히어로가 화면에 보일 때만 true. Canvas의 frameloop과 함께 쓰여,
+// 화면 밖에서는 파티클 갱신과 GPU 드로우가 멈춥니다.
+export default function ParticleBackground({ active = true }) {
   const meshRef = useRef()
   const materialRef = useRef()
+  const timeRef = useRef(0)
+  const invalidate = useThree((state) => state.invalidate)
+
+  // frameloop이 'never'였다가 'always'로 바뀌면 렌더 루프가 자동으로 재시작되지 않으므로 한 번 깨워 줍니다.
+  useEffect(() => {
+    if (active) invalidate()
+  }, [active, invalidate])
 
   useEffect(() => {
     if (!materialRef.current) return
@@ -37,8 +46,11 @@ export default function ParticleBackground() {
     return () => clearTimeout(timeout)
   }, [])
 
-  useFrame(({ clock }) => {
-    const t   = clock.getElapsedTime() * 0.25
+  useFrame((_, delta) => {
+    // clock 대신 누적 델타를 씁니다. frameloop 전환 시 clock이 0으로 리셋되어
+    // 재개할 때 흐름 패턴이 튀는 것을 막습니다. 긴 프레임 간격은 잘라서 점프를 방지합니다.
+    timeRef.current += Math.min(delta, 0.05)
+    const t   = timeRef.current * 0.25
     const pos = meshRef.current.geometry.attributes.position.array
 
     for (let i = 0; i < COUNT; i++) {
