@@ -57,41 +57,100 @@ export default function AlgorithmDetailPage() {
   }
 
   return (
-    <section
-      style={{
-        padding: "clamp(3rem, 8vw, 5rem) clamp(1.5rem, 8vw, 7rem)",
-        minHeight: "100vh",
-      }}
-    >
-      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
-        {/* 뒤로가기 버튼 */}
-        <button
-          onClick={() => navigate("/", { state: { scrollTo: "algorithms" } })}
+    <>
+      {/* 상단 고정 바 (스크롤해도 항상 보임): 뒤로가기 + 현재 알고리즘 번호와 이름 */}
+      <div
+        style={{
+          position: "sticky",
+          top: "env(safe-area-inset-top, 0px)",
+          zIndex: 50,
+          background: "var(--bg)",
+          borderBottom: "1px solid var(--border)",
+          paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))",
+          paddingBottom: "0.75rem",
+          paddingLeft: "clamp(1.5rem, 8vw, 7rem)",
+          paddingRight: "clamp(1.5rem, 8vw, 7rem)",
+        }}
+      >
+        <div
           style={{
-            background: "none",
-            border: "1px solid var(--muted)",
-            color: "var(--muted)",
-            padding: "0.6rem 1.2rem",
-            cursor: "pointer",
-            fontSize: "0.75rem",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            marginBottom: "3rem",
-            transition: "all 0.25s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.borderColor = "var(--accent)";
-            e.target.style.color = "var(--accent)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.borderColor = "var(--muted)";
-            e.target.style.color = "var(--muted)";
+            maxWidth: 1400,
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            gap: "1.2rem",
+            minWidth: 0,
           }}
         >
-          ← Back
-        </button>
+          <button
+            onClick={() => navigate("/", { state: { scrollTo: "algorithms" } })}
+            style={{
+              background: "none",
+              border: "1px solid var(--muted)",
+              color: "var(--muted)",
+              padding: "0.5rem 1rem",
+              cursor: "pointer",
+              fontSize: "0.75rem",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              flexShrink: 0,
+              transition: "all 0.25s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.color = "var(--accent)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--muted)";
+              e.currentTarget.style.color = "var(--muted)";
+            }}
+          >
+            ← Back
+          </button>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: "0.8rem",
+              minWidth: 0,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.75rem",
+                letterSpacing: "0.15em",
+                color: "var(--accent)",
+                flexShrink: 0,
+              }}
+            >
+              {algorithm.no}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "clamp(1.3rem, 2.5vw, 1.7rem)",
+                letterSpacing: "0.03em",
+                color: "var(--fg)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {algorithm.name}
+            </span>
+          </div>
+        </div>
+      </div>
 
-        {/* 알고리즘 헤더 */}
+      <section
+        style={{
+          padding: "clamp(3rem, 8vw, 5rem) clamp(1.5rem, 8vw, 7rem)",
+          minHeight: "100vh",
+        }}
+      >
+        <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+          {/* 알고리즘 헤더 */}
         <div style={{ marginBottom: "3rem" }}>
           <p
             style={{
@@ -196,7 +255,7 @@ export default function AlgorithmDetailPage() {
                   textTransform: "uppercase",
                 }}
               >
-                Overview
+                Description
               </h2>
               <div style={{ maxWidth: "800px" }}>
                 {detail ? (
@@ -298,6 +357,7 @@ export default function AlgorithmDetailPage() {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 }

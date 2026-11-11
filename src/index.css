@@ -92,7 +92,8 @@ body {
 
 .algorithm-visualization {
   position: sticky;
-  top: 0;
+  /* 상단 고정 바(약 4rem) 아래에 붙도록 여유를 둔다 */
+  top: 5rem;
   height: fit-content;
 }
 
