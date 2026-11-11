@@ -71,16 +71,18 @@ GSAP-driven animated cursor (accent-colored dot) that tracks the mouse. **Mounte
 
 #### HeroSection (src/components/HeroSection.jsx)
 The landing section with animated hero content and 3D particle background:
-- **R3F Canvas**: Renders 5,000 particles using Flow Field algorithm in real-time
+- **R3F Canvas**: Renders 7,000 points moved by a Flow Field-style noise field, updated on the CPU every frame. The render loop is paused (`frameloop="never"`) while the hero is off-screen, so it costs nothing once scrolled past.
 - **GSAP Timeline**: Sequences the tagline → divider → character-by-character title animation
 - **ScrollTrigger**: Hero content fades out on scroll (fade completes at `80% top` — intentionally late)
 - **Particle Background**: Handled by separate ParticleBackground component
 
 #### ParticleBackground (src/components/canvas/ParticleBackground.jsx)
 R3F component implementing a Flow Field-based particle system:
-- 5,000 particles rendered as instanced geometries
-- Particles move based on Perlin noise-influenced velocity fields
-- Uses Three.js shaders for GPU-accelerated updates
+- 7,000 points rendered as one `THREE.Points` geometry (a `bufferAttribute` of positions)
+- Points move along a sin/cos angle field that changes over time (a Flow Field-style motion)
+- Positions are updated in JavaScript inside `useFrame` every frame and re-uploaded. This is CPU work, not a GPU shader.
+- Time advances by an accumulated, clamped delta rather than `clock`, so resuming after a pause does not jump the motion.
+- Accepts an `active` prop. HeroSection passes whether the hero is on-screen, and the Canvas `frameloop` follows it.
 - Imported and rendered as `<Canvas>` within HeroSection
 
 #### AlgorithmSection (src/components/AlgorithmSection.jsx)
@@ -91,7 +93,7 @@ Grid-based card display of the generative art algorithms:
   ```
 - **Grid Layout**: CSS Grid with `repeat(auto-fill, minmax(260px, 1fr))` — auto-wraps as viewport changes
 - **Uniform Card Heights**: Flexbox layout with `flex: 1` on description area ensures all cards match height regardless of text length
-- **Scroll-Triggered Animations**: IntersectionObserver detects card entry into viewport, GSAP animates cards sliding up from below
+- **Scroll-Triggered Animations**: One IntersectionObserver watches the whole grid (not one per card). Cards that enter together are revealed by GSAP with a short stagger (0.05s apart, at most 0.3s total), so a card never waits for its position in the full list. The observer uses a 15% bottom `rootMargin`, so cards start animating just before they reach the viewport edge. Each card is unobserved after it reveals.
 - **Interactive Hover**: Border and title text color shift to accent color
 - **Checkbox Toggle**: Each card has a clickable checkbox; toggles accent fill to mark algorithms discussed in presentations. The checkbox's `onClick` calls `e.preventDefault()` + `e.stopPropagation()` so clicking it does NOT trigger the card's `<Link>` navigation.
 - **Clickable Cards**: Each card root is a `<Link to={`/algorithm/${slugify(algo.name)}`}>` (with `textDecoration: none; color: inherit`). The `<section>` has `id="algorithms"` so the detail page's back button can scroll here (see below).
@@ -188,6 +190,11 @@ To flesh out a card's detail page:
 
 That's it — AlgorithmDetailPage picks it up by slug. If `params` is present, it renders `<Playground>` with sliders; otherwise just `<P5Canvas>`. No routing changes needed.
 
+**Keep the parameters few.** The site is used in class, so aim for 3–4 sliders per algorithm:
+- Expose only parameters that visibly change the result. Leave the rest at their defaults in `sketch.js`.
+- Remove a slider rather than keep one that does nothing or has no visible effect.
+- Set `restart: true` only when the sketch reads the value in `setup` (or builds its structure from it). A value read every frame in `draw` should be `restart: false`. A value read only in `setup` but marked `restart: false` looks broken: moving the slider changes nothing until the next restart.
+
 ### Algorithm Descriptions (`description.md`)
 
 Each algorithm's detail text is one file: `src/algorithms/<slug>/description.md`. The Korean text comes first, then a line containing only `<!-- en -->`, then the English text. `index.js` loads it with `import descriptionMd from './description.md?raw'` and `parseDescription` (`src/algorithms/parseDescription.js`), which splits on the marker and returns `{ ko, en }`. Both strings are rendered by `react-markdown` in `AlgorithmDetailPage.jsx` (with `remark-math` + `rehype-katex` for math, and `katex/dist/katex.min.css` imported there). Styling lives in `index.css` under `.markdown-body` (`--primary` = ko/`--fg`, `--muted` = en/`--muted`). Headings (`##`/`###`), bold, lists, inline code, and LaTeX math (`$...$` inline, `$$...$$` block) all work.
@@ -217,7 +224,7 @@ Writing rules for `description.md`:
 ### Animation Approach
 - **GSAP Timeline**: For sequenced, orchestrated animations (HeroSection title reveal)
 - **ScrollTrigger**: For scroll-linked fades and parallax (hero fade-out on scroll)
-- **IntersectionObserver + GSAP**: For scroll-triggered card reveals (AlgorithmSection cards)
+- **IntersectionObserver + GSAP**: For scroll-triggered card reveals (AlgorithmSection cards, one shared observer for the grid)
 - **Inline Hover & Click**: Pure CSS or React state for instant feedback (checkbox, hover effects)
 
 ### Style Organization
@@ -233,7 +240,7 @@ Global styles in `src/index.css`:
 ## Performance Notes
 
 - **THREE.Clock Deprecation Warning**: Browser console may show `THREE.Clock: This module has been deprecated` — this is from R3F internals and does not affect functionality; will resolve with R3F updates.
-- **Particle Rendering**: 7,000 particles are GPU-accelerated via Three.js instancing; no performance issues on modern hardware.
+- **Particle Rendering**: The hero's 7,000 points are updated on the CPU each frame (see ParticleBackground). The render loop stops while the hero is off-screen, so the cost only applies while the hero is visible.
 - **ScrollTrigger & GSAP**: Animations are GPU-optimized (transform/opacity); minimal reflow/repaint.
 
 ---
